@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="description" content="{{serviceName}} web client">
+    <meta name="author" content="Andris Reinman">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+
+    <title>{{serviceName}}
+        {{#if title}} | {{title}}{{/if}}
+    </title>
+
+    <link rel="stylesheet" href="/bootstrap-3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap-3.3.7/css/bootstrap-theme.min.css">
+    <link href="/css/wildduck.css" rel="stylesheet">
+    <link href="/css/popup.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="form-popup">
+            {{{body}}}
+        </div>
+
+    </div>
+    <!-- /container -->
+
+    <footer class="footer">
+        <div class="container">
+            <p class="text-muted">&copy; 2017 <a href="/">{{serviceName}}</a>. <a href="mailto:info@{{serviceDomain}}">info@{{serviceDomain}}</a>. </p>
+        </div>
+    </footer>
+
+    <script src="/jquery-3.1.1/jquery.min.js"></script>
+    <script src="/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+</body>
+
+</html>

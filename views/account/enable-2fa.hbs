@@ -1,0 +1,34 @@
+<form method="post" action="/account/enable-2fa">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Two factor authentication</h3>
+        </div>
+        <div class="panel-body">
+
+            <p>
+                Scan the code with an authenticator app and enter resulting security code below to verify
+            </p>
+
+            <p class="lead text-center">
+                <img src="{{imageUrl}}" style="width: 200px;" width="200">
+            </p>
+
+            <div class="form-group{{#if errors.token}} has-error{{/if}}">
+                <label for="token">Security code</label>
+                <input type="number" class="form-control" name="token" id="token" placeholder="6 digit code" required autofocus>
+                {{#if errors.token}}
+                    <span class="help-block">{{errors.token}}</span>
+                {{/if}}
+            </div>
+
+            <p>
+                <div class="pull-right">
+                    <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Verify</button>
+                </div>
+                <a href="/account/security"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> Go back</a>
+            </p>
+        </div>
+    </div>
+</form>

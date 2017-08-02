@@ -1,0 +1,153 @@
+<div class="row">
+    <div class="col-md-12">
+        <h1><span class="glyphicon glyphicon-user" aria-hidden="true"></span> Help</h1>
+    </div>
+</div>
+
+<h2>Account configuration</h2>
+
+<table class="table table-responsive table-bordered">
+    <thead>
+        <tr>
+            <th>
+                &nbsp;
+            </th>
+            <th>
+                IMAP
+            </th>
+            <th>
+                POP3
+            </th>
+            <th>
+                SMTP
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th>
+                Description
+            </th>
+            <td>
+                Access all messages and mailboxes
+            </td>
+            <td>
+                Access INBOX
+            </td>
+            <td>
+                Send messages
+            </td>
+        </tr>
+        {{#if user}}
+            <tr>
+                <th>
+                    E-mail address
+                </th>
+                <td>
+                    {{user.username}}@{{serviceDomain}}
+                </td>
+                <td>
+                    {{user.username}}@{{serviceDomain}}
+                </td>
+                <td>
+                    {{user.username}}@{{serviceDomain}}
+                </td>
+            </tr>
+        {{/if}}
+        <tr>
+            <th>
+                Server
+            </th>
+            <td>
+                {{setup.imap.hostname}}
+            </td>
+            <td>
+                {{setup.pop3.hostname}}
+            </td>
+            <td>
+                {{setup.smtp.hostname}}
+            </td>
+        </tr>
+        <tr>
+            <th>
+                Port
+            </th>
+            <td>
+                {{setup.imap.port}}
+            </td>
+            <td>
+                {{setup.pop3.port}}
+            </td>
+            <td>
+                {{setup.smtp.port}}
+            </td>
+        </tr>
+        <tr>
+            <th>
+                Security
+            </th>
+            <td>
+                {{#if setup.imap.secure}}
+                    TLS/SSL
+                {{else}}
+                    STARTTLS
+                {{/if}}
+            </td>
+            <td>
+                {{#if setup.pop3.secure}}
+                    TLS/SSL
+                {{else}}
+                    STARTTLS
+                {{/if}}
+            </td>
+            <td>
+                {{#if setup.smtp.secure}}
+                    TLS/SSL
+                {{else}}
+                    STARTTLS
+                {{/if}}
+            </td>
+        </tr>
+        <tr>
+            <th>
+                Username
+            </th>
+            {{#if user}}
+                <td>
+                    {{user.username}}
+                </td>
+                <td>
+                    {{user.username}}
+                </td>
+                <td>
+                    {{user.username}}
+                </td>
+
+            {{else}}
+                <td>
+                    Your username
+                </td>
+                <td>
+                    Your username
+                </td>
+                <td>
+                    Your username
+                </td>
+            {{/if}}
+        </tr>
+        <tr>
+            <th>
+                Password
+            </th>
+            <td>
+                ********
+            </td>
+            <td>
+                ********
+            </td>
+            <td>
+                ********
+            </td>
+        </tr>
+    </tbody>
+</table>

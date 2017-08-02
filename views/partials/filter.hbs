@@ -1,0 +1,149 @@
+<div class="row">
+    <div class="col-md-6">
+
+        <div class="panel panel-default">
+            <div class="panel-heading">Search messages by:</div>
+            <div class="panel-body">
+
+                <div class="form-group{{#if errors.query_from}} has-error{{/if}}">
+                    <label for="query_from">From</label>
+                    <input type="text" class="form-control input-sm" name="query_from" id="query_from" value="{{values.query_from}}">
+                    {{#if errors.query_from}}
+                        <span class="help-block">{{errors.query_from}}</span>
+                    {{/if}}
+                </div>
+
+                <div class="form-group{{#if errors.query_to}} has-error{{/if}}">
+                    <label for="query_to">To</label>
+                    <input type="text" class="form-control input-sm" name="query_to" id="query_to" value="{{values.query_to}}">
+                    {{#if errors.query_to}}
+                        <span class="help-block">{{errors.query_to}}</span>
+                    {{/if}}
+                </div>
+
+                <div class="form-group{{#if errors.query_subject}} has-error{{/if}}">
+                    <label for="query_subject">Subject</label>
+                    <input type="text" class="form-control input-sm" name="query_subject" id="query_subject" value="{{values.query_subject}}">
+                    {{#if errors.query_subject}}
+                        <span class="help-block">{{errors.query_subject}}</span>
+                    {{/if}}
+                </div>
+
+                <div class="form-group{{#if errors.query_text}} has-error{{/if}}">
+                    <label for="query_text">Includes the words</label>
+                    <input type="text" class="form-control input-sm" name="query_text" id="query_text" value="{{values.query_text}}">
+                    {{#if errors.query_text}}
+                        <span class="help-block">{{errors.query_text}}</span>
+                    {{/if}}
+                </div>
+
+                <div class="form-group{{#if errors.query_ha}} has-error{{/if}}">
+                    <label>Attachments</label>
+                    <div>
+                        <label class="checkbox-inline">
+                        <input type="checkbox" name="query_haYes" id="query_haYes" value="true" {{#if values.query_haYes}}checked{{/if}}> Has attachments
+                    </label>
+                        <label class="checkbox-inline">
+                      <input type="checkbox" name="query_haNo" id="query_haNo" value="true" {{#if values.query_haNo}}checked{{/if}}> Doesn't have attachments
+                    </label>
+                    </div>
+                    {{#if errors.query_ha}}
+                        <span class="help-block">{{errors.query_ha}}</span>
+                    {{/if}}
+                </div>
+
+                <div class="form-group{{#if errors.query_size}} has-error{{/if}}">
+                    <label for="query_sizeValue">Size</label>
+                    <div class="form-inline">
+                        <div class="form-group">
+                            <span>Message size is</span>
+                            <select class="form-control input-sm" id="query_sizeType" name="query_sizeType">
+                            <option value="1" {{#if values.query_sizeTypeGt}}selected{{/if}}>greater than</option>
+                            <option value="-1" {{#if values.query_sizeTypeLt}}selected{{/if}}>smaller than</option>
+                        </select>
+                        </div>
+                        <div class="form-group">
+                            <input type="number" class="form-control input-sm" id="query_sizeValue" name="query_sizeValue" value="{{values.query_sizeValue}}">
+                        </div>
+                        <div class="form-group">
+                            <select class="form-control input-sm" id="query_sizeUnit" name="query_sizeUnit">
+                            <option value="MB" {{#if values.query_sizeUnitMB}}selected{{/if}}>MB</option>
+                            <option value="kB" {{#if values.query_sizeUnitKB}}selected{{/if}}>kB</option>
+                            <option value="B" {{#if values.query_sizeUnitB}}selected{{/if}}>baiti</option>
+                        </select>
+                        </div>
+                    </div>
+                    {{#if errors.query_size}}
+                        <span class="help-block">{{errors.query_size}}</span>
+                    {{/if}}
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">When a message arrives that matches this search:</div>
+            <div class="panel-body">
+                <div class="checkbox">
+                    <label>
+                      <input type="checkbox" name="action_seenYes" id="action_seenYes" value="true" {{#if values.action_seenYes}}checked{{/if}}> Mark as seen
+                    </label>
+                </div>
+
+                <div class="checkbox">
+                    <label>
+                      <input type="checkbox" name="action_flagYes" id="action_flagYes" value="true" {{#if values.action_flagYes}}checked{{/if}}> Flag it
+                    </label>
+                </div>
+
+                <div class="form-group{{#if errors.action_mailbox}} has-error{{/if}}">
+                    <label for="action_mailbox">Move to mailbox:</label>
+                    <select class="form-control input-sm" id="action_mailbox" name="action_mailbox">
+                        <option value=""></option>
+                        {{#each mailboxes}}
+                            <option value="{{id}}" {{#if selected}}selected{{/if}}>{{path}}</option>
+                        {{/each}}
+                    </select>
+                    {{#if errors.action_mailbox}}
+                        <span class="help-block">{{errors.action_mailbox}}</span>
+                    {{/if}}
+                </div>
+
+                <div class="form-group{{#if errors.action_forward}} has-error{{/if}}">
+                    <label for="action_forward">Forward it to address:</label>
+                    <input type="email" class="form-control input-sm" name="action_forward" id="action_forward" value="{{values.action_forward}}" placeholder="user@example.com">
+                    {{#if errors.action_forward}}
+                        <span class="help-block">{{errors.action_forward}}</span>
+                    {{/if}}
+                </div>
+
+                <div class="form-group{{#if errors.action_targetUrl}} has-error{{/if}}">
+                    <label for="action_targetUrl">Upload to URL:</label>
+                    <input type="url" class="form-control input-sm" name="action_targetUrl" id="action_targetUrl" value="{{values.action_targetUrl}}" placeholder="http://example.com/email.php">
+                    {{#if errors.action_targetUrl}}
+                        <span class="help-block">{{errors.action_targetUrl}}</span>
+                    {{/if}}
+                </div>
+
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="action_spamYes" id="action_spamYes" value="true" {{#if values.action_spamYes}}checked{{/if}}> Mark as spam
+                    </label>
+                </div>
+
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="action_spamNo" id="action_spamNo" value="true" {{#if values.action_spamNo}}checked{{/if}}> Don't mark as spam
+                    </label>
+                </div>
+
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="action_deleteYes" id="action_deleteYes" value="true" {{#if values.action_deleteYes}}checked{{/if}}> Delete it
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

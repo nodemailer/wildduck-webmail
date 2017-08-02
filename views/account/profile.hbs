@@ -1,0 +1,112 @@
+<div class="row">
+    <div class="col-md-12">
+        <h1><span class="glyphicon glyphicon-user" aria-hidden="true"></span> Account</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <form method="post" action="/account/profile">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+            <fieldset>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">General</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <div class="form-group">
+                            <label class="control-label">Username</label>
+                            <div class="input-group">
+                                <p class="form-control-static">{{values.username}}</p>
+                            </div>
+                        </div>
+
+                        <div class="form-group{{#if errors.name}} has-error{{/if}}">
+                            <label for="name">Your name</label>
+                            <input type="text" class="form-control" name="name" id="name" placeholder="nt. &quot;Jaan Tamm&quot;" value="{{values.name}}">
+                            {{#if errors.name}}
+                                <span class="help-block">{{errors.name}}</span>
+                            {{/if}}
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Message forwarding</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <p>
+                            Leave the following fields blank if you do not wish to forward all incoming emails
+                        </p>
+
+                        <div class="form-group{{#if errors.forward}} has-error{{/if}}">
+                            <label for="forward">Send incoming messages to address:</label>
+                            <input type="text" class="form-control" name="forward" id="forward" placeholder="user@example.com" value="{{values.forward}}">
+                            {{#if errors.forward}}
+                                <span class="help-block">{{errors.forward}}</span>
+                            {{/if}}
+                        </div>
+
+                        <div class="form-group{{#if errors.targetUrl}} has-error{{/if}}">
+                            <label for="targetUrl">Upload incoming messages to URL:</label>
+                            <input type="text" class="form-control" name="targetUrl" id="targetUrl" placeholder="http://example.com/email.php" value="{{values.targetUrl}}">
+                            {{#if errors.targetUrl}}
+                                <span class="help-block">{{errors.targetUrl}}</span>
+                            {{/if}}
+                        </div>
+
+                    </div>
+                </div>
+
+            </fieldset>
+
+            <fieldset>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Change password</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <p>
+                            Leave the following fields blank if you do not wish to change your password
+                        </p>
+
+                        <div class="form-group{{#if errors.existingPassword}} has-error{{/if}}">
+                            <label for="existingPassword">Current password</label>
+                            <input type="password" class="form-control" name="existingPassword" id="existingPassword" placeholder="nt. &quot;supersecret&quot;">
+                            {{#if errors.existingPassword}}
+                                <span class="help-block">{{errors.existingPassword}}</span>
+                            {{/if}}
+                        </div>
+
+                        <div class="form-group{{#if errors.password}} has-error{{/if}}">
+                            <label for="password">New password</label>
+                            <input type="password" class="form-control" name="password" id="password" placeholder="nt. &quot;supersecret&quot;">
+                            {{#if errors.password}}
+                                <span class="help-block">{{errors.password}}</span>
+                            {{/if}}
+                        </div>
+
+                        <div class="form-group{{#if errors.password}} has-error{{/if}}">
+                            <label for="password2">Repeat password</label>
+                            <input type="password" class="form-control" name="password2" id="password2" placeholder="repeat password">
+                        </div>
+
+                    </div>
+                </div>
+
+            </fieldset>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-success">Update</button>
+            </div>
+
+        </form>
+
+    </div>
+</div>

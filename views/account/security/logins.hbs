@@ -1,0 +1,102 @@
+<div class="row">
+    <div class="col-md-12">
+        <h1><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Security</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class=""><a href="/account/security/">Settings</a></li>
+            <li role="presentation" class="active"><a href="/account/security/logins">Security events</a></li>
+        </ul>
+
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="overview">
+
+                <p>&nbsp;</p>
+
+                <table class="table table-responsive">
+                    <thead>
+                        <tr>
+                            <th>
+                                Action
+                            </th>
+                            <th>
+                                Source
+                            </th>
+                            <th>
+                                ASP
+                            </th>
+                            <th>
+                                Result
+                            </th>
+                            <th>
+                                IP
+                            </th>
+                            <th>
+                                Time
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#if results}}
+
+                            {{#each results}}
+                                <tr>
+                                    <td>
+                                        {{action}}
+                                    </td>
+                                    <td>
+                                        {{protocol}}
+                                    </td>
+                                    <td>
+                                        {{#if asp}}
+                                            {{asp.description}}
+                                        {{else}}
+                                            –
+                                        {{/if}}
+                                    </td>
+                                    <td>
+                                        {{result}}
+                                    </td>
+                                    <td>
+                                        {{ip}}
+                                    </td>
+                                    <td class="datestring" title="{{created}}">
+                                        {{created}}
+                                    </td>
+                                </tr>
+                            {{/each}}
+                        {{else}}
+                            <tr>
+                                <td colspan="6">
+                                    <em>No events found</em>
+                                </td>
+                            </tr>
+                        {{/if}}
+                    </tbody>
+                </table>
+
+                <nav aria-label="nav">
+                    <ul class="pager">
+                        {{#if previousCursor}}
+                            <li class="previous"><a href="/account/security/logins?previous={{previousCursor}}&amp;page={{previousPage}}"><span aria-hidden="true">&larr;</span> Newer</a></li>
+                        {{else}}
+                            <li class="previous disabled"><a href="#"><span aria-hidden="true">&larr;</span> Newer</a></li>
+                        {{/if}}
+
+                        {{#if nextCursor}}
+                            <li class="next"><a href="/account/security/logins?next={{nextCursor}}&amp;page={{nextPage}}">Older <span aria-hidden="true">&rarr;</span></a></li>
+                        {{else}}
+                            <li class="next disabled"><a href="#">Older <span aria-hidden="true">&rarr;</span></a></li>
+                        {{/if}}
+                    </ul>
+                </nav>
+
+            </div>
+        </div>
+    </div>
+</div>

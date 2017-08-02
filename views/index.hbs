@@ -1,0 +1,103 @@
+<div class="row">
+    <div class="col-md-12">
+        <h1><span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> {{serviceName}}</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-7">
+
+        <h4>
+          What is this?
+      </h4>
+
+        <p>
+            <a href="https://github.com/nodemailer/wildduck">Wild Duck</a> is an email server software. This service demonstrates some of the capabilities of Wild Duck.
+        </p>
+
+        <p>
+            <a class="btn btn-info btn-md" href="https://github.com/nodemailer/wildduck" role="button"><span class="glyphicon glyphicon-cloud-download" aria-hidden="true"></span> Source on GitHub</a>
+        </p>
+
+        <p>
+            To test it out create a new account <a href="/account/create">here</a>. This would give you an actual working email address. Next you could try turning on two factor authentication or logging into IMAP with an application specific password.
+        </p>
+
+        <p>
+            This service is just a front-end to <a href="https://github.com/nodemailer/wildduck/wiki/API-Docs">Wild Duck API</a>. The web application does not make any database connections, everything is achieved by using REST API calls.
+        </p>
+
+        <h4>OSX Profile demo</h4>
+        <p>
+            The following video demonstrates:
+        </p>
+        <ul>
+            <li>
+                Creating a new account and logging in
+            </li>
+            <li>
+                Generating a new Application Specific Password
+            </li>
+            <li>
+                Exporting the password as OSX Mobileconfig file to set up OSX/iOS mail applications
+            </li>
+            <li>
+                <a href="https://github.com/nodemailer/wildduck/tree/master/emails">Inserting messages</a> to the INBOX of new users
+            </li>
+        </ul>
+
+        <p>
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/Pld5m9UJ8SE" frameborder="0" allowfullscreen></iframe>
+        </p>
+
+    </div>
+    <div class="col-md-5">
+        <h4>Features</h4>
+        <ul>
+            <li>
+                Generated email address is a real address and can be used with any mail client. IMAP is handled by Wild Duck, MX messages are received by Haraka and outgoing messages are delivered by ZoneMTA.
+            </li>
+            <li>
+                All data is stored in a sharded MongoDB database. If there is not enough space then adding a new shard should fix that
+            </li>
+            <li>
+                Mail daemon processes avoid touching the filesystem (Wild Duck and ZoneMTA do not touch file system after startup, Haraka writes and reads messages from a queue and spool folder) and do not execute any shell commands. Daemon processes run as unprivileged
+                users. All compiled node dependencies are optional and can be removed to avoid potential buffer overflows and such.
+            </li>
+            <li>
+                Messages sent through SMTP are automatically copied to the <em>Sent Mail</em> folder. This mostly affects POP3 users as IMAP clients usually upload the message by themselves
+            </li>
+            <li>
+                When sending, non-authorized From: address in the message header is replaced. <em>"From: User Name &lt;otheruser@domain&gt;"</em> becomes <em>"From: User Name &lt;username@example.com&gt;"</em>
+            </li>
+            <li>
+                Dots in usernames and addresses are ignored. <em>user.name@example.com</em> is the same as <em>username@example.com</em>
+            </li>
+            <li>
+                Labels in incoming email addresses are ignored. <em>user+label@example.com</em> is the same as <em>user@example.com</em>
+            </li>
+            <li>
+                Moving messages to and out of the Junk Mail folder raises a junk status change event for that message. This is currently not used though
+            </li>
+            <li>
+                Enabling TOTP based 2FA disables account password for IMAP, POP3 and SMTP
+            </li>
+            <li>
+                Application Specific Password comes with automatically generated mobileconfig file for iOS/OSX mail applications
+            </li>
+            <li>
+                Incoming messages are checked against user defined filters. Matching messages can be marked as seen or flagged. Messages can be moved to specific mailbox folder. Messages tagged as spam are moved to Junk Mail folder.
+            </li>
+            <li>
+                Messages can be forwarded to another email address or uploaded to an URL account wide (all incoming messages are forwarded) or filter based (only messages matching specific filter are forwarded)
+            </li>
+            <li>
+                All authentication related events are logged and shown in the account security page. This behavior will change in the future as mail clients generate a lot of noise (re-authenticating after short period of time). Such logins should be joined somehow into
+                single events.
+            </li>
+            <li>
+                All new users get <a href="https://github.com/nodemailer/wildduck/tree/master/emails">default emails generated</a> and injected to INBOX as flagged messages.
+            </li>
+        </ul>
+    </div>
+</div>

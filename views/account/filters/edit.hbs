@@ -1,0 +1,17 @@
+<div class="row">
+    <div class="col-md-12">
+        <h1><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Updated filter</h1>
+    </div>
+</div>
+
+<form method="post" action="/account/filters/edit">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+    <input type="hidden" name="id" value="{{values.id}}">
+
+    {{> filter}}
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-filter" aria-hidden="true"></span> Update filter</button>
+    </div>
+
+</form>

@@ -1,0 +1,155 @@
+<div class="row">
+    <div class="col-md-12">
+        <h1><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Security</h1>
+    </div>
+</div>
+
+<form method="post" id="disable-2fa" action="/account/disable-2fa" onsubmit="return confirm('Are you sure?')">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+</form>
+
+<form method="post" id="enable-2fa" action="/account/enable-2fa">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+</form>
+
+<div class="row">
+    <div class="col-md-8">
+
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="/account/security/">Settings</a></li>
+            <li role="presentation" class=""><a href="/account/security/logins">Security events</a></li>
+        </ul>
+
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="overview">
+
+                <p>&nbsp;</p>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Two factor authentication</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <p>
+                            If two factor authentication is enabled, then external applications can not access IMAP, POP3 ja SMTP using the account password and application specific passwords must be generated for these applications.
+                        </p>
+
+                        <hr />
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                {{#if enabled2fa}}
+                                    Two factor authentication is <span class="label label-success"><span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span> ENABLED</span>
+                                {{else}}
+                                    Two factor authentication is <span class="label label-default"><span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span> DISABLED</span>
+                                {{/if}}
+                            </div>
+                            <div class="col-md-4 text-right">
+                                {{#if enabled2fa}}
+                                    <button form="disable-2fa" type="submit" class="btn btn-default"><span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span> Disable</button>
+                                {{else}}
+                                    <button form="enable-2fa" type="submit" class="btn btn-success"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Enable</button>
+                                {{/if}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Application specific passwords</h3></div>
+                    <div class="panel-body">
+                        <p>Here are listed passwords generated for specific applications. If the password is leaked then delete it and generate a new one.</p>
+                    </div>
+                    <table class="table table-responsive">
+                        <thead>
+                            <tr>
+                                <th>
+                                    #
+                                </th>
+                                <th>
+                                    Description
+                                </th>
+                                <th>
+                                    Scope
+                                </th>
+                                <th>
+                                    Created
+                                </th>
+                                <th>
+                                    &nbsp;
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#if asps}}
+
+                                {{#each asps}}
+                                    <tr>
+                                        <th>
+                                            {{index}}
+                                        </th>
+                                        <td>
+                                            {{description}}
+                                        </td>
+                                        <td>
+                                            {{scope}}
+                                        </td>
+                                        <td class="datestring" title="{{created}}">
+                                            {{created}}
+                                        </td>
+                                        <td>
+                                            <div class="pull-right">
+                                                <form method="post" action="/account/asp/delete" onsubmit="return confirm('Are you sure?')">
+                                                    <input type="hidden" name="_csrf" value="{{../csrfToken}}">
+                                                    <input type="hidden" name="id" value="{{id}}" />
+                                                    <button type="submit" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete</button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {{/each}}
+                            {{else}}
+                                <tr>
+                                    <td colspan="4">
+                                        No application specific password is generated
+                                    </td>
+                                </tr>
+                            {{/if}}
+                        </tbody>
+                    </table>
+                </div>
+
+                <form method="post" action="/account/asp/create">
+                    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+                    <fieldset>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">Create new application specific password</h3>
+                            </div>
+                            <div class="panel-body">
+
+                                <div class="form-group{{#if errors.description}} has-error{{/if}}">
+                                    <label for="description">Application description</label>
+                                    <input type="text" class="form-control" name="description" id="description" placeholder="Password for Outlook ..." required>
+                                    {{#if errors.description}}
+                                        <span class="help-block">{{errors.description}}</span>
+                                    {{/if}}
+                                </div>
+
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-success">Generate password</button>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

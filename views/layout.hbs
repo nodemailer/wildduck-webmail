@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="description" content="{{serviceName}} web client">
+    <meta name="author" content="Andris Reinman">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+
+    <title>{{serviceName}}
+        {{#if title}} | {{title}}{{/if}}
+    </title>
+
+    <link rel="stylesheet" href="/bootstrap-3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/bootstrap-3.3.7/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="/css/wildduck.css">
+
+</head>
+
+<body>
+
+    <nav class="navbar navbar-default navbar-static-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> {{serviceName}}</a>
+            </div>
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+
+                    {{#if user}}
+                        <li {{#if activeHome}} class="active" {{/if}}>
+                            <a href="/account/">
+                                <span class="glyphicon glyphicon-dashboard" aria-hidden="true"></span> Overview
+                            </a>
+                        </li>
+                        <li {{#if activeWebmail}} class="active" {{/if}}>
+                            <a href="/webmail/">
+                                <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> Webmail
+                            </a>
+                        </li>
+                        <li {{#if activeFilters}} class="active" {{/if}}>
+                            <a href="/account/filters">
+                                <span class="glyphicon glyphicon-filter" aria-hidden="true"></span> Filters
+                            </a>
+                        </li>
+                        <li {{#if activeAutoreply}} class="active" {{/if}}>
+                            <a href="/account/autoreply">
+                                <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Autoreply
+                            </a>
+                        </li>
+                        <li {{#if activeProfile}} class="active" {{/if}}>
+                            <a href="/account/profile">
+                                <span class="glyphicon glyphicon-user" aria-hidden="true"></span> Account
+                            </a>
+                        </li>
+                        <li {{#if activeSecurity}} class="active" {{/if}}>
+                            <a href="/account/security">
+                                <span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Security
+                            </a>
+                        </li>
+                        <li {{#if activeHelp}} class="active" {{/if}}>
+                            <a href="/help">
+                                <span class="glyphicon glyphicon glyphicon-question-sign" aria-hidden="true"></span> Help
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/account/logout">
+                                <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Log out
+                            </a>
+                        </li>
+                    {{else}}
+                        <li {{#if activeCreate}} class="active" {{/if}}>
+                            <a href="/account/create">
+                                <span class="glyphicon glyphicon-user" aria-hidden="true"></span> Create account
+                            </a>
+                        </li>
+                        <li {{#if activeLogin}} class="active" {{/if}}>
+                            <a href="/account/login">
+                                <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> Log in
+                            </a>
+                        </li>
+                    {{/if}}
+
+                </ul>
+            </div>
+
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <div>
+            {{flash_messages}}
+        </div>
+
+        {{{body}}}
+
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p class="text-muted">&copy; 2017 <a href="/">{{serviceName}}</a>. <a href="mailto:info@{{serviceDomain}}">info@{{serviceDomain}}</a>. </p>
+        </div>
+    </footer>
+
+    <script src="/jquery-3.1.1/jquery.min.js"></script>
+    <script src="/bootstrap-3.3.7/js/bootstrap.js"></script>
+    <script src="/moment/moment.min.js"></script>
+    <script src="/wd.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            $("[rel='tooltip']").tooltip();
+        });
+    </script>
+</body>
+
+</html>

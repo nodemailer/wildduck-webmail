@@ -1,0 +1,47 @@
+<div class="row">
+    <div class="col-md-12">
+        <h1><span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Autoreply</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <form method="post" action="/account/autoreply">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+            <p>
+                If enabled then an autoreply message is sent to all incoming messages. If a contact sends multiple messages then the autoreply is sent at most once in every four days.
+            </p>
+
+            <div class="radio">
+                <label>
+                    <input type="radio" name="status" value="false" {{#unless values.status}}checked{{/unless}}>
+                    Autoreply is  {{#unless values.status}}<span class="label label-default">disabled</span>{{else}}disabled{{/unless}}
+                </label>
+            </div>
+
+            <div class="radio">
+                <label>
+                    <input type="radio" name="status" value="true" {{#if values.status}}checked{{/if}}>
+                    Autoreply is {{#if values.status}}<span class="label label-info">enabled</span>{{else}}enabled{{/if}}
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label for="subject">Subject</label>
+                <input type="text" class="form-control" id="subject" name="subject" value="{{values.subject}}" placeholder="I'm on vacation!">
+            </div>
+
+            <div class="form-group">
+                <label for="message">Message</label>
+                <textarea class="form-control" name="message" value="{{values.message}}" rows="3">{{values.message}}</textarea>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-success">Update</button>
+            </div>
+
+        </form>
+
+    </div>
+</div>

@@ -1,0 +1,60 @@
+<div class="row">
+    <div class="col-md-12">
+        <h1><span class="glyphicon glyphicon-user" aria-hidden="true"></span> Create new account</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+
+        <form method="post" action="/account/create">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+            <fieldset>
+                <p class="lead">
+                    Enter your account details
+                </p>
+
+                <div class="form-group{{#if errors.name}} has-error{{/if}}">
+                    <label for="name">Your name</label>
+                    <input type="text" class="form-control" name="name" id="name" placeholder="nt. &quot;Jaan Tamm&quot;" value="{{values.name}}" required>
+                    {{#if errors.name}}
+                        <span class="help-block">{{errors.name}}</span>
+                    {{/if}}
+                </div>
+
+                <div class="form-group{{#if errors.username}} has-error{{/if}}">
+                    <label class="control-label" for="username">Your username</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control lowercase" name="username" id="username" placeholder="nt. &quot;username&quot;" value="{{values.username}}" pattern="^[A-Za-z0-9][A-Za-z\-\.0-9]*[A-Za-z0-9]$" required title="Valid email address user">
+                        <span class="input-group-addon">@{{serviceDomain}}</span>
+                    </div>
+                    {{#if errors.username}}
+                        <span class="help-block">{{errors.username}}{{#if errors.username_action}} –  <a href="{{errors.username_action.target}}">{{errors.username_action.title}}</a>{{/if}}</span>
+                    {{/if}}
+                </div>
+
+                <div class="form-group{{#if errors.password}} has-error{{/if}}">
+                    <label for="password">Your password</label>
+                    <input type="password" class="form-control" name="password" id="password" placeholder="nt. &quot;supersecret&quot;" required>
+                    {{#if errors.password}}
+                        <span class="help-block">{{errors.password}}</span>
+                    {{/if}}
+                </div>
+
+                <div class="form-group{{#if errors.password}} has-error{{/if}}">
+                    <label for="password2">Repeat password</label>
+                    <input type="password" class="form-control" name="password2" id="password2" placeholder="repeat password" required>
+                </div>
+
+
+            </fieldset>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-success">Create new account</button>
+            </div>
+
+        </form>
+
+    </div>
+</div>

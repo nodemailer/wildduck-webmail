@@ -1,0 +1,61 @@
+<div class="row">
+    <div class="col-sm-3 col-md-2 sidebar">
+
+        <img src="/images/duck.png" class="img-responsive" style="display: block; margin: 10px auto;">
+
+        <ul class="nav nav-sidebar">
+            {{#each mailboxes}}
+                <li {{#if selected}} class="active" {{/if}}><a href="/webmail/{{id}}">{{index}}. {{path}}{{#if unseen}} <span class="badge">{{unseen}}</span>{{/if}}</a></li>
+            {{/each}}
+        </ul>
+    </div>
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <h2 class="sub-header"><span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> {{mailbox.name}}</h2>
+
+        <div class="alert alert-warning" role="alert">
+            This webmail interface is for demo purposes only. You can read mail here but for any advanced actions or even composing messages you would have to use an external email client. See <a href="/help" class="alert-link">here</a> for configuration
+            information.
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <tbody>
+                    {{#each messages}}
+                        <tr style="{{#unless seen}}font-weight: bold;{{/unless}}">
+                            <td class="col-md-2 datestring" title="{{date}}">
+                                {{date}}
+                            </td>
+                            <td class="col-md-3">
+                                {{{fromHtml}}}
+                            </td>
+                            <td>
+                                {{#if attachments}}
+                                    <div class="pull-right">
+                                        <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
+                                    </div>
+                                {{/if}}
+                                <a href="/webmail/{{../mailbox.id}}/message/{{id}}">{{#if subject}}{{subject}}{{else}}&lt;untitled&gt;{{/if}}</a>
+                            </td>
+                        </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+
+        <nav aria-label="nav">
+            <ul class="pager">
+                {{#if previousCursor}}
+                    <li class="previous"><a href="/webmail/{{mailbox.id}}?previous={{previousCursor}}&amp;page={{previousPage}}"><span aria-hidden="true">&larr;</span> Newer</a></li>
+                {{else}}
+                    <li class="previous disabled"><a href="#"><span aria-hidden="true">&larr;</span> Newer</a></li>
+                {{/if}}
+
+                {{#if nextCursor}}
+                    <li class="next"><a href="/webmail/{{mailbox.id}}?next={{nextCursor}}&amp;page={{nextPage}}">Older <span aria-hidden="true">&rarr;</span></a></li>
+                {{else}}
+                    <li class="next disabled"><a href="#">Older <span aria-hidden="true">&rarr;</span></a></li>
+                {{/if}}
+            </ul>
+        </nav>
+    </div>
+</div>

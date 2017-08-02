@@ -1,0 +1,71 @@
+<div class="row">
+    <div class="col-sm-3 col-md-2 sidebar">
+
+        <img src="/images/duck.png" class="img-responsive" style="display: block; margin: 10px auto;">
+
+        <ul class="nav nav-sidebar">
+            {{#each mailboxes}}
+                <li {{#if selected}} class="active" {{/if}}><a href="/webmail/{{id}}">{{index}}. {{path}}{{#if unseen}} <span class="badge">{{unseen}}</span>{{/if}}</a></li>
+            {{/each}}
+        </ul>
+    </div>
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <h2 class="sub-header">
+        <div class="pull-right">
+            <a class="btn btn-success btn-sm" href="/webmail/{{mailbox.id}}/raw/{{message.id}}.eml" role="button" download="{{message.id}}.eml"><span class="glyphicon glyphicon-cloud-download" aria-hidden="true"></span> Raw source</a>
+        </div>
+
+        <span class="glyphicon glyphicon-comment" aria-hidden="true"></span> {{message.subject}}</h2>
+
+
+        <table class="table">
+            {{#each message.info}}
+                <tr>
+                    <td>
+                        {{key}}
+                    </td>
+                    <th {{#if isDate}} class="datestring" title="{{value}}" {{/if}}>
+                        {{#if isHtml}}{{{value}}}{{else}}{{value}}{{/if}}
+                    </th>
+                </tr>
+            {{/each}}
+        </table>
+
+        <div class="row">
+            <div class="col-md-12" style="overflow: auto">
+                <div id="message_html"></div>
+            </div>
+        </div>
+
+        {{#if message.attachments}}
+            <div class="well">
+                {{#each message.attachments}}
+                    <a class="btn btn-success btn-sm" href="/webmail/{{../mailbox.id}}/attachment/{{../message.id}}/{{id}}" role="button" download="{{fileName}}"><span class="glyphicon glyphicon-cloud-download" aria-hidden="true"></span> {{fileName}}</a>
+                {{/each}}
+            </div>
+        {{/if}}
+
+        <p>
+            &nbsp;
+        </p>
+
+        <script type="text/javascript" src="/purify-0.9.0/purify.min.js"></script>
+        <script>
+            var message = {{{messageJson}}};
+
+            document.addEventListener("DOMContentLoaded", function(event) {
+                if (message.html) {
+                    message.html.forEach(function(html) {
+                        var clean = DOMPurify.sanitize(html, {
+                            RETURN_DOM_FRAGMENT: true,
+                            RETURN_DOM_IMPORT: true,
+                            ALLOW_UNKNOWN_PROTOCOLS: true
+                        });
+                        document.getElementById('message_html').appendChild(clean);
+                    });
+                }
+            }, false);
+        </script>
+
+    </div>
+</div>

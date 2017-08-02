@@ -1,0 +1,65 @@
+<div class="row">
+    <div class="col-md-12">
+        <h1><span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> {{serviceName}}</h1>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-md-8">
+
+        <div class="form-group">
+            <label class="control-label">Address</label>
+            <div class="input-group">
+                <p class="form-control-static">
+                    <a href="mailto:{{address}}">{{address}}</a>
+                </p>
+            </div>
+        </div>
+
+        <div class="form-group ">
+            <label class="control-label ">Quota</label>
+            <div class="input-group ">
+                <p class="form-control-static ">
+                    Used <strong>{{storageUsed}}</strong> of <strong>{{quota}}</strong>
+                </p>
+            </div>
+        </div>
+
+        <div class="progress ">
+            <div class="progress-bar " role="progressbar " aria-valuenow=" {{storageOverview}} " aria-valuemin="0 " aria-valuemax="100 " style="min-width: 2em; ">
+                {{storageOverview}}%
+            </div>
+        </div>
+
+        <div class="form-group ">
+            <label class="control-label ">Messages sent</label>
+            <div class="input-group ">
+                <p class="form-control-static ">
+                    Sent <strong>{{recipientsSent}}</strong> messages, daily allowed quota <strong>{{recipients}}</strong> messages
+                </p>
+            </div>
+        </div>
+
+        <div class="progress ">
+            <div class="progress-bar " role="progressbar " aria-valuenow=" {{recipientsOverview}} " aria-valuemin="0 " aria-valuemax="100 " style="min-width: 2em; ">
+                {{recipientsOverview}}%
+            </div>
+        </div>
+
+        <div class="form-group ">
+            <label class="control-label ">Forwarded messages</label>
+            <div class="input-group ">
+                <p class="form-control-static ">
+                    Forwarded <strong>{{forwardsSent}}</strong> messages, daily allowed quota <strong>{{forwards}}</strong> messages
+                </p>
+            </div>
+        </div>
+
+        <div class="progress ">
+            <div class="progress-bar " role="progressbar " aria-valuenow=" {{forwardsOverview}} " aria-valuemin="0 " aria-valuemax="100 " style="min-width: 2em; ">
+                {{forwardsOverview}}%
+            </div>
+        </div>
+    </div>
+</div>

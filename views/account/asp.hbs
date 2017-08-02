@@ -1,0 +1,35 @@
+<form method="post" id="generate-autoconfig" action="/account/autoconfig">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+    <input type="hidden" name="password" value="{{password}}">
+</form>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Application specific password</h3>
+    </div>
+    <div class="panel-body">
+
+        <p>
+            Use the generated password in external application for IMAP, POP3 or SMTP
+        </p>
+
+        <p>
+            <strong>{{description}}</strong>
+        </p>
+
+        <p class="lead bg-info text-center">
+            {{passwordFormatted}}
+        </p>
+
+        <p>
+            For OSX and iOS you can download configuration profile to auto-configure your email application
+        </p>
+
+        <p>
+            <div class="pull-right">
+                <a href="data:application/x-apple-aspen-config;base64,{{mobileconfig}}" download="{{user.username}}.mobileconfig" class="btn btn-info btn-xs"><span class="glyphicon glyphicon-cloud-download" aria-hidden="true"></span> OSX / iOS</a>
+            </div>
+            <a href="/account/security"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> Go back</a>
+        </p>
+    </div>
+</div>

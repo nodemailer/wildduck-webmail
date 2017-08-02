@@ -1,0 +1,47 @@
+name="Wild Duck Mail"
+
+title="wildduck-www"
+
+[service]
+    # email domain for new users
+    domain="localhost"
+    # default quotas for new users
+    quota=1024
+    recipients=2000
+    forwards=2000
+
+[api]
+    url="http://127.0.0.1:8080"
+    accessToken=""
+
+[dbs]
+    # redis is only needed for Express.js sessions
+    redis="redis://127.0.0.1:6379/3"
+
+[www]
+    host=false
+    port=3000
+    proxy=false
+    postsize="5MB"
+    log="dev"
+    secret="a cat"
+    baseurl="http://localhost" # link used in emails etc
+
+[log]
+    level="silly"
+    mail=true
+
+[setup]
+    # these values are shown in the configuration help page
+    [setup.imap]
+        hostname="localhost"
+        secure=true
+        port=9993
+    [setup.pop3]
+        hostname="localhost"
+        secure=true
+        port=9995
+    [setup.smtp]
+        hostname="localhost"
+        secure=false
+        port=2587
