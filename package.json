@@ -1,6 +1,7 @@
 {
-    "name": "wildduck-www",
+    "name": "wildduck-webmail",
     "version": "1.0.0",
+    "private": true,
     "description": "WildDuck mail service",
     "main": "server.js",
     "scripts": {
