@@ -151,7 +151,7 @@ router.get('/:mailbox/attachment/:message/:attachment', (req, res) => {
         return res.redirect('/webmail');
     }
 
-    apiClient.attachments.get(req, res, req.user.id, result.value.mailbox, result.value.message, result.value.attachment);
+    apiClient.attachment.get(req, res, req.user.id, result.value.mailbox, result.value.message, result.value.attachment);
 });
 
 router.get('/:mailbox/raw/:message.eml', (req, res) => {

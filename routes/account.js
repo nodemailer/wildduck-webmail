@@ -244,6 +244,7 @@ router.get('/profile', passport.csrf, passport.checkLogin, (req, res, next) => {
         if (err) {
             return next(err);
         }
+
         res.render('account/profile', {
             title: 'Account',
             activeProfile: true,
@@ -268,6 +269,9 @@ router.post('/profile', passport.parse, passport.csrf, passport.checkLogin, (req
                 })
                 .empty('')
                 .label('Upload URL'),
+
+            pubKey: Joi.string().empty('').trim().regex(/^-----BEGIN PGP PUBLIC KEY BLOCK-----/, 'PGP key format'),
+            encryptMessages: Joi.boolean().truthy(['Y', 'true', 'yes', 1]).default(false),
 
             existingPassword: Joi.string().empty('').min(8).max(100).label('Current password'),
             password: Joi.string().empty('').min(8).max(100).label('New password').valid(Joi.ref('password2')).options({
@@ -335,8 +339,10 @@ router.post('/profile', passport.parse, passport.csrf, passport.checkLogin, (req
     result.value.name = result.value.name || '';
     result.value.forward = result.value.forward || '';
     result.value.targetUrl = result.value.targetUrl || '';
+    result.value.pubKey = result.value.pubKey || '';
 
     result.value.ip = req.ip;
+
     apiClient.users.update(req.user.id, result.value, err => {
         if (err) {
             if (err.fields) {
