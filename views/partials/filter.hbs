@@ -30,7 +30,7 @@
                 </div>
 
                 <div class="form-group{{#if errors.query_text}} has-error{{/if}}">
-                    <label for="query_text">Includes the words</label>
+                    <label for="query_text">Includes the following text</label>
                     <input type="text" class="form-control input-sm" name="query_text" id="query_text" value="{{values.query_text}}">
                     {{#if errors.query_text}}
                         <span class="help-block">{{errors.query_text}}</span>
