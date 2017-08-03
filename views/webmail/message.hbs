@@ -19,6 +19,9 @@
 
         {{#if message.encrypted}}
             <div class="alert alert-warning" role="alert">
+                <div class="pull-right">
+                    <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+                </div>
                 This message is encrypted and can not be properly displayed. Download the original message <a href="/webmail/{{mailbox.id}}/raw/{{message.id}}.eml" role="button" download="{{message.id}}.eml" class="alert-link">from here </a> to open it in an e-mail client that is able to read encrypted messages.
             </div>
         {{/if}}
