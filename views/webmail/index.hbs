@@ -29,10 +29,16 @@
                                 {{{fromHtml}}}
                             </td>
                             <td>
-                                {{#if attachments}}
+                                {{#if encrypted}}
                                     <div class="pull-right">
-                                        <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
+                                        <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
                                     </div>
+                                {{else}}
+                                    {{#if attachments}}
+                                        <div class="pull-right">
+                                            <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
+                                        </div>
+                                    {{/if}}
                                 {{/if}}
                                 <a href="/webmail/{{../mailbox.id}}/message/{{id}}">{{#if subject}}{{subject}}{{else}}&lt;untitled&gt;{{/if}}</a>
                             </td>
