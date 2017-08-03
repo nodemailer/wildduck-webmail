@@ -19,7 +19,7 @@
 
         {{#if message.encrypted}}
             <div class="alert alert-warning" role="alert">
-                This message is encrypted and can not be properly displayed. Download the original message <a href="/webmail/{{mailbox.id}}/raw/{{message.id}}.eml" role="button" download="{{message.id}}.eml" class="alert-link">from here </a> to open it in an e-mail client that is able to open encrypted emails.
+                This message is encrypted and can not be properly displayed. Download the original message <a href="/webmail/{{mailbox.id}}/raw/{{message.id}}.eml" role="button" download="{{message.id}}.eml" class="alert-link">from here </a> to open it in an e-mail client that is able to read encrypted messages.
             </div>
         {{/if}}
 
