@@ -47,7 +47,7 @@
                             {{#each results}}
                                 <tr>
                                     <td>
-                                        {{action}}
+                                        {{action}} {{#if showCount}}<span class="badge">{{count}}</span>{{/if}}
                                     </td>
                                     <td>
                                         {{protocol}}

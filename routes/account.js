@@ -82,6 +82,7 @@ router.get('/security/logins', (req, res, next) => {
                 if (entry.asp) {
                     entry.asp = aspsmap.get(entry.asp) || { description: '[unknown ' + entry.asp + ']' };
                 }
+                entry.showCount = entry.count && entry.count > 1;
             });
             res.render('account/security/logins', log);
         });
