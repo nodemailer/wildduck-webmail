@@ -4,11 +4,19 @@
     </div>
 </div>
 
-<form method="post" id="disable-2fa" action="/account/disable-2fa" onsubmit="return confirm('Kas oled kindel?')">
+<form method="post" id="disable-2fa" action="/account/disable-2fa" onsubmit="return confirm('Are you sure?')">
     <input type="hidden" name="_csrf" value="{{csrfToken}}">
 </form>
 
 <form method="post" id="enable-2fa" action="/account/enable-2fa">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+</form>
+
+<form method="post" id="enable-u2f" action="/account/enable-u2f">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+</form>
+
+<form method="post" id="disable-u2f" action="/account/disable-u2f">
     <input type="hidden" name="_csrf" value="{{csrfToken}}">
 </form>
 
@@ -36,24 +44,43 @@
                             If two factor authentication is enabled, then external applications can not access IMAP, POP3 ja SMTP using the account password and application specific passwords must be generated for these applications.
                         </p>
 
-                        <hr />
+                        <table class="table">
+                            <tr>
+                                <td>
+                                    {{#if enabled2fa}}
+                                        Two factor authentication is <span class="label label-success"><span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span> ENABLED</span>
+                                    {{else}}
+                                        Two factor authentication is <span class="label label-default"><span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span> DISABLED</span>
+                                    {{/if}}
+                                </td>
+                                <td class="text-right">
+                                    {{#if enabled2fa}}
+                                        <button form="disable-2fa" type="submit" class="btn btn-default"><span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span> Disable</button>
+                                    {{else}}
+                                        <button form="enable-2fa" type="submit" class="btn btn-success"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Enable</button>
+                                    {{/if}}
+                                </td>
+                            </tr>
 
-                        <div class="row">
-                            <div class="col-md-8">
-                                {{#if enabled2fa}}
-                                    Two factor authentication is <span class="label label-success"><span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span> ENABLED</span>
-                                {{else}}
-                                    Two factor authentication is <span class="label label-default"><span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span> DISABLED</span>
-                                {{/if}}
-                            </div>
-                            <div class="col-md-4 text-right">
-                                {{#if enabled2fa}}
-                                    <button form="disable-2fa" type="submit" class="btn btn-default"><span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span> Disable</button>
-                                {{else}}
-                                    <button form="enable-2fa" type="submit" class="btn btn-success"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Enable</button>
-                                {{/if}}
-                            </div>
-                        </div>
+                            {{#if enabled2fa}}
+                                <tr>
+                                    <td>
+                                        {{#if enabledU2f}}
+                                            U2F security key is <span class="label label-success"><span class="glyphicon glyphicon-flash" aria-hidden="true"></span> REGISTERED</span>
+                                        {{else}}
+                                            U2F security key is <span class="label label-default"><span class="glyphicon glyphicon-flash" aria-hidden="true"></span> NOT REGISTERED</span>
+                                        {{/if}}
+                                    </td>
+                                    <td class="text-right">
+                                        {{#if enabledU2f}}
+                                            <button form="disable-u2f" type="submit" class="btn btn-default"><span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span> Remove key</button>
+                                        {{else}}
+                                            <button form="enable-u2f" type="submit" class="btn btn-success"><span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span> Set security key</button>
+                                        {{/if}}
+                                    </td>
+                                </tr>
+                            {{/if}}
+                        </table>
                     </div>
                 </div>
 

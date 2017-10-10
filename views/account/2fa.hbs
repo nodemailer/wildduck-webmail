@@ -1,5 +1,5 @@
-<form method="post" action="/account/2fa">
-    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+<form method="post" action="/account/2fa?u2f=false">
+    <input type="hidden" id="_csrf" name="_csrf" value="{{csrfToken}}" />
 
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -7,26 +7,144 @@
         </div>
         <div class="panel-body">
 
-            <p>
-                Open your authentication app and enter the code to log in
-            </p>
 
-            <div class="form-group{{#if errors.token}} has-error{{/if}}">
-                <label for="token">Security code</label>
-                <input type="number" class="form-control" name="token" id="token" placeholder="6 digit code" required autofocus>
-                {{#if errors.token}}
-                    <span class="help-block">{{errors.token}}</span>
-                {{/if}}
-            </div>
+            {{#if enabledU2f}}
 
-            <p>
-                <div class="pull-right">
-                    <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Verify</button>
+                <div id="show-u2f">
+
+                    <div style="margin:10px 0;">
+
+                        <div id="u2f-wait">
+                            <img src="/images/u2f-wait.png" />
+                        </div>
+
+                        <div id="u2f-fail" style="display: none">
+                            <img src="/images/u2f-fail.png" />
+                        </div>
+
+                        <div id="u2f-success" style="display: none">
+                            <img src="/images/u2f-success.png" />
+                        </div>
+
+                    </div>
+
+                    <p id="message">
+                        Initializing...
+                    </p>
+
+                    <div>
+                        <div class="pull-right">
+                            <a href="{{disableU2f}}">or use security code</a>
+                        </div>
+                        <a href="/account/logout"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> Cancel</a>
+                    </div>
+
                 </div>
-                <a href="/account/logout"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> Cancel</a>
-            </p>
+
+            {{/if}}
+
+            <div id="show-totp" {{#if enabledU2f}}style="display: none"{{/if}}>
+
+                <p>
+                    Open your authentication app and enter the code to log in
+                </p>
+
+                <div class="form-group{{#if errors.token}} has-error{{/if}}">
+                    <label for="token">Security code</label>
+                    <input type="number" class="form-control" name="token" id="token" placeholder="6 digit code" required autofocus>
+                    {{#if errors.token}}
+                        <span class="help-block">{{errors.token}}</span>
+                    {{/if}}
+                </div>
+
+                <div>
+                    <div class="pull-right">
+                        <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Verify</button>
+                    </div>
+                    <a href="/account/logout"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> Cancel</a>
+                </div>
+
+            </div>
 
         </div>
     </div>
 
 </form>
+
+{{#if enabledU2f}}
+<script>
+var U2FSUPPORT = typeof u2f === 'object' || typeof chrome === 'object';
+</script>
+
+<script src="/whatwg-fetch/fetch.js"></script>
+<script src="/u2f-api.js"></script>
+
+<script>
+var message = document.getElementById('message');
+var _csrf = document.getElementById('_csrf').value;
+
+function startU2f(){
+    fetch('/account/start-u2f', {
+        method: 'post',
+        headers: {
+            'Accept': 'application/json, text/plain, */*',
+            'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({_csrf: _csrf})
+    })
+    .then(function(res){return res.json()})
+    .then(function(res){
+        if(res.error){
+            message.innerHTML = res.error;
+            document.getElementById('retry-button').style.display = 'block';
+            document.getElementById('u2f-fail').style.display = 'block';
+            return;
+        }
+
+        message.innerHTML = 'Push the button on your U2F key...';
+
+        u2f.sign(res.u2fAuthRequest.appId, res.u2fAuthRequest.challenge, [res.u2fAuthRequest], function(authResponse){
+            message.innerHTML = 'Verifying response...';
+
+            authResponse._csrf = document.getElementById('_csrf').value;
+            fetch('/account/check-u2f', {
+                method: 'post',
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify(authResponse)
+            })
+            .then(function(res){return res.json()})
+            .then(function(res){
+                document.getElementById('u2f-wait').style.display = 'none';
+                if(res.error){
+                    message.innerHTML = res.error;
+                    document.getElementById('retry-button').style.display = 'block';
+                    document.getElementById('u2f-fail').style.display = 'block';
+                    return;
+                }
+                document.getElementById('u2f-success').style.display = 'block';
+                message.innerHTML = res.success ? 'You are verified' : 'Failed to check U2F key';
+                window.location = res.targetUrl;
+            });
+        });
+    });
+}
+
+if(U2FSUPPORT){
+
+    document.addEventListener('DOMContentLoaded', function(){
+        startU2f();
+    });
+
+}else{
+    document.getElementById('u2f-wait').style.display = 'none';
+    document.getElementById('u2f-fail').style.display = 'block';
+    message.innerHTML = 'U2F is not supported by your browser';
+}
+</script>
+
+{{/if}}

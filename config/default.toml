@@ -26,6 +26,7 @@ title="wildduck-www"
     log="dev"
     secret="a cat"
     baseurl="http://localhost" # link used in emails etc
+    secure=false
 
 [log]
     level="silly"

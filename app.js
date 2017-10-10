@@ -105,7 +105,7 @@ app.use((req, res, next) => {
 
 // force 2fa prompt if user is logged in and 2fa is enabled
 app.use((req, res, next) => {
-    if (req.user && req.session.require2fa && !['/account/2fa', '/account/logout'].includes(req.url)) {
+    if (req.user && req.session.require2fa && !['/account/2fa', '/account/logout', '/account/start-u2f', '/account/check-u2f'].includes(req.url)) {
         return passport.csrf(req, res, err => {
             if (err) {
                 return next(err);
@@ -114,7 +114,11 @@ app.use((req, res, next) => {
             return res.render('account/2fa', {
                 layout: 'layout-popup',
                 title: 'Two factor authentication',
-                csrfToken: req.csrfToken()
+                csrfToken: req.csrfToken(),
+                enabled2fa: req.session.require2fa,
+                enabledTotp: req.session.require2fa ? req.session.require2fa.includes('totp') : false,
+                enabledU2f: req.session.require2fa && req.query.u2f !== 'false' ? req.session.require2fa.includes('u2f') : false,
+                disableU2f: req.url + (req.url.indexOf('?') >= 0 ? '&' : '?') + 'u2f=false'
             });
         });
     }

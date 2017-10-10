@@ -1,0 +1,7 @@
+name="Wild Duck Mail Temporary"
+
+[service]
+    # email domain for new users
+    domain="example.com"
+    # default quotas for new users
+    quota=102400
