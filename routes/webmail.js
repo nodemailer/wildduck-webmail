@@ -12,7 +12,9 @@ router.get('/:mailbox', renderMailbox);
 
 router.get('/:mailbox/message/:message', (req, res, next) => {
     const schema = Joi.object().keys({
-        mailbox: Joi.string().hex().length(24),
+        mailbox: Joi.string()
+            .hex()
+            .length(24),
         message: Joi.number().min(1)
     });
 
@@ -68,7 +70,7 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
                 isHtml: true,
                 value: tools.getAddressesHTML(
                     messageData.from ||
-                    messageData.sender || {
+                        messageData.sender || {
                         name: '< >'
                     }
                 )
@@ -112,10 +114,9 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
                 value: messageData.date
             });
 
-            messageData.html = (messageData.html || [])
-                .map(html =>
-                    html.replace(/attachment:([a-f0-9]+)\/(ATT\d+)/g, (str, mid, aid) => '/webmail/' + mailbox + '/attachment/' + messageData.id + '/' + aid)
-                );
+            messageData.html = (messageData.html || []).map(html =>
+                html.replace(/attachment:(ATT\d+)/g, (str, aid) => '/webmail/' + mailbox + '/attachment/' + messageData.id + '/' + aid)
+            );
 
             messageData.info = info;
             res.render('webmail/message', {
@@ -131,9 +132,18 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
 
 router.get('/:mailbox/attachment/:message/:attachment', (req, res) => {
     const schema = Joi.object().keys({
-        mailbox: Joi.string().hex().lowercase().length(24).required(),
-        message: Joi.number().min(1).required(),
-        attachment: Joi.string().regex(/^ATT\d+$/i).uppercase().required()
+        mailbox: Joi.string()
+            .hex()
+            .lowercase()
+            .length(24)
+            .required(),
+        message: Joi.number()
+            .min(1)
+            .required(),
+        attachment: Joi.string()
+            .regex(/^ATT\d+$/i)
+            .uppercase()
+            .required()
     });
 
     let result = Joi.validate(req.params, schema, {
@@ -156,8 +166,14 @@ router.get('/:mailbox/attachment/:message/:attachment', (req, res) => {
 
 router.get('/:mailbox/raw/:message.eml', (req, res) => {
     const schema = Joi.object().keys({
-        mailbox: Joi.string().hex().lowercase().length(24).required(),
-        message: Joi.number().min(1).required()
+        mailbox: Joi.string()
+            .hex()
+            .lowercase()
+            .length(24)
+            .required(),
+        message: Joi.number()
+            .min(1)
+            .required()
     });
 
     let result = Joi.validate(req.params, schema, {
@@ -180,9 +196,16 @@ router.get('/:mailbox/raw/:message.eml', (req, res) => {
 
 function renderMailbox(req, res, next) {
     const schema = Joi.object().keys({
-        mailbox: Joi.string().hex().length(24).empty(''),
-        next: Joi.string().max(100).empty(''),
-        previous: Joi.string().max(100).empty(''),
+        mailbox: Joi.string()
+            .hex()
+            .length(24)
+            .empty(''),
+        next: Joi.string()
+            .max(100)
+            .empty(''),
+        previous: Joi.string()
+            .max(100)
+            .empty(''),
         page: Joi.number().empty('')
     });
 
