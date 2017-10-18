@@ -105,7 +105,11 @@ app.use((req, res, next) => {
 
 // force 2fa prompt if user is logged in and 2fa is enabled
 app.use((req, res, next) => {
-    if (req.user && req.session.require2fa && !['/account/2fa', '/account/logout', '/account/start-u2f', '/account/check-u2f'].includes(req.url)) {
+    if (
+        req.user &&
+        req.session.require2fa &&
+        !['/account/2fa', '/account/logout', '/account/start-u2f', '/account/check-u2f'].includes(req.url.split('?').shift())
+    ) {
         return passport.csrf(req, res, err => {
             if (err) {
                 return next(err);
