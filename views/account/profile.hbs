@@ -114,7 +114,7 @@
 
                         <div class="form-group{{#if errors.existingPassword}} has-error{{/if}}">
                             <label for="existingPassword">Current password</label>
-                            <input type="password" class="form-control" name="existingPassword" id="existingPassword" placeholder="nt. &quot;supersecret&quot;">
+                            <input type="password" class="form-control" name="existingPassword" id="existingPassword" placeholder="nt. &quot;supersecret&quot;" autocomplete="off">
                             {{#if errors.existingPassword}}
                                 <span class="help-block">{{errors.existingPassword}}</span>
                             {{/if}}
@@ -122,7 +122,7 @@
 
                         <div class="form-group{{#if errors.password}} has-error{{/if}}">
                             <label for="password">New password</label>
-                            <input type="password" class="form-control" name="password" id="password" placeholder="nt. &quot;supersecret&quot;">
+                            <input type="password" class="form-control" name="password" id="password" placeholder="nt. &quot;supersecret&quot;" autocomplete="off">
                             {{#if errors.password}}
                                 <span class="help-block">{{errors.password}}</span>
                             {{/if}}
@@ -130,7 +130,7 @@
 
                         <div class="form-group{{#if errors.password}} has-error{{/if}}">
                             <label for="password2">Repeat password</label>
-                            <input type="password" class="form-control" name="password2" id="password2" placeholder="repeat password">
+                            <input type="password" class="form-control" name="password2" id="password2" placeholder="repeat password" autocomplete="off">
                         </div>
 
                     </div>
