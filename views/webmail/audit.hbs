@@ -1,0 +1,90 @@
+<div class="row">
+    <div class="col-sm-3 col-md-2 sidebar">
+
+        <img src="/images/duck.png" class="img-responsive" style="display: block; margin: 10px auto;">
+
+        <ul class="nav nav-sidebar">
+            {{#each mailboxes}}
+                <li {{#if selected}} class="active" {{/if}}><a href="/webmail/{{id}}">{{index}}. {{path}}{{#if unseen}} <span class="badge">{{unseen}}</span>{{/if}}</a></li>
+            {{/each}}
+        </ul>
+    </div>
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <h2 class="sub-header">
+
+        <span class="glyphicon glyphicon-comment" aria-hidden="true"></span> {{messageData.subject}}</h2>
+
+        {{#each events}}
+            <dl class="dl-horizontal">
+
+                {{#if actionDescription}}
+                    {{#if action}}
+                          <dt>Action</dt>
+                          <dd><strong><span class="text-{{actionLabel}}">{{actionDescription}}</span></strong></dd>
+                    {{/if}}
+                {{else}}
+                    {{#if action}}
+                          <dt>Action</dt>
+                          <dd><strong>{{action}}</strong></dd>
+                    {{/if}}
+                {{/if}}
+
+                <dt>ID</dt>
+                <dd><strong>{{id}}{{#if seq}} / {{seq}}{{/if}}</strong></dd>
+
+                <dt>Time</dt>
+                <dd><span class="datestring-fixed" title="{{time}}">{{time}}</span></dd>
+
+                {{#if messageId}}
+                  <dt>Message-ID</dt>
+                  <dd>{{messageId}}</dd>
+                {{/if}}
+
+                {{#if from}}
+                      <dt>From</dt>
+                      <dd>{{from}}</dd>
+                {{/if}}
+
+                {{#if to}}
+                      <dt>To</dt>
+                      <dd>{{to}}</dd>
+                {{/if}}
+
+                {{#if origin}}
+                      <dt>Sending host</dt>
+                      <dd>{{origin}}</dd>
+                {{/if}}
+
+                {{#if src}}
+                      <dt>Local address</dt>
+                      <dd>{{src}}</dd>
+                {{/if}}
+
+                {{#if mx}}
+                      <dt>Destination</dt>
+                      <dd>{{mx}}
+                          {{#if dst}}
+                          [{{dst}}]
+                          {{/if}}
+                      </dd>
+                {{/if}}
+
+                {{#if response}}
+                      <dt>Server response</dt>
+                      <dd><samp>{{response}}</samp></dd>
+                {{/if}}
+
+                {{#if error}}
+                      <dt>Error message</dt>
+                      <dd><samp>{{error}}</samp></dd>
+                {{/if}}
+
+            </dl>
+        {{/each}}
+
+        <p>
+            &nbsp;
+        </p>
+
+    </div>
+</div>

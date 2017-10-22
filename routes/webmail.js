@@ -194,6 +194,130 @@ router.get('/:mailbox/raw/:message.eml', (req, res) => {
     apiClient.messages.raw(req, res, req.user.id, result.value.mailbox, result.value.message);
 });
 
+router.get('/:mailbox/audit/:message', (req, res, next) => {
+    const schema = Joi.object().keys({
+        mailbox: Joi.string()
+            .hex()
+            .length(24),
+        message: Joi.number().min(1)
+    });
+
+    let result = Joi.validate(req.params, schema, {
+        abortEarly: false,
+        convert: true,
+        allowUnknown: true
+    });
+
+    if (result.error) {
+        if (result.error && result.error.details) {
+            result.error.details.forEach(detail => {
+                req.flash('danger', detail.message);
+            });
+        }
+        return res.redirect('/webmail');
+    }
+
+    apiClient.mailboxes.list(req.user.id, true, (err, mailboxes) => {
+        if (err) {
+            return next(err);
+        }
+
+        let mailbox = result.value.mailbox || mailboxes[0].id;
+        let mailboxExists = false;
+        let selectedMailbox = false;
+        mailboxes.forEach((entry, i) => {
+            entry.index = i + 1;
+            if (entry.id === mailbox) {
+                entry.selected = true;
+                mailboxExists = true;
+                selectedMailbox = entry;
+            }
+        });
+
+        if (!mailboxExists) {
+            return res.redirect('/webmail');
+        }
+        apiClient.messages.get(req.user.id, mailbox, result.value.message, (err, messageData) => {
+            if (err) {
+                return next(err);
+            }
+
+            if (!messageData) {
+                return res.redirect('/webmail');
+            }
+            apiClient.messages.getEvents(req.user.id, mailbox, result.value.message, (err, events) => {
+                if (err) {
+                    return next(err);
+                }
+
+                if (!events) {
+                    return res.redirect('/webmail');
+                }
+
+                res.render('webmail/audit', {
+                    events: events.map(event => {
+                        switch (event.action) {
+                            case 'STORE':
+                                event.actionDescription = 'Message received';
+                                event.actionLabel = 'success';
+                                break;
+                            case 'FORWARD':
+                                event.actionDescription = 'Message was queued for forwarding';
+                                event.actionLabel = 'info';
+                                break;
+                            case 'AUTOREPLY':
+                                event.actionDescription = 'An autoreply for the message was queued';
+                                event.actionLabel = 'info';
+                                break;
+                            case 'REJECTED':
+                                event.actionDescription = 'Message was rejected';
+                                event.actionLabel = 'danger';
+                                break;
+                            case 'ACCEPTED':
+                                event.actionDescription = 'Message was accepted';
+                                event.actionLabel = 'success';
+                                break;
+                            case 'QUEUED':
+                                event.actionDescription = 'Message was queued for delivery';
+                                event.actionLabel = 'warning';
+                                break;
+                            case 'DEFERRED':
+                                event.actionDescription = 'Message was temporarily rejected';
+                                event.actionLabel = 'warning';
+                                break;
+                            case 'NOQUEUE':
+                                event.actionDescription = 'Failed to queue message';
+                                event.actionLabel = 'danger';
+                                break;
+                            case 'DELETED':
+                                event.actionDescription = 'Deleted from queue';
+                                event.actionLabel = 'danger';
+                                break;
+                            case 'DROP':
+                                event.actionDescription = 'Dropped from queue';
+                                event.actionLabel = 'danger';
+                                break;
+                            case 'SPAMCHECK':
+                                event.actionDescription = 'Messages was checked for spam';
+                                event.actionLabel = 'info';
+                                break;
+                        }
+
+                        event.error = event.error || event.reason;
+
+                        return event;
+                    }),
+                    activeWebmail: true,
+                    mailboxes,
+                    mailbox: selectedMailbox,
+                    message: result.value.message,
+                    messageData
+                });
+            });
+        });
+    });
+});
+
 function renderMailbox(req, res, next) {
     const schema = Joi.object().keys({
         mailbox: Joi.string()

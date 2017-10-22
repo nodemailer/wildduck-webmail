@@ -29,8 +29,16 @@ function updateFixedDatestrings() {
 
     for (let i = 0, len = elms.length; i < len; i++) {
         elm = elms[i];
-        if (elm.title && elm.title.length === 13) {
-            elm.textContent = moment(Number(elm.title)).format('YYYY-MM-DD HH:mm');
+        if (elm.title && elm.title.length === 24) {
+            elm.textContent = moment(elm.title).format('YYYY-MM-DD HH:mm');
+            elm.textContent = moment(elm.title).calendar(null, {
+                lastDay: 'YYYY/MM/DD HH:mm:ss',
+                sameDay: 'HH:mm:ss',
+                nextDay: 'YYYY/MM/DD HH:mm:ss',
+                lastWeek: 'YYYY/MM/DD HH:mm:ss',
+                nextWeek: 'YYYY/MM/DD HH:mm:ss',
+                sameElse: 'YYYY/MM/DD HH:mm:ss'
+            });
         }
     }
 }
