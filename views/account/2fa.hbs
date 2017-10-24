@@ -97,7 +97,6 @@ function startU2f(){
     .then(function(res){
         if(res.error){
             message.innerHTML = res.error;
-            document.getElementById('retry-button').style.display = 'block';
             document.getElementById('u2f-fail').style.display = 'block';
             return;
         }
@@ -122,7 +121,6 @@ function startU2f(){
                 document.getElementById('u2f-wait').style.display = 'none';
                 if(res.error){
                     message.innerHTML = res.error;
-                    document.getElementById('retry-button').style.display = 'block';
                     document.getElementById('u2f-fail').style.display = 'block';
                     return;
                 }

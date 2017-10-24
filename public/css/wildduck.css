@@ -127,3 +127,17 @@ input.lowercase {
     display: inline-block;
     border-radius: 50%;
 }
+
+.iframe-box {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.iframe-box iframe {
+    margin: 0;
+    padding: 0;
+    border: none;
+    width: 100%;
+    height: 100%;
+    background: white;
+}

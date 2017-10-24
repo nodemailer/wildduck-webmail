@@ -39,8 +39,8 @@
         </table>
 
         <div class="row">
-            <div class="col-md-12" style="overflow: auto">
-                <div id="message_html"></div>
+            <div class="col-md-12">
+                <div id="message" class="iframe-box"></div>
             </div>
         </div>
 
@@ -62,13 +62,22 @@
 
             document.addEventListener("DOMContentLoaded", function(event) {
                 if (message.html) {
-                    message.html.forEach(function(html) {
-                        var clean = DOMPurify.sanitize(html, {
-                            RETURN_DOM_FRAGMENT: true,
-                            RETURN_DOM_IMPORT: true,
-                            ALLOW_UNKNOWN_PROTOCOLS: true
-                        });
-                        document.getElementById('message_html').appendChild(clean);
+                    var clean = DOMPurify.sanitize(message.html.join('\n'), {
+                        ALLOW_UNKNOWN_PROTOCOLS: true,
+                        WHOLE_DOCUMENT: true,
+                        FORBID_TAGS: ['form']
+                    });
+
+                    clean = clean.replace(/head>/, 'head><link rel="stylesheet" href="/css/mail.css" /><base target="_parent"><script>function resizeIframe(obj) {obj.style.height = obj.contentWindow.document.body.scrollHeight + "px"; console.log("aaa")}</'+'script>');
+
+                    var iframe = document.createElement('iframe');
+
+                    document.getElementById('message').appendChild(iframe);
+                    iframe.contentWindow.document.open();
+                    iframe.contentWindow.document.write(clean);
+                    iframe.contentWindow.document.close();
+                    iframe.contentWindow.addEventListener('load', function(){
+                        iframe.contentWindow.resizeIframe(iframe);
                     });
                 }
             }, false);
