@@ -279,7 +279,7 @@ router.get('/:mailbox/audit/:message', (req, res, next) => {
                                 break;
                             case 'QUEUED':
                                 event.actionDescription = 'Message was queued for delivery';
-                                event.actionLabel = 'success';
+                                event.actionLabel = 'warning';
                                 break;
                             case 'DEFERRED':
                                 event.actionDescription = 'Message was temporarily rejected';
@@ -301,6 +301,10 @@ router.get('/:mailbox/audit/:message', (req, res, next) => {
                                 event.actionDescription = 'Messages was checked for spam';
                                 event.actionLabel = 'info';
                                 break;
+                        }
+
+                        if (event.targets) {
+                            event.targetList = event.targets.map(formatTarget).filter(target => target);
                         }
 
                         event.error = event.error || event.reason;
