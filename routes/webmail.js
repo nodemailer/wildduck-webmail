@@ -251,6 +251,7 @@ router.get('/:mailbox/audit/:message', (req, res, next) => {
                 if (typeof target === 'string') {
                     target = {
                         type: 'mail',
+                        text: 'Send to',
                         value: target
                     };
                 }
@@ -259,7 +260,7 @@ router.get('/:mailbox/audit/:message', (req, res, next) => {
                         return {
                             seq,
                             num: i + 1,
-                            text: 'Forward to',
+                            text: target.text || 'Forward to',
                             value: target.value
                         };
                     case 'http':
@@ -341,7 +342,7 @@ router.get('/:mailbox/audit/:message', (req, res, next) => {
 
                         if (event.targets) {
                             event.targetList = event.targets.map(formatTarget).filter(target => target);
-                        } else if (Array.isArray(event.to)) {
+                        } else if (Array.isArray(event.to) && event.to.length > 1) {
                             event.targetList = event.to.map(formatTarget).filter(target => target);
                             delete event.to;
                         }
