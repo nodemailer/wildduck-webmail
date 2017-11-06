@@ -82,11 +82,13 @@
                             </a>
                         </li>
                     {{else}}
-                        <li {{#if activeCreate}} class="active" {{/if}}>
-                            <a href="/account/create">
-                                <span class="glyphicon glyphicon-user" aria-hidden="true"></span> Create account
-                            </a>
-                        </li>
+                        {{#if allowJoin}}
+                            <li {{#if activeCreate}} class="active" {{/if}}>
+                                <a href="/account/create">
+                                    <span class="glyphicon glyphicon-user" aria-hidden="true"></span> Create account
+                                </a>
+                            </li>
+                        {{/if}}
                         <li {{#if activeLogin}} class="active" {{/if}}>
                             <a href="/account/login">
                                 <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> Log in

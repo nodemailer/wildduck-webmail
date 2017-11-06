@@ -62,23 +62,25 @@
                                 </td>
                             </tr>
 
-                            {{#if enabled2fa}}
-                                <tr>
-                                    <td>
-                                        {{#if enabledU2f}}
-                                            U2F security key is <span class="label label-success"><span class="glyphicon glyphicon-flash" aria-hidden="true"></span> REGISTERED</span>
-                                        {{else}}
-                                            U2F security key is <span class="label label-default"><span class="glyphicon glyphicon-flash" aria-hidden="true"></span> NOT REGISTERED</span>
-                                        {{/if}}
-                                    </td>
-                                    <td class="text-right">
-                                        {{#if enabledU2f}}
-                                            <button form="disable-u2f" type="submit" class="btn btn-default"><span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span> Remove key</button>
-                                        {{else}}
-                                            <button form="enable-u2f" type="submit" class="btn btn-success"><span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span> Set security key</button>
-                                        {{/if}}
-                                    </td>
-                                </tr>
+                            {{#if u2fEnabled}}
+                                {{#if enabled2fa}}
+                                    <tr>
+                                        <td>
+                                            {{#if enabledU2f}}
+                                                U2F security key is <span class="label label-success"><span class="glyphicon glyphicon-flash" aria-hidden="true"></span> REGISTERED</span>
+                                            {{else}}
+                                                U2F security key is <span class="label label-default"><span class="glyphicon glyphicon-flash" aria-hidden="true"></span> NOT REGISTERED</span>
+                                            {{/if}}
+                                        </td>
+                                        <td class="text-right">
+                                            {{#if enabledU2f}}
+                                                <button form="disable-u2f" type="submit" class="btn btn-default"><span class="glyphicon glyphicon-remove-circle" aria-hidden="true"></span> Remove key</button>
+                                            {{else}}
+                                                <button form="enable-u2f" type="submit" class="btn btn-success"><span class="glyphicon glyphicon-ok-circle" aria-hidden="true"></span> Set security key</button>
+                                            {{/if}}
+                                        </td>
+                                    </tr>
+                                {{/if}}
                             {{/if}}
                         </table>
                     </div>

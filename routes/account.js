@@ -106,7 +106,12 @@ router.get('/login', (req, res) => {
     });
 });
 
-router.get('/create', passport.csrf, (req, res) => {
+router.get('/create', passport.csrf, (req, res, next) => {
+    if (!config.service.allowJoin) {
+        let err = new Error('User registration is disabled');
+        err.status = 404;
+        return next(err);
+    }
     res.render('account/create', {
         title: 'Create new account',
         activeCreate: true,
@@ -114,7 +119,12 @@ router.get('/create', passport.csrf, (req, res) => {
     });
 });
 
-router.post('/create', passport.parse, passport.csrf, (req, res) => {
+router.post('/create', passport.parse, passport.csrf, (req, res, next) => {
+    if (!config.service.allowJoin) {
+        let err = new Error('User registration is disabled');
+        err.status = 404;
+        return next(err);
+    }
     const createSchema = {
         name: Joi.string()
             .trim()
@@ -573,7 +583,7 @@ router.post('/enable-2fa', passport.parse, passport.csrf, passport.checkLogin, (
     });
 
     let showErrors = errors => {
-        apiClient['2fa'].setupTotp(req.user.id, config.name, false, req.ip, (err, data) => {
+        apiClient['2fa'].setupTotp(req.user.id, config.totp.issuer || config.name, false, req.ip, (err, data) => {
             if (err) {
                 return next(err);
             }
@@ -619,7 +629,7 @@ router.post('/enable-2fa', passport.parse, passport.csrf, passport.checkLogin, (
         });
     }
 
-    apiClient['2fa'].setupTotp(req.user.id, config.name, true, req.ip, (err, data) => {
+    apiClient['2fa'].setupTotp(req.user.id, config.totp.issuer || config.name, true, req.ip, (err, data) => {
         if (err) {
             return next(err);
         }
@@ -644,7 +654,13 @@ router.post('/disable-2fa', passport.parse, passport.csrf, passport.checkLogin, 
     });
 });
 
-router.post('/start-u2f', passport.parse, passport.csrf, (req, res) => {
+router.post('/start-u2f', passport.parse, passport.csrf, (req, res, next) => {
+    if (!config.u2f.enabled) {
+        let err = new Error('U2F support is disabled');
+        err.status = 404;
+        return next(err);
+    }
+
     apiClient['2fa'].startU2f(req.user.id, req.ip, (err, data) => {
         if (err) {
             return res.json({ error: err.message });
@@ -653,7 +669,13 @@ router.post('/start-u2f', passport.parse, passport.csrf, (req, res) => {
     });
 });
 
-router.post('/check-u2f', passport.parse, passport.csrf, (req, res) => {
+router.post('/check-u2f', passport.parse, passport.csrf, (req, res, next) => {
+    if (!config.u2f.enabled) {
+        let err = new Error('U2F support is disabled');
+        err.status = 404;
+        return next(err);
+    }
+
     let requestData = { ip: req.ip };
     Object.keys(req.body || {}).forEach(key => {
         if (['signatureData', 'clientData', 'errorCode'].includes(key)) {
@@ -676,6 +698,12 @@ router.post('/check-u2f', passport.parse, passport.csrf, (req, res) => {
 });
 
 router.post('/enable-u2f', passport.parse, passport.csrf, passport.checkLogin, (req, res, next) => {
+    if (!config.u2f.enabled) {
+        let err = new Error('U2F support is disabled');
+        err.status = 404;
+        return next(err);
+    }
+
     apiClient['2fa'].setupU2f(req.user.id, req.ip, (err, data) => {
         if (err) {
             return next(err);
@@ -694,6 +722,12 @@ router.post('/enable-u2f', passport.parse, passport.csrf, passport.checkLogin, (
 });
 
 router.post('/disable-u2f', passport.parse, passport.csrf, passport.checkLogin, (req, res, next) => {
+    if (!config.u2f.enabled) {
+        let err = new Error('U2F support is disabled');
+        err.status = 404;
+        return next(err);
+    }
+
     apiClient['2fa'].disableU2f(req.user.id, req.ip, (err, data) => {
         if (err) {
             return next(err);
@@ -706,7 +740,13 @@ router.post('/disable-u2f', passport.parse, passport.csrf, passport.checkLogin, 
     });
 });
 
-router.post('/enable-u2f/verify', passport.parse, passport.csrf, passport.checkLogin, (req, res) => {
+router.post('/enable-u2f/verify', passport.parse, passport.csrf, passport.checkLogin, (req, res, next) => {
+    if (!config.u2f.enabled) {
+        let err = new Error('U2F support is disabled');
+        err.status = 404;
+        return next(err);
+    }
+
     let requestData = { ip: req.ip };
     Object.keys(req.body || {}).forEach(key => {
         if (['registrationData', 'clientData', 'errorCode'].includes(key)) {

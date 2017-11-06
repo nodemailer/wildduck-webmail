@@ -9,6 +9,7 @@ title="wildduck-www"
     quota=1024
     recipients=2000
     forwards=2000
+    allowJoin=true
 
 [api]
     url="http://127.0.0.1:8080"
@@ -30,6 +31,14 @@ title="wildduck-www"
     secret="a cat"
     baseurl="http://localhost" # link used in emails etc
     secure=false
+
+[totp]
+    # Issuer name for TOTP, defaults to config.name
+    issuer=false
+
+[u2f]
+    # set to false if not using HTTPS
+    enabled=true
 
 [log]
     level="silly"

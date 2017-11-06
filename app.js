@@ -97,6 +97,8 @@ app.use((req, res, next) => {
     // make sure flash messages are available
     res.locals.flash = req.flash.bind(req);
     res.locals.user = req.user;
+    res.locals.allowJoin = config.service.allowJoin;
+    res.locals.u2fEnabled = config.u2f.enabled;
 
     res.locals.serviceName = config.name;
     res.locals.serviceDomain = config.service.domain;
