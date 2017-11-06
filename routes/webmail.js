@@ -346,8 +346,7 @@ router.get('/:mailbox/audit/:message', (req, res, next) => {
                     messageData,
                     mailbox: selectedMailbox,
                     message: result.value.message,
-                    forwardTargets,
-                    csrfToken: req.csrfToken()
+                    forwardTargets
                 });
             });
         });
