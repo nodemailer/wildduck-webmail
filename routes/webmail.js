@@ -245,6 +245,36 @@ router.get('/:mailbox/audit/:message', (req, res, next) => {
             if (!messageData) {
                 return res.redirect('/webmail');
             }
+
+            let formatTarget = (target, i) => {
+                let seq = leftPad((i + 1).toString(16), '0', 3);
+                switch (target.type) {
+                    case 'mail':
+                        return {
+                            seq,
+                            num: i + 1,
+                            text: 'Forward to',
+                            value: target.value
+                        };
+                    case 'http':
+                        return {
+                            seq,
+                            num: i + 1,
+                            text: 'Upload to',
+                            value: target.value
+                        };
+                    case 'relay':
+                        return {
+                            seq,
+                            num: i + 1,
+                            text: 'Relay through',
+                            value: target.value.mx[0].exchange + (target.value.mxPort && target.value.mxPort !== 25 ? ':' + target.value.mxPort : '')
+                        };
+                }
+            };
+
+            let forwardTargets = [].concat(messageData.forwardTargets || []).map(formatTarget);
+
             apiClient.messages.getEvents(req.user.id, mailbox, result.value.message, (err, events) => {
                 if (err) {
                     return next(err);
@@ -279,7 +309,7 @@ router.get('/:mailbox/audit/:message', (req, res, next) => {
                                 break;
                             case 'QUEUED':
                                 event.actionDescription = 'Message was queued for delivery';
-                                event.actionLabel = 'warning';
+                                event.actionLabel = 'success';
                                 break;
                             case 'DEFERRED':
                                 event.actionDescription = 'Message was temporarily rejected';
@@ -313,9 +343,11 @@ router.get('/:mailbox/audit/:message', (req, res, next) => {
                     }),
                     activeWebmail: true,
                     mailboxes,
+                    messageData,
                     mailbox: selectedMailbox,
                     message: result.value.message,
-                    messageData
+                    forwardTargets,
+                    csrfToken: req.csrfToken()
                 });
             });
         });
@@ -397,6 +429,10 @@ function renderMailbox(req, res, next) {
             });
         });
     });
+}
+
+function leftPad(val, chr, len) {
+    return chr.repeat(len - val.toString().length) + val;
 }
 
 module.exports = router;
