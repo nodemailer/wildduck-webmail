@@ -344,6 +344,7 @@ router.get('/:mailbox/audit/:message', (req, res, next) => {
                             event.targetList = event.targets.map(formatTarget).filter(target => target);
                         } else if (Array.isArray(event.to) && event.to.length > 1) {
                             event.targetList = event.to.map(formatTarget).filter(target => target);
+                            event.toTitle = 'Send to';
                             delete event.to;
                         }
 

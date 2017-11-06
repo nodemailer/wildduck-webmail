@@ -55,11 +55,10 @@
                 {{/if}}
 
                 {{#if targetList}}
-                    <dt>Forwarding</dt>
+                    <dt>{{#if toTitle}}{{toTitle}}{{else}}Forwarding{{/if}}</dt>
                     <dd>
-
                         {{#each targetList}}
-                            <div><strong>{{seq}}:</strong> {{text}} <code class="response">{{value}}</code></div>
+                            <div><strong>{{id}}.{{seq}}:</strong> {{text}} <code class="response">{{value}}</code></div>
                         {{/each}}
                     </dd>
                 {{/if}}
