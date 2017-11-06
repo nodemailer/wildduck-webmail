@@ -248,6 +248,12 @@ router.get('/:mailbox/audit/:message', (req, res, next) => {
 
             let formatTarget = (target, i) => {
                 let seq = leftPad((i + 1).toString(16), '0', 3);
+                if (typeof target === 'string') {
+                    target = {
+                        type: 'mail',
+                        value: target
+                    };
+                }
                 switch (target.type) {
                     case 'mail':
                         return {
@@ -335,6 +341,9 @@ router.get('/:mailbox/audit/:message', (req, res, next) => {
 
                         if (event.targets) {
                             event.targetList = event.targets.map(formatTarget).filter(target => target);
+                        } else if (Array.isArray(event.to)) {
+                            event.targetList = event.to.map(formatTarget).filter(target => target);
+                            delete event.to;
                         }
 
                         event.error = event.error || event.reason;
