@@ -279,7 +279,7 @@ router.get('/:mailbox/audit/:message', (req, res, next) => {
                                 break;
                             case 'QUEUED':
                                 event.actionDescription = 'Message was queued for delivery';
-                                event.actionLabel = 'warning';
+                                event.actionLabel = 'success';
                                 break;
                             case 'DEFERRED':
                                 event.actionDescription = 'Message was temporarily rejected';
