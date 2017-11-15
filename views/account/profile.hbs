@@ -45,11 +45,12 @@
                         </p>
 
                         <div class="form-group{{#if errors.forward}} has-error{{/if}}">
-                            <label for="forward">Send incoming messages to address:</label>
+                            <label for="forward">Forward incoming messages to:</label>
                             <input type="text" class="form-control" name="forward" id="forward" placeholder="user@example.com" value="{{values.forward}}">
                             {{#if errors.forward}}
                                 <span class="help-block">{{errors.forward}}</span>
                             {{/if}}
+                            <span class="help-block">Use comma separated list of addresses for multiple recipients</span>
                         </div>
 
                         <div class="form-group{{#if errors.targetUrl}} has-error{{/if}}">

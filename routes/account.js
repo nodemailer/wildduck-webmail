@@ -281,6 +281,8 @@ router.get('/profile', passport.csrf, passport.checkLogin, (req, res, next) => {
             return next(err);
         }
 
+        userData.forward = [].concat(userData.forward).join(', ');
+
         res.render('account/profile', {
             title: 'Account',
             activeProfile: true,
@@ -300,7 +302,6 @@ router.post('/profile', passport.parse, passport.csrf, passport.checkLogin, (req
 
             forward: Joi.string()
                 .empty('')
-                .email()
                 .label('Forward address'),
             targetUrl: Joi.string()
                 .trim()
@@ -369,6 +370,10 @@ router.post('/profile', passport.parse, passport.csrf, passport.checkLogin, (req
             req.flash('danger', 'Account update failed');
         }
 
+        if (Array.isArray(result.value.forward)) {
+            result.value.forward = result.value.forward.join(', ');
+        }
+
         res.render('account/profile', {
             title: 'Account',
             activeProfile: true,
@@ -398,7 +403,10 @@ router.post('/profile', passport.parse, passport.csrf, passport.checkLogin, (req
 
     delete result.value.password2;
     result.value.name = result.value.name || '';
-    result.value.forward = result.value.forward || '';
+    result.value.forward = (result.value.forward || '')
+        .trim()
+        .split(/\s*,\s*/)
+        .filter(fwd => fwd);
     result.value.targetUrl = result.value.targetUrl || '';
     result.value.pubKey = result.value.pubKey || '';
 

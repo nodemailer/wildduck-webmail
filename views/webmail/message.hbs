@@ -68,7 +68,7 @@
                         FORBID_TAGS: ['form']
                     });
 
-                    clean = clean.replace(/head>/, 'head><link rel="stylesheet" href="/css/mail.css" /><base target="_parent"><script>function resizeIframe(obj) {obj.style.height = obj.contentWindow.document.body.scrollHeight + "px"; console.log("aaa")}</'+'script>');
+                    clean = clean.replace(/head>/, 'head><link rel="stylesheet" href="/css/mail.css" /><base target="_parent"><script>function resizeIframe(obj) {obj.style.height = obj.contentWindow.document.body.scrollHeight + "px";}</'+'script>');
 
                     var iframe = document.createElement('iframe');
 

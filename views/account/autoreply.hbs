@@ -16,7 +16,7 @@
             <div class="radio">
                 <label>
                     <input type="radio" name="status" value="false" {{#unless values.status}}checked{{/unless}}>
-                    Autoreply is  {{#unless values.status}}<span class="label label-default">disabled</span>{{else}}disabled{{/unless}}
+                    Autoreply is {{#unless values.status}}<span class="label label-default">disabled</span>{{else}}disabled{{/unless}}
                 </label>
             </div>
 
@@ -33,8 +33,18 @@
             </div>
 
             <div class="form-group">
+                <label for="subject">Start time</label>
+                <input type="datetime-local" class="form-control" id="start" name="start" value="{{values.start}}">
+            </div>
+
+            <div class="form-group">
+                <label for="subject">End time</label>
+                <input type="datetime-local" class="form-control" id="start" name="start" value="{{values.start}}">
+            </div>
+
+            <div class="form-group">
                 <label for="message">Message</label>
-                <textarea class="form-control" name="message" value="{{values.message}}" rows="3">{{values.message}}</textarea>
+                <textarea class="form-control" name="text" value="{{values.text}}" rows="3">{{values.text}}</textarea>
             </div>
 
             <div class="form-group">

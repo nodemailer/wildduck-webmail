@@ -23,8 +23,16 @@ router.get('/', passport.csrf, (req, res, next) => {
 router.post('/', passport.parse, passport.csrf, (req, res) => {
     const updateSchema = Joi.object().keys({
         status: Joi.boolean().required(),
-        subject: Joi.string().empty('').trim().max(128),
-        message: Joi.string().empty('').trim().max(10 * 1024)
+        subject: Joi.string()
+            .empty('')
+            .trim()
+            .max(128),
+        text: Joi.string()
+            .empty('')
+            .trim()
+            .max(10 * 1024),
+        start: Joi.date(),
+        end: Joi.date().min(Joi.ref('start'))
     });
 
     delete req.body._csrf;
@@ -67,8 +75,8 @@ router.post('/', passport.parse, passport.csrf, (req, res) => {
         result.value.subject = '';
     }
 
-    if (!result.value.message && 'message' in req.body) {
-        result.value.message = '';
+    if (!result.value.text && 'text' in req.body) {
+        result.value.text = '';
     }
 
     apiClient.autoreply.update(req.user.id, result.value, err => {
