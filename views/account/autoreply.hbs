@@ -34,7 +34,7 @@
 
             <div class="form-group{{#if errors.start}} has-error{{/if}}">
                 <label for="subject">Start time</label>
-                <input type="datetime-local" class="form-control" id="start" name="start" value="{{values.start}}">
+                <input type="text" class="form-control" id="start" name="start" value="{{values.start}}">
                 {{#if errors.start}}
                     <span class="help-block">{{errors.start}}</span>
                 {{/if}}
@@ -42,7 +42,7 @@
 
             <div class="form-group{{#if errors.end}} has-error{{/if}}">
                 <label for="subject">End time</label>
-                <input type="datetime-local" class="form-control" id="end" name="end" value="{{values.end}}">
+                <input type="text" class="form-control" id="end" name="end" value="{{values.end}}">
                 {{#if errors.end}}
                     <span class="help-block">{{errors.end}}</span>
                 {{/if}}
