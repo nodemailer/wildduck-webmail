@@ -31,9 +31,9 @@ router.post('/', passport.parse, passport.csrf, (req, res) => {
             .empty('')
             .trim()
             .max(10 * 1024),
-        start: Joi.empty('').date(),
-        end: Joi.empty('')
-            .date()
+        start: Joi.date().empty(''),
+        end: Joi.date()
+            .empty('')
             .min(Joi.ref('start'))
     });
 
