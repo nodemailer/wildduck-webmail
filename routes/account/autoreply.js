@@ -31,8 +31,10 @@ router.post('/', passport.parse, passport.csrf, (req, res) => {
             .empty('')
             .trim()
             .max(10 * 1024),
-        start: Joi.date(),
-        end: Joi.date().min(Joi.ref('start'))
+        start: Joi.empty('').date(),
+        end: Joi.empty('')
+            .date()
+            .min(Joi.ref('start'))
     });
 
     delete req.body._csrf;
