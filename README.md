@@ -4,6 +4,8 @@
 
 This is an example web service that uses the [Wild Duck API](https://github.com/nodemailer/wildduck/wiki/API-Docs) to manage user settings and preview messages
 
+> **NB!** This web client is slightly outdated and some features do not work against the newest Wild Duck server. This should be fixed soon
+
 ## Usage
 
 Assuming that you have Wild Duck mail server running
