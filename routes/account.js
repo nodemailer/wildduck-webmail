@@ -4,11 +4,13 @@ const config = require('wild-config');
 const express = require('express');
 const router = new express.Router();
 const passport = require('../lib/passport');
+const tools = require('../lib/tools');
 const Joi = require('joi');
 const apiClient = require('../lib/api-client');
 const roleBasedAddresses = require('role-based-email-addresses');
 const util = require('util');
 const humanize = require('humanize');
+const addressparser = require('addressparser');
 
 // sub services
 router.use('/filters', passport.checkLogin, require('./account/filters'));
@@ -403,10 +405,10 @@ router.post('/profile', passport.parse, passport.csrf, passport.checkLogin, (req
 
     delete result.value.password2;
     result.value.name = result.value.name || '';
-    result.value.forward = (result.value.forward || '')
-        .trim()
-        .split(/\s*,\s*/)
+    result.value.forward = addressparser(result.value.forward || '')
+        .map(addr => tools.normalizeAddress(addr.address))
         .filter(fwd => fwd);
+
     result.value.targetUrl = result.value.targetUrl || '';
     result.value.pubKey = result.value.pubKey || '';
 

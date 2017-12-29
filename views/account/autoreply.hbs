@@ -8,6 +8,8 @@
     <div class="col-md-8">
         <form method="post" action="/account/autoreply">
             <input type="hidden" name="_csrf" value="{{csrfToken}}">
+            <input type="hidden" id="start" name="start" value="{{#if values.start}}{{values.start}}{{/if}}" />
+            <input type="hidden" id="end" name="end" value="{{#if values.end}}{{values.end}}{{/if}}" />
 
             <p>
                 If enabled then an autoreply message is sent to all incoming messages. If a contact sends multiple messages then the autoreply is sent at most once in every four days.
@@ -29,23 +31,15 @@
 
             <div class="form-group">
                 <label for="subject">Subject</label>
-                <input type="text" class="form-control" id="subject" name="subject" value="{{values.subject}}" placeholder="I'm on vacation!">
+                <input type="text" class="form-control" id="subject" name="subject" value="{{values.subject}}" placeholder="Leave blank to use the default subject">
             </div>
 
-            <div class="form-group{{#if errors.start}} has-error{{/if}}">
-                <label for="subject">Start time</label>
-                <input type="text" class="form-control" id="start" name="start" value="{{values.start}}">
-                {{#if errors.start}}
-                    <span class="help-block">{{errors.start}}</span>
-                {{/if}}
-            </div>
-
-            <div class="form-group{{#if errors.end}} has-error{{/if}}">
-                <label for="subject">End time</label>
-                <input type="text" class="form-control" id="end" name="end" value="{{values.end}}">
-                {{#if errors.end}}
-                    <span class="help-block">{{errors.end}}</span>
-                {{/if}}
+            <div class="form-group">
+                <label for="daterange">Time</label>
+                <div class="form-group-sm daterangeElm" style="position: relative">
+                    <input type="text" id="daterange" class="form-control" value="">
+                    <i class="glyphicon glyphicon-calendar fa fa-calendar" style="position: absolute; bottom: 10px; right: 24px; top: auto; cursor: pointer;"></i>
+                </div>
             </div>
 
             <div class="form-group">
@@ -61,3 +55,72 @@
 
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(event) {
+        $('#daterange').daterangepicker({
+            "showDropdowns": true,
+            "showISOWeekNumbers": true,
+            "timePicker": true,
+            "timePicker24Hour": true,
+            "autoApply": true,
+            "autoUpdateInput": false,
+            "locale": {
+                "direction": "ltr",
+                "format": "DD/MM/YYYY HH:mm",
+                "separator": " - ",
+                "applyLabel": "Select",
+                "cancelLabel": "Cancel",
+                "fromLabel": "From",
+                "toLabel": "To",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "Su",
+                    "Mo",
+                    "Tu",
+                    "We",
+                    "Th",
+                    "Fr",
+                    "Sa"
+                ],
+                "monthNames": [
+                    "January",
+                    "February",
+                    "March",
+                    "April",
+                    "May",
+                    "June",
+                    "July",
+                    "August",
+                    "September",
+                    "October",
+                    "November",
+                    "December"
+                ],
+                "firstDay": 1
+            },
+
+            {{#if values.start}}
+                "startDate": moment("{{values.start}}").format('DD/MM/YYYY HH:mm'),
+            {{/if}}
+
+            {{#if values.end}}
+                "endDate": moment("{{values.end}}").format('DD/MM/YYYY HH:mm'),
+            {{/if}}
+
+            "alwaysShowCalendars": true
+        }, function(start, end, label) {
+            document.getElementById('start').value = start.valueOf();
+            document.getElementById('end').value = end.valueOf();
+            document.getElementById('daterange').value = start.format('DD/MM/YYYY HH:mm') + ' – ' + end.format('DD/MM/YYYY HH:mm');
+        });
+
+        $('.daterangeElm i').click(function() {
+            $(this).parent().find('input').click();
+        });
+
+        {{#if values.start}}
+            document.getElementById('daterange').value = moment("{{values.start}}").format('DD/MM/YYYY HH:mm') + ' – ' + moment("{{values.end}}").format('DD/MM/YYYY HH:mm');
+        {{/if}}
+    });
+</script>
