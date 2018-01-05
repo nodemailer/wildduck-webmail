@@ -1,6 +1,7 @@
 'use strict';
 
 const config = require('wild-config');
+const crypto = require('crypto');
 const express = require('express');
 const router = new express.Router();
 const passport = require('../lib/passport');
@@ -22,6 +23,9 @@ router.get('/', passport.csrf, passport.checkLogin, (req, res, next) => {
             return next(err);
         }
 
+        let remember2fa = req.session.remember2fa;
+        req.session.remember2fa = false;
+
         res.render('account/index', {
             activeHome: true,
 
@@ -37,7 +41,9 @@ router.get('/', passport.csrf, passport.checkLogin, (req, res, next) => {
 
             forwards: humanize.numberFormat(userData.limits.forwards.allowed, 0),
             forwardsSent: humanize.numberFormat(userData.limits.forwards.used, 0),
-            forwardsOverview: Math.round(userData.limits.forwards.used / (userData.limits.forwards.allowed || 1) * 100)
+            forwardsOverview: Math.round(userData.limits.forwards.used / (userData.limits.forwards.allowed || 1) * 100),
+
+            remember2fa: remember2fa ? JSON.stringify(remember2fa) : false
         });
     });
 });
@@ -320,7 +326,7 @@ router.post('/profile', passport.parse, passport.csrf, passport.checkLogin, (req
                 .trim()
                 .regex(/^-----BEGIN PGP PUBLIC KEY BLOCK-----/, 'PGP key format'),
             encryptMessages: Joi.boolean()
-                .truthy(['Y', 'true', 'yes', 1])
+                .truthy(['Y', 'true', 'yes', 'on', 1])
                 .default(false),
 
             existingPassword: Joi.string()
@@ -525,7 +531,10 @@ router.post('/2fa', passport.parse, passport.csrf, (req, res) => {
         token: Joi.string()
             .length(6)
             .regex(/^[0-9]+$/, 'numbers')
-            .required()
+            .required(),
+        remember2fa: Joi.boolean()
+            .truthy(['Y', 'true', 'yes', 'on', 1])
+            .default(false)
     });
 
     delete req.body._csrf;
@@ -563,8 +572,18 @@ router.post('/2fa', passport.parse, passport.csrf, (req, res) => {
         return showErrors(errors);
     }
 
+    let remember2fa = result.value.remember2fa;
+
     apiClient['2fa'].checkTotp(req.user.id, result.value.token, req.ip, (err, result) => {
         if (!err && result) {
+            if (remember2fa) {
+                // store response to session data to be sent to browser javascript later
+                req.session.remember2fa = {
+                    username: req.session.username,
+                    value: generate2faRemeberToken(req.user.id)
+                };
+            }
+
             req.session.require2fa = false;
             return res.redirect('/account/');
         }
@@ -686,12 +705,36 @@ router.post('/check-u2f', passport.parse, passport.csrf, (req, res, next) => {
         return next(err);
     }
 
+    const authSchema = Joi.object().keys({
+        keyHandle: Joi.string(),
+        clientData: Joi.string(),
+        signatureData: Joi.string(),
+        errorCode: Joi.number(),
+        remember2fa: Joi.boolean()
+            .truthy(['Y', 'true', 'yes', 'on', 1])
+            .default(false)
+    });
+
+    delete req.body._csrf;
+    let result = Joi.validate(req.body, authSchema, {
+        abortEarly: false,
+        convert: true,
+        allowUnknown: false
+    });
+
+    if (result.error) {
+        return res.json({ error: result.error.message });
+    }
+
     let requestData = { ip: req.ip };
-    Object.keys(req.body || {}).forEach(key => {
+    Object.keys(result.value || {}).forEach(key => {
         if (['signatureData', 'clientData', 'errorCode'].includes(key)) {
             requestData[key] = req.body[key];
         }
     });
+
+    let remember2fa = result.value.remember2fa;
+
     apiClient['2fa'].checkU2f(req.user.id, requestData, (err, data) => {
         if (err) {
             return res.json({ error: err.message });
@@ -699,6 +742,13 @@ router.post('/check-u2f', passport.parse, passport.csrf, (req, res, next) => {
 
         if (!data || !data.success) {
             return res.json({ error: 'Could not verify key' });
+        }
+
+        if (remember2fa) {
+            data.remember2fa = {
+                username: req.session.username,
+                value: generate2faRemeberToken(req.user.id)
+            };
         }
 
         req.session.require2fa = false;
@@ -771,5 +821,17 @@ router.post('/enable-u2f/verify', passport.parse, passport.csrf, passport.checkL
         res.json(data);
     });
 });
+
+function generate2faRemeberToken(user) {
+    let parts = [Date.now().toString(16), crypto.randomBytes(6).toString('hex')];
+
+    let valueStr = parts.join('\\');
+    let hash = crypto
+        .createHmac('sha256', config.totp.secret + ':' + user)
+        .update(valueStr)
+        .digest('hex');
+
+    return valueStr + '\\' + hash;
+}
 
 module.exports = router;

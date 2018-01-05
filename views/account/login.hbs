@@ -9,6 +9,7 @@
 
         <form method="post" action="/account/login">
             <input type="hidden" name="_csrf" value="{{csrfToken}}">
+            <input type="hidden" name="_2faToken" id="_2faToken" value="">
 
             <fieldset>
 
@@ -49,3 +50,12 @@
 
     </div>
 </div>
+
+<script src="/login-key-handler.js"></script>
+<script>
+loginKeyHandler.setup(
+    document.getElementById('username'),
+    document.getElementById('_2faToken'),
+    '2fa'
+);
+</script>

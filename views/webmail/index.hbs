@@ -21,28 +21,7 @@
             <table class="table table-striped">
                 <tbody>
                     {{#each messages}}
-                        <tr style="{{#unless seen}}font-weight: bold;{{/unless}}">
-                            <td class="col-md-2 datestring" title="{{date}}">
-                                {{date}}
-                            </td>
-                            <td class="col-md-3">
-                                {{{fromHtml}}}
-                            </td>
-                            <td>
-                                {{#if encrypted}}
-                                    <div class="pull-right">
-                                        <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
-                                    </div>
-                                {{else}}
-                                    {{#if attachments}}
-                                        <div class="pull-right">
-                                            <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
-                                        </div>
-                                    {{/if}}
-                                {{/if}}
-                                <a href="/webmail/{{../mailbox.id}}/message/{{id}}">{{#if subject}}{{subject}}{{else}}&lt;untitled&gt;{{/if}}</a>
-                            </td>
-                        </tr>
+                        {{>messagerow}}
                     {{/each}}
                 </tbody>
             </table>

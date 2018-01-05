@@ -7,25 +7,66 @@ const Joi = require('joi');
 const apiClient = require('../../lib/api-client');
 
 const filterBaseSchema = {
-    name: Joi.string().empty('').trim().max(100).label('Name'),
+    name: Joi.string()
+        .empty('')
+        .trim()
+        .max(100)
+        .label('Name'),
 
-    query_from: Joi.string().empty('').trim().max(100).label('From'),
-    query_to: Joi.string().empty('').trim().max(100).label('To'),
-    query_subject: Joi.string().empty('').trim().max(100).label('Subject'),
-    query_text: Joi.string().empty('').trim().max(100).label('Includes'),
-    query_haYes: Joi.boolean().optional().label('Has attachments'),
-    query_haNo: Joi.boolean().optional().label('Does not have attachments'),
+    query_from: Joi.string()
+        .empty('')
+        .trim()
+        .max(100)
+        .label('From'),
+    query_to: Joi.string()
+        .empty('')
+        .trim()
+        .max(100)
+        .label('To'),
+    query_subject: Joi.string()
+        .empty('')
+        .trim()
+        .max(100)
+        .label('Subject'),
+    query_text: Joi.string()
+        .empty('')
+        .trim()
+        .max(100)
+        .label('Includes'),
+    query_haYes: Joi.boolean()
+        .optional()
+        .label('Has attachments'),
+    query_haNo: Joi.boolean()
+        .optional()
+        .label('Does not have attachments'),
     query_sizeType: Joi.number().label('Size type'),
-    query_sizeValue: Joi.number().empty('').label('Size'),
-    query_sizeUnit: Joi.string().valid(['MB', 'kB', 'B']).label('Size unit'),
+    query_sizeValue: Joi.number()
+        .empty('')
+        .label('Size'),
+    query_sizeUnit: Joi.string()
+        .valid(['MB', 'kB', 'B'])
+        .label('Size unit'),
 
-    action_seenYes: Joi.boolean().optional().label('Mark as seen'),
-    action_flagYes: Joi.boolean().optional().label('Flag it'),
-    action_deleteYes: Joi.boolean().optional().label('Delete'),
-    action_spamYes: Joi.boolean().optional().label('Mark as spam'),
-    action_spamNo: Joi.boolean().optional().label('Do not mark as spam'),
+    action_seenYes: Joi.boolean()
+        .optional()
+        .label('Mark as seen'),
+    action_flagYes: Joi.boolean()
+        .optional()
+        .label('Flag it'),
+    action_deleteYes: Joi.boolean()
+        .optional()
+        .label('Delete'),
+    action_spamYes: Joi.boolean()
+        .optional()
+        .label('Mark as spam'),
+    action_spamNo: Joi.boolean()
+        .optional()
+        .label('Do not mark as spam'),
 
-    action_forward: Joi.string().empty('').email().label('Forward address'),
+    action_forward: Joi.string()
+        .empty('')
+        .email()
+        .label('Forward address'),
     action_targetUrl: Joi.string()
         .empty('')
         .uri({
@@ -72,7 +113,12 @@ router.get('/create', passport.csrf, (req, res, next) => {
 
 router.get('/edit', passport.csrf, (req, res, next) => {
     const updateSchema = Joi.object().keys({
-        id: Joi.string().trim().hex().length(24).label('Filtri ID').required()
+        id: Joi.string()
+            .trim()
+            .hex()
+            .length(24)
+            .label('Filtri ID')
+            .required()
     });
 
     let result = Joi.validate(req.query, updateSchema, {
@@ -119,7 +165,12 @@ router.get('/edit', passport.csrf, (req, res, next) => {
 
 router.post('/delete', passport.parse, passport.csrf, (req, res) => {
     const updateSchema = Joi.object().keys({
-        id: Joi.string().trim().hex().length(24).label('Filter ID').required()
+        id: Joi.string()
+            .trim()
+            .hex()
+            .length(24)
+            .label('Filter ID')
+            .required()
     });
 
     delete req.body._csrf;
@@ -155,15 +206,21 @@ router.post('/create', passport.parse, passport.csrf, (req, res, next) => {
             return next(err);
         }
 
-        const createSchema = Joi.object().keys(filterBaseSchema).keys({
-            action_mailbox: Joi.string().empty('').valid(mailboxes.map(mailbox => mailbox.id)).label('Move to mailbox').options({
-                language: {
-                    any: {
-                        allowOnly: '!!Unknown mailbox'
-                    }
-                }
-            })
-        });
+        const createSchema = Joi.object()
+            .keys(filterBaseSchema)
+            .keys({
+                action_mailbox: Joi.string()
+                    .empty('')
+                    .valid(mailboxes.map(mailbox => mailbox.id))
+                    .label('Move to mailbox')
+                    .options({
+                        language: {
+                            any: {
+                                allowOnly: '!!Unknown mailbox'
+                            }
+                        }
+                    })
+            });
 
         delete req.body._csrf;
         let result = Joi.validate(req.body, createSchema, {
@@ -230,17 +287,26 @@ router.post('/edit', passport.parse, passport.csrf, (req, res, next) => {
 
         const createSchema = Joi.object()
             .keys({
-                id: Joi.string().trim().hex().length(24).label('Filtri ID').required()
+                id: Joi.string()
+                    .trim()
+                    .hex()
+                    .length(24)
+                    .label('Filtri ID')
+                    .required()
             })
             .keys(filterBaseSchema)
             .keys({
-                action_mailbox: Joi.string().empty('').valid(mailboxes.map(mailbox => mailbox.id)).label('Liiguta kausta').options({
-                    language: {
-                        any: {
-                            allowOnly: '!!Tundmatu postkast'
+                action_mailbox: Joi.string()
+                    .empty('')
+                    .valid(mailboxes.map(mailbox => mailbox.id))
+                    .label('Liiguta kausta')
+                    .options({
+                        language: {
+                            any: {
+                                allowOnly: '!!Tundmatu postkast'
+                            }
                         }
-                    }
-                })
+                    })
             });
 
         delete req.body._csrf;

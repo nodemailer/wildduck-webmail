@@ -32,6 +32,18 @@
                         Initializing...
                     </p>
 
+                    {{#if errors.token}}
+                        <div class="form-group has-error">
+                            <span class="help-block">{{errors.token}}</span>
+                        </div>
+                    {{/if}}
+
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="remember2fa" id="remember2fa"> Remember this computer
+                        </label>
+                    </div>
+
                     <div>
                         <div class="pull-right">
                             <a href="{{disableU2f}}">or use security code</a>
@@ -57,6 +69,15 @@
                     {{/if}}
                 </div>
 
+                <div class="checkbox{{#if errors.remember2fa}} has-error{{/if}}">
+                    <label>
+                        <input type="checkbox" name="remember2fa"> Remember this computer
+                    </label>
+                    {{#if errors.remember2fa}}
+                        <span class="help-block">{{errors.remember2fa}}</span>
+                    {{/if}}
+                </div>
+
                 <div>
                     <div class="pull-right">
                         <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Verify</button>
@@ -72,6 +93,9 @@
 </form>
 
 {{#if enabledU2f}}
+
+<script src="/login-key-handler.js"></script>
+
 <script>
 var U2FSUPPORT = typeof u2f === 'object' || typeof chrome === 'object';
 </script>
@@ -107,6 +131,7 @@ function startU2f(){
             message.innerHTML = 'Verifying response...';
 
             authResponse._csrf = document.getElementById('_csrf').value;
+            authResponse.remember2fa = document.getElementById('remember2fa').value;
             fetch('/account/check-u2f', {
                 method: 'post',
                 headers: {
@@ -124,6 +149,11 @@ function startU2f(){
                     document.getElementById('u2f-fail').style.display = 'block';
                     return;
                 }
+
+                if(res.success && res.remember2fa){
+                    loginKeyHandler.set(res.remember2fa.username, res.remember2fa.value, '2fa');
+                }
+
                 document.getElementById('u2f-success').style.display = 'block';
                 message.innerHTML = res.success ? 'You are verified' : 'Failed to check U2F key';
                 window.location = res.targetUrl;
