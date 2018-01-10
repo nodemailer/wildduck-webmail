@@ -111,7 +111,7 @@ app.use((req, res, next) => {
     if (
         req.user &&
         req.session.require2fa &&
-        !['/account/2fa', '/account/logout', '/account/start-u2f', '/account/check-u2f'].includes(req.url.split('?').shift())
+        !['/account/logout', '/account/start-u2f', '/account/check-u2f', '/account/check-totp'].includes(req.url.split('?').shift())
     ) {
         return passport.csrf(req, res, err => {
             if (err) {

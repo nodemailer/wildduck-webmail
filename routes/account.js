@@ -23,9 +23,6 @@ router.get('/', passport.csrf, passport.checkLogin, (req, res, next) => {
             return next(err);
         }
 
-        let remember2fa = req.session.remember2fa;
-        req.session.remember2fa = false;
-
         res.render('account/index', {
             activeHome: true,
 
@@ -41,9 +38,7 @@ router.get('/', passport.csrf, passport.checkLogin, (req, res, next) => {
 
             forwards: humanize.numberFormat(userData.limits.forwards.allowed, 0),
             forwardsSent: humanize.numberFormat(userData.limits.forwards.used, 0),
-            forwardsOverview: Math.round(userData.limits.forwards.used / (userData.limits.forwards.allowed || 1) * 100),
-
-            remember2fa: remember2fa ? JSON.stringify(remember2fa) : false
+            forwardsOverview: Math.round(userData.limits.forwards.used / (userData.limits.forwards.allowed || 1) * 100)
         });
     });
 });
@@ -522,81 +517,6 @@ router.post('/asp/create', passport.parse, passport.csrf, passport.checkLogin, (
     });
 });
 
-router.post('/2fa', passport.parse, passport.csrf, (req, res) => {
-    if (!req.user) {
-        return res.redirect('/account/login');
-    }
-
-    const authSchema = Joi.object().keys({
-        token: Joi.string()
-            .length(6)
-            .regex(/^[0-9]+$/, 'numbers')
-            .required(),
-        remember2fa: Joi.boolean()
-            .truthy(['Y', 'true', 'yes', 'on', 1])
-            .default(false)
-    });
-
-    delete req.body._csrf;
-    let result = Joi.validate(req.body, authSchema, {
-        abortEarly: false,
-        convert: true,
-        allowUnknown: false
-    });
-
-    let showErrors = errors => {
-        res.render('account/2fa', {
-            layout: 'layout-popup',
-            title: 'Two factor authentication',
-            csrfToken: req.csrfToken(),
-            activeLogin: true,
-            errors,
-            enabled2fa: req.session.require2fa,
-            enabledTotp: req.session.require2fa ? req.session.require2fa.includes('totp') : false,
-            enabledU2f: req.session.require2fa && req.query.u2f !== 'false' ? req.session.require2fa.includes('u2f') : false,
-            disableU2f: req.url + (req.url.indexOf('?') >= 0 ? '&' : '?') + 'u2f=false'
-        });
-    };
-
-    if (result.error) {
-        let errors = {};
-        if (result.error && result.error.details) {
-            result.error.details.forEach(detail => {
-                let path = detail.path;
-                if (!errors[path]) {
-                    errors[path] = detail.message;
-                }
-            });
-        }
-
-        return showErrors(errors);
-    }
-
-    let remember2fa = result.value.remember2fa;
-
-    apiClient['2fa'].checkTotp(req.user.id, result.value.token, req.ip, (err, result) => {
-        if (!err && result) {
-            if (remember2fa) {
-                // store response to session data to be sent to browser javascript later
-                req.session.remember2fa = {
-                    username: req.session.username,
-                    value: generate2faRemeberToken(req.user.id)
-                };
-            }
-
-            req.session.require2fa = false;
-            return res.redirect('/account/');
-        }
-
-        showErrors(
-            {
-                token: err.message
-            },
-            true
-        );
-    });
-});
-
 router.post('/enable-2fa', passport.parse, passport.csrf, passport.checkLogin, (req, res, next) => {
     const authSchema = Joi.object().keys({
         token: Joi.string()
@@ -642,22 +562,6 @@ router.post('/enable-2fa', passport.parse, passport.csrf, passport.checkLogin, (
         return showErrors(errors);
     }
 
-    if (result.value.token) {
-        return apiClient['2fa'].verifyTotp(req.user.id, result.value.token, req.ip, err => {
-            if (err) {
-                return showErrors(
-                    {
-                        token: 'Check failed, try again'
-                    },
-                    true
-                );
-            }
-            req.session.require2fa = false;
-            req.flash('success', 'Two factor authentication is now enabled for your account');
-            res.redirect('/account/security');
-        });
-    }
-
     apiClient['2fa'].setupTotp(req.user.id, config.totp.issuer || config.name, true, req.ip, (err, data) => {
         if (err) {
             return next(err);
@@ -668,6 +572,38 @@ router.post('/enable-2fa', passport.parse, passport.csrf, passport.checkLogin, (
             activeSecurity: true,
             csrfToken: req.csrfToken(),
             imageUrl: data.qrcode
+        });
+    });
+});
+
+router.post('/verify-totp', passport.parse, passport.csrf, (req, res) => {
+    const authSchema = Joi.object().keys({
+        token: Joi.string()
+            .length(6)
+            .regex(/^[0-9]+$/, 'numbers')
+            .required()
+    });
+
+    delete req.body._csrf;
+    let result = Joi.validate(req.body, authSchema, {
+        abortEarly: false,
+        convert: true,
+        allowUnknown: false
+    });
+
+    if (result.error) {
+        return res.json({ error: result.error.message });
+    }
+
+    apiClient['2fa'].verifyTotp(req.user.id, result.value.token, req.ip, err => {
+        if (err) {
+            return res.json({ error: err.message, code: err.code });
+        }
+
+        req.flash('success', 'Two factor authentication is now enabled');
+        res.json({
+            success: true,
+            targetUrl: '/account/security'
         });
     });
 });
@@ -683,11 +619,59 @@ router.post('/disable-2fa', passport.parse, passport.csrf, passport.checkLogin, 
     });
 });
 
-router.post('/start-u2f', passport.parse, passport.csrf, (req, res, next) => {
+router.post('/check-totp', passport.parse, passport.csrf, (req, res) => {
+    const authSchema = Joi.object().keys({
+        token: Joi.string()
+            .length(6)
+            .regex(/^[0-9]+$/, 'numbers')
+            .required(),
+        remember2fa: Joi.boolean()
+            .truthy(['Y', 'true', 'yes', 'on', 1])
+            .default(false)
+    });
+
+    delete req.body._csrf;
+    let result = Joi.validate(req.body, authSchema, {
+        abortEarly: false,
+        convert: true,
+        allowUnknown: false
+    });
+
+    if (result.error) {
+        return res.json({ error: result.error.message });
+    }
+
+    let remember2fa = result.value.remember2fa;
+    apiClient['2fa'].checkTotp(req.user.id, result.value.token, req.ip, (err, result) => {
+        if (err) {
+            return res.json({ error: err.message, code: err.code });
+        }
+
+        if (!result) {
+            return res.json({ error: 'Could not verify token' });
+        }
+
+        let data = {
+            success: true,
+            targetUrl: '/account/'
+        };
+
+        if (remember2fa) {
+            data.remember2fa = {
+                username: req.session.username,
+                value: generate2faRemeberToken(req.user.id)
+            };
+        }
+
+        req.session.require2fa = false;
+        res.json(data);
+    });
+});
+
+router.post('/start-u2f', passport.parse, passport.csrf, (req, res) => {
     if (!config.u2f.enabled) {
         let err = new Error('U2F support is disabled');
-        err.status = 404;
-        return next(err);
+        return res.json({ error: err.message });
     }
 
     apiClient['2fa'].startU2f(req.user.id, req.ip, (err, data) => {
@@ -698,11 +682,10 @@ router.post('/start-u2f', passport.parse, passport.csrf, (req, res, next) => {
     });
 });
 
-router.post('/check-u2f', passport.parse, passport.csrf, (req, res, next) => {
+router.post('/check-u2f', passport.parse, passport.csrf, (req, res) => {
     if (!config.u2f.enabled) {
         let err = new Error('U2F support is disabled');
-        err.status = 404;
-        return next(err);
+        return res.json({ error: err.message });
     }
 
     const authSchema = Joi.object().keys({
@@ -710,6 +693,7 @@ router.post('/check-u2f', passport.parse, passport.csrf, (req, res, next) => {
         clientData: Joi.string(),
         signatureData: Joi.string(),
         errorCode: Joi.number(),
+        errorMessage: Joi.string(),
         remember2fa: Joi.boolean()
             .truthy(['Y', 'true', 'yes', 'on', 1])
             .default(false)
@@ -764,20 +748,26 @@ router.post('/enable-u2f', passport.parse, passport.csrf, passport.checkLogin, (
         return next(err);
     }
 
+    res.render('account/enable-u2f', {
+        layout: 'layout-popup',
+        title: 'Two factor authentication',
+        activeSecurity: true,
+        csrfToken: req.csrfToken()
+    });
+});
+
+router.post('/setup-u2f', passport.parse, passport.csrf, (req, res) => {
+    if (!config.u2f.enabled) {
+        let err = new Error('U2F support is disabled');
+        return res.json({ error: err.message });
+    }
+
     apiClient['2fa'].setupU2f(req.user.id, req.ip, (err, data) => {
         if (err) {
-            return next(err);
+            return res.json({ error: err.message });
         }
-        if (!data.success || !data.u2fRegRequest) {
-            return next(new Error('Did not receive U2F data'));
-        }
-        res.render('account/enable-u2f', {
-            layout: 'layout-popup',
-            title: 'Two factor authentication',
-            activeSecurity: true,
-            csrfToken: req.csrfToken(),
-            u2fRegRequest: data.u2fRegRequest
-        });
+        req.flash('success', 'U2F key was added to your account');
+        res.json(data);
     });
 });
 
@@ -800,11 +790,10 @@ router.post('/disable-u2f', passport.parse, passport.csrf, passport.checkLogin, 
     });
 });
 
-router.post('/enable-u2f/verify', passport.parse, passport.csrf, passport.checkLogin, (req, res, next) => {
+router.post('/enable-u2f/verify', passport.parse, passport.csrf, passport.checkLogin, (req, res) => {
     if (!config.u2f.enabled) {
         let err = new Error('U2F support is disabled');
-        err.status = 404;
-        return next(err);
+        return res.json({ error: err.message });
     }
 
     let requestData = { ip: req.ip };
@@ -817,7 +806,7 @@ router.post('/enable-u2f/verify', passport.parse, passport.csrf, passport.checkL
         if (err) {
             return res.json({ error: err.message });
         }
-
+        data.targetUrl = '/account/security';
         res.json(data);
     });
 });
@@ -825,13 +814,13 @@ router.post('/enable-u2f/verify', passport.parse, passport.csrf, passport.checkL
 function generate2faRemeberToken(user) {
     let parts = [Date.now().toString(16), crypto.randomBytes(6).toString('hex')];
 
-    let valueStr = parts.join('\\');
+    let valueStr = parts.join('::');
     let hash = crypto
         .createHmac('sha256', config.totp.secret + ':' + user)
         .update(valueStr)
         .digest('hex');
 
-    return valueStr + '\\' + hash;
+    return valueStr + '::' + hash;
 }
 
 module.exports = router;

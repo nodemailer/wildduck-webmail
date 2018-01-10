@@ -1,12 +1,8 @@
 
-<form method="post" id="enable-u2f" action="/account/enable-u2f">
-    <input type="hidden" name="_csrf" value="{{csrfToken}}">
-</form>
-
-<input id="_csrf" type="hidden" name="_csrf" value="{{csrfToken}}">
-<input id="version" type="hidden" name="version" value="{{u2fRegRequest.version}}">
-<input id="appId" type="hidden" name="appId" value="{{u2fRegRequest.appId}}">
-<input id="challenge" type="hidden" name="challenge" value="{{u2fRegRequest.challenge}}">
+<input type="hidden" id="_csrf" value="{{csrfToken}}">
+<input id="version" type="hidden" id="version" value="{{u2fRegRequest.version}}">
+<input id="appId" type="hidden" id="appId" value="{{u2fRegRequest.appId}}">
+<input id="challenge" type="hidden" id="challenge" value="{{u2fRegRequest.challenge}}">
 
 <div class="panel panel-default">
     <div class="panel-heading">
@@ -35,63 +31,11 @@
         </p>
 
         <div>
-            <div class="pull-right" id="retry-button" style="display: none">
-                <button form="enable-u2f" type="submit" class="btn btn-success"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Retry</button>
-            </div>
-            <a href="/account/security"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> Go back</a>
+            <a href="/account/security"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> Cancel</a>
         </div>
     </div>
 </div>
 
-<script>
-var U2FSUPPORT = typeof u2f === 'object' || typeof chrome === 'object';
-</script>
-
 <script src="/whatwg-fetch/fetch.js"></script>
 <script src="/u2f-api.js"></script>
-<script>
-var message = document.getElementById('message');
-
-if(U2FSUPPORT){
-    document.addEventListener('DOMContentLoaded', function(){
-        let appId = document.getElementById('appId').value;
-        let regRequest = {
-            version: document.getElementById('version').value,
-            challenge: document.getElementById('challenge').value
-        }
-
-        u2f.register(appId, [regRequest], [], function(regResponse){
-            message.innerHTML = 'Verifying response...';
-
-            regResponse._csrf = document.getElementById('_csrf').value;
-            fetch('/account/enable-u2f/verify', {
-                method: 'post',
-                headers: {
-                    'Accept': 'application/json, text/plain, */*',
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include',
-                body: JSON.stringify(regResponse)
-            })
-            .then(function(res){return res.json()})
-            .then(function(res){
-                document.getElementById('u2f-wait').style.display = 'none';
-                if(res.error){
-                    message.innerHTML = res.error;
-                    document.getElementById('retry-button').style.display = 'block';
-                    document.getElementById('u2f-fail').style.display = 'block';
-                    return;
-                }
-                document.getElementById('u2f-success').style.display = 'block';
-                message.innerHTML = res.success ? 'U2F key was added to your account' : 'Failed to register U2F key';
-            });
-        });
-
-        message.innerHTML = 'Push the button on your U2F key...';
-    });
-}else{
-    document.getElementById('u2f-wait').style.display = 'none';
-    document.getElementById('u2f-fail').style.display = 'block';
-    message.innerHTML = 'U2F is not supported by your browser';
-}
-</script>
+<script src="/enable-u2f.js"></script>

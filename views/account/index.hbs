@@ -4,7 +4,6 @@
     </div>
 </div>
 
-
 <div class="row">
     <div class="col-md-8">
 
@@ -63,11 +62,3 @@
         </div>
     </div>
 </div>
-
-{{#if remember2fa}}
-    <script src="/login-key-handler.js"></script>
-    <script>
-        var remember2fa = {{{remember2fa}}};
-        loginKeyHandler.set(remember2fa.username, remember2fa.value, '2fa');
-    </script>
-{{/if}}

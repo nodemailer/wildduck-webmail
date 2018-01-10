@@ -1,178 +1,87 @@
-<form method="post" action="/account/2fa?u2f=false">
-    <input type="hidden" id="_csrf" name="_csrf" value="{{csrfToken}}" />
+<input type="hidden" id="_csrf" value="{{csrfToken}}" />
 
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Two factor authentication</h3>
-        </div>
-        <div class="panel-body">
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Two factor authentication</h3>
+    </div>
+    <div class="panel-body">
 
+        <div id="show-u2f" style="display:{{#if enabledU2f}}block{{else}}none{{/if}}">
 
-            {{#if enabledU2f}}
+            <div style="margin:10px 0;">
 
-                <div id="show-u2f">
-
-                    <div style="margin:10px 0;">
-
-                        <div id="u2f-wait">
-                            <img src="/images/u2f-wait.png" />
-                        </div>
-
-                        <div id="u2f-fail" style="display: none">
-                            <img src="/images/u2f-fail.png" />
-                        </div>
-
-                        <div id="u2f-success" style="display: none">
-                            <img src="/images/u2f-success.png" />
-                        </div>
-
-                    </div>
-
-                    <p id="message">
-                        Initializing...
-                    </p>
-
-                    {{#if errors.token}}
-                        <div class="form-group has-error">
-                            <span class="help-block">{{errors.token}}</span>
-                        </div>
-                    {{/if}}
-
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" name="remember2fa" id="remember2fa"> Remember this computer
-                        </label>
-                    </div>
-
-                    <div>
-                        <div class="pull-right">
-                            <a href="{{disableU2f}}">or use security code</a>
-                        </div>
-                        <a href="/account/logout"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> Cancel</a>
-                    </div>
-
+                <div id="u2f-wait">
+                    <img src="/images/u2f-wait.png" />
                 </div>
 
-            {{/if}}
+                <div id="u2f-fail" style="display: none">
+                    <img src="/images/u2f-fail.png" />
+                </div>
 
-            <div id="show-totp" {{#if enabledU2f}}style="display: none"{{/if}}>
+                <div id="u2f-success" style="display: none">
+                    <img src="/images/u2f-success.png" />
+                </div>
+
+            </div>
+
+            <p id="message">
+                Initializing...
+            </p>
+
+            <div>
+                <div class="pull-right">
+                    <a href="#" id="enable-totp">or use security code</a>
+                </div>
+                <a href="/account/logout"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> Cancel</a>
+            </div>
+
+        </div>
+
+        <div id="show-totp" style="display:{{#if enabledU2f}}none{{else}}block{{/if}}">
+
+            <form id="totp-form">
 
                 <p>
                     Open your authentication app and enter the code to log in
                 </p>
 
-                <div class="form-group{{#if errors.token}} has-error{{/if}}">
+                <div class="form-group" id="totp-token-field">
                     <label for="token">Security code</label>
-                    <input type="number" class="form-control" name="token" id="token" placeholder="6 digit code" required autofocus>
-                    {{#if errors.token}}
-                        <span class="help-block">{{errors.token}}</span>
-                    {{/if}}
-                </div>
-
-                <div class="checkbox{{#if errors.remember2fa}} has-error{{/if}}">
-                    <label>
-                        <input type="checkbox" name="remember2fa"> Remember this computer
-                    </label>
-                    {{#if errors.remember2fa}}
-                        <span class="help-block">{{errors.remember2fa}}</span>
-                    {{/if}}
+                    <input type="number" class="form-control" id="token" placeholder="6 digit code" required autofocus>
+                    <span class="help-block" id="totp-token-error" style="display: none"></span>
                 </div>
 
                 <div>
                     <div class="pull-right">
-                        <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Verify</button>
+                        <button type="submit" id="totp-btn" class="btn btn-success" data-loading-text="Checking..."><span class="glyphicon glyphicon-ok" aria-hidden="true"></span> Verify</button>
                     </div>
                     <a href="/account/logout"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> Cancel</a>
                 </div>
 
-            </div>
+            </form>
 
         </div>
+
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" id="remember2fa"> Trust this device for 30 days
+            </label>
+        </div>
+
     </div>
-
-</form>
-
-{{#if enabledU2f}}
+</div>
 
 <script src="/login-key-handler.js"></script>
-
-<script>
-var U2FSUPPORT = typeof u2f === 'object' || typeof chrome === 'object';
-</script>
-
 <script src="/whatwg-fetch/fetch.js"></script>
 <script src="/u2f-api.js"></script>
 
 <script>
-var message = document.getElementById('message');
-var _csrf = document.getElementById('_csrf').value;
+var U2FSUPPORT = false;
 
-function startU2f(){
-    fetch('/account/start-u2f', {
-        method: 'post',
-        headers: {
-            'Accept': 'application/json, text/plain, */*',
-            'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify({_csrf: _csrf})
-    })
-    .then(function(res){return res.json()})
-    .then(function(res){
-        if(res.error){
-            message.innerHTML = res.error;
-            document.getElementById('u2f-fail').style.display = 'block';
-            return;
-        }
-
-        message.innerHTML = 'Push the button on your U2F key...';
-
-        u2f.sign(res.u2fAuthRequest.appId, res.u2fAuthRequest.challenge, [res.u2fAuthRequest], function(authResponse){
-            message.innerHTML = 'Verifying response...';
-
-            authResponse._csrf = document.getElementById('_csrf').value;
-            authResponse.remember2fa = document.getElementById('remember2fa').value;
-            fetch('/account/check-u2f', {
-                method: 'post',
-                headers: {
-                    'Accept': 'application/json, text/plain, */*',
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include',
-                body: JSON.stringify(authResponse)
-            })
-            .then(function(res){return res.json()})
-            .then(function(res){
-                document.getElementById('u2f-wait').style.display = 'none';
-                if(res.error){
-                    message.innerHTML = res.error;
-                    document.getElementById('u2f-fail').style.display = 'block';
-                    return;
-                }
-
-                if(res.success && res.remember2fa){
-                    loginKeyHandler.set(res.remember2fa.username, res.remember2fa.value, '2fa');
-                }
-
-                document.getElementById('u2f-success').style.display = 'block';
-                message.innerHTML = res.success ? 'You are verified' : 'Failed to check U2F key';
-                window.location = res.targetUrl;
-            });
-        });
-    });
-}
-
-if(U2FSUPPORT){
-
-    document.addEventListener('DOMContentLoaded', function(){
-        startU2f();
-    });
-
-}else{
-    document.getElementById('u2f-wait').style.display = 'none';
-    document.getElementById('u2f-fail').style.display = 'block';
-    message.innerHTML = 'U2F is not supported by your browser';
-}
+    {{#if enabledU2f}}
+    {{! user has enabled u2f, check if it can be usedin this device }}
+        U2FSUPPORT = typeof u2f === 'object' || typeof chrome === 'object';
+    {{/if}}
 </script>
 
-{{/if}}
+<script src="/2fa.js"></script>
