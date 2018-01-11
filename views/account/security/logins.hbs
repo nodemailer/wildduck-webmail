@@ -22,6 +22,9 @@
                     <thead>
                         <tr>
                             <th>
+                                Environment
+                            </th>
+                            <th>
                                 Action
                             </th>
                             <th>
@@ -40,6 +43,9 @@
 
                             {{#each results}}
                                 <tr>
+                                    <td>
+                                        {{protocol}}
+                                    </td>
                                     <td>
                                         {{action}}
                                         {{#if asp}}
