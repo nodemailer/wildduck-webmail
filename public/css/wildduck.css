@@ -141,3 +141,9 @@ input.lowercase {
     height: 100%;
     background: white;
 }
+
+.form-footer {
+    margin-top: 10px;
+    padding-top: 5px;
+    border-top: 1px solid #ddd;
+}
