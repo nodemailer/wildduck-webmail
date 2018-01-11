@@ -56,7 +56,7 @@ function startU2f() {
                 $(message).text('Verifying response...');
 
                 authResponse._csrf = document.getElementById('_csrf').value;
-                authResponse.remember2fa = document.getElementById('remember2fa').value;
+                authResponse.remember2fa = document.getElementById('remember2fa').checked ? 'yes' : '';
 
                 fetch('/account/check-u2f', {
                     method: 'post',
@@ -126,7 +126,7 @@ document.getElementById('totp-form').addEventListener(
         var body = {
             _csrf: document.getElementById('_csrf').value,
             token: document.getElementById('token').value,
-            remember2fa: document.getElementById('remember2fa').value
+            remember2fa: document.getElementById('remember2fa').checked ? 'yes' : ''
         };
 
         var btn = $(document.getElementById('totp-btn'));

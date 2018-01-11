@@ -322,6 +322,7 @@ router.post('/profile', passport.parse, passport.csrf, passport.checkLogin, (req
                 .regex(/^-----BEGIN PGP PUBLIC KEY BLOCK-----/, 'PGP key format'),
             encryptMessages: Joi.boolean()
                 .truthy(['Y', 'true', 'yes', 'on', 1])
+                .falsy(['N', 'false', 'no', 'off', 0, ''])
                 .default(false),
 
             existingPassword: Joi.string()
@@ -627,6 +628,7 @@ router.post('/check-totp', passport.parse, passport.csrf, (req, res) => {
             .required(),
         remember2fa: Joi.boolean()
             .truthy(['Y', 'true', 'yes', 'on', 1])
+            .falsy(['N', 'false', 'no', 'off', 0, ''])
             .default(false)
     });
 
@@ -696,6 +698,7 @@ router.post('/check-u2f', passport.parse, passport.csrf, (req, res) => {
         errorMessage: Joi.string(),
         remember2fa: Joi.boolean()
             .truthy(['Y', 'true', 'yes', 'on', 1])
+            .falsy(['N', 'false', 'no', 'off', 0, ''])
             .default(false)
     });
 
