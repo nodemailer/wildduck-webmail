@@ -71,17 +71,14 @@
     </div>
 </div>
 
+<script>
+// U2F support must be checked *before* loading /u2f-api.js
+{{! only check if user has enabled u2f, otherwise no reason to use it }}
+var U2FSUPPORT = {{#if enabledU2f}}typeof u2f === 'object' || typeof chrome === 'object'{{else}}false{{/if}};
+</script>
+
 <script src="/login-key-handler.js"></script>
 <script src="/whatwg-fetch/fetch.js"></script>
 <script src="/u2f-api.js"></script>
-
-<script>
-var U2FSUPPORT = false;
-
-    {{#if enabledU2f}}
-    {{! user has enabled u2f, check if it can be usedin this device }}
-        U2FSUPPORT = typeof u2f === 'object' || typeof chrome === 'object';
-    {{/if}}
-</script>
 
 <script src="/2fa.js"></script>

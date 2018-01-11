@@ -1,10 +1,9 @@
 /* eslint-env browser */
 /* eslint prefer-arrow-callback: 0, no-var: 0, object-shorthand: 0 */
-/* globals $:false, u2f: false */
+/* globals $:false, u2f: false, U2FSUPPORT: false */
 
 'use strict';
 
-var U2FSUPPORT = typeof u2f === 'object' || typeof chrome === 'object';
 var message = document.getElementById('message');
 
 if (U2FSUPPORT) {
