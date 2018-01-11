@@ -25,12 +25,6 @@
                                 Action
                             </th>
                             <th>
-                                Source
-                            </th>
-                            <th>
-                                ASP
-                            </th>
-                            <th>
                                 Result
                             </th>
                             <th>
@@ -47,25 +41,22 @@
                             {{#each results}}
                                 <tr>
                                     <td>
-                                        {{action}} {{#if showCount}}<span class="badge" title="{{count}} events between {{created}} and {{updated}}">{{count}}</span>{{/if}}
-                                    </td>
-                                    <td>
-                                        {{protocol}}
-                                    </td>
-                                    <td>
+                                        {{action}}
                                         {{#if asp}}
-                                            {{asp.description}}
-                                        {{else}}
-                                            –
+                                            <strong>{{asp.name}}</strong>
                                         {{/if}}
                                     </td>
                                     <td>
-                                        {{result}}
+                                        {{#if label}}
+                                            <span class="label label-{{label}}">{{result}}</span>
+                                        {{else}}
+                                            {{result}}
+                                        {{/if}}
                                     </td>
                                     <td>
                                         {{ip}}
                                     </td>
-                                    <td class="datestring" title="{{created}}">
+                                    <td class="datestring-fixed text-right" title="{{created}}">
                                         {{created}}
                                     </td>
                                 </tr>

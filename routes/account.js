@@ -13,6 +13,21 @@ const util = require('util');
 const humanize = require('humanize');
 const addressparser = require('addressparser');
 
+const AUTH_EVENTS = new Map([
+    ['create asp', 'Create new Application Specific Password'],
+    ['delete asp', 'Deleted Application Specific Password'],
+    ['account created', 'Account was created'],
+    ['enable 2fa totp', 'Enable 2FA mobile authenticator'],
+    ['disable 2fa totp', 'Disable 2FA mobile authenticator'],
+    ['check 2fa totp', 'Authenticating with mobile authenticator'],
+    ['enable 2fa u2f', 'Enable 2FA security key'],
+    ['disable 2fa u2f', 'Disable 2FA security key'],
+    ['check 2fa u2f', 'Authenticating with security key'],
+    ['disable 2fa', 'Disable 2FA on account'],
+    ['password change', 'Changing account password'],
+    ['authentication', 'Authenticating with password']
+]);
+
 // sub services
 router.use('/filters', passport.checkLogin, require('./account/filters'));
 router.use('/autoreply', passport.checkLogin, require('./account/autoreply'));
@@ -87,7 +102,24 @@ router.get('/security/logins', (req, res, next) => {
             log.previousPage = Math.max(log.page - 1, 1);
             log.results.forEach(entry => {
                 if (entry.asp) {
-                    entry.asp = aspsmap.get(entry.asp) || { description: '[unknown ' + entry.asp + ']' };
+                    entry.asp = {
+                        id: entry.asp,
+                        name: entry.aname
+                    };
+                }
+                if (!entry.protocol || entry.protocol === 'API') {
+                    entry.protocol = 'Web';
+                }
+                entry.action = AUTH_EVENTS.get(entry.action) || entry.action;
+                switch (entry.result) {
+                    case 'success':
+                        entry.label = 'success';
+                        entry.result = 'Success';
+                        break;
+                    case 'fail':
+                        entry.label = 'danger';
+                        entry.result = 'Failed';
+                        break;
                 }
             });
             res.render('account/security/logins', log);
