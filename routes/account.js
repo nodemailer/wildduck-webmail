@@ -261,7 +261,7 @@ router.post('/create', passport.parse, passport.csrf, (req, res, next) => {
             recipients: 500,
             forwards: 500,
             quota: 1 * 1024 * 1024 * 1024,
-            ip: req.ip
+            ip: req.ip.replace(/^::ffff:/i, '')
         },
         err => {
             if (err) {
@@ -446,7 +446,7 @@ router.post('/profile', passport.parse, passport.csrf, passport.checkLogin, (req
     result.value.targetUrl = result.value.targetUrl || '';
     result.value.pubKey = result.value.pubKey || '';
 
-    result.value.ip = req.ip;
+    result.value.ip = req.ip.replace(/^::ffff:/i, '');
 
     apiClient.users.update(req.user.id, result.value, err => {
         if (err) {
@@ -489,7 +489,7 @@ router.post('/asp/delete', passport.parse, passport.csrf, passport.checkLogin, (
         return res.redirect('/account/security');
     }
 
-    apiClient.asps.del(req.user.id, result.value.id, req.ip, err => {
+    apiClient.asps.del(req.user.id, result.value.id, req.ip.replace(/^::ffff:/i, ''), err => {
         if (err) {
             req.flash('danger', 'Database Error, failed to delete data');
             return res.redirect('/account/security');
@@ -530,7 +530,7 @@ router.post('/asp/create', passport.parse, passport.csrf, passport.checkLogin, (
         description: result.value.description,
         scopes: '*',
         generateMobileconfig: true,
-        ip: req.ip
+        ip: req.ip.replace(/^::ffff:/i, '')
     };
 
     apiClient.asps.create(req.user.id, data, (err, response) => {
@@ -565,7 +565,7 @@ router.post('/enable-2fa', passport.parse, passport.csrf, passport.checkLogin, (
     });
 
     let showErrors = errors => {
-        apiClient['2fa'].setupTotp(req.user.id, config.totp.issuer || config.name, false, req.ip, (err, data) => {
+        apiClient['2fa'].setupTotp(req.user.id, config.totp.issuer || config.name, false, req.ip.replace(/^::ffff:/i, ''), (err, data) => {
             if (err) {
                 return next(err);
             }
@@ -595,7 +595,7 @@ router.post('/enable-2fa', passport.parse, passport.csrf, passport.checkLogin, (
         return showErrors(errors);
     }
 
-    apiClient['2fa'].setupTotp(req.user.id, config.totp.issuer || config.name, true, req.ip, (err, data) => {
+    apiClient['2fa'].setupTotp(req.user.id, config.totp.issuer || config.name, true, req.ip.replace(/^::ffff:/i, ''), (err, data) => {
         if (err) {
             return next(err);
         }
@@ -628,7 +628,7 @@ router.post('/verify-totp', passport.parse, passport.csrf, (req, res) => {
         return res.json({ error: result.error.message });
     }
 
-    apiClient['2fa'].verifyTotp(req.user.id, result.value.token, req.ip, err => {
+    apiClient['2fa'].verifyTotp(req.user.id, result.value.token, req.ip.replace(/^::ffff:/i, ''), err => {
         if (err) {
             return res.json({ error: err.message, code: err.code });
         }
@@ -642,7 +642,7 @@ router.post('/verify-totp', passport.parse, passport.csrf, (req, res) => {
 });
 
 router.post('/disable-2fa', passport.parse, passport.csrf, passport.checkLogin, (req, res, next) => {
-    apiClient['2fa'].disable(req.user.id, req.ip, err => {
+    apiClient['2fa'].disable(req.user.id, req.ip.replace(/^::ffff:/i, ''), err => {
         if (err) {
             return next(err);
         }
@@ -676,7 +676,7 @@ router.post('/check-totp', passport.parse, passport.csrf, (req, res) => {
     }
 
     let remember2fa = result.value.remember2fa;
-    apiClient['2fa'].checkTotp(req.user.id, result.value.token, req.ip, (err, result) => {
+    apiClient['2fa'].checkTotp(req.user.id, result.value.token, req.ip.replace(/^::ffff:/i, ''), (err, result) => {
         if (err) {
             return res.json({ error: err.message, code: err.code });
         }
@@ -708,7 +708,7 @@ router.post('/start-u2f', passport.parse, passport.csrf, (req, res) => {
         return res.json({ error: err.message });
     }
 
-    apiClient['2fa'].startU2f(req.user.id, req.ip, (err, data) => {
+    apiClient['2fa'].startU2f(req.user.id, req.ip.replace(/^::ffff:/i, ''), (err, data) => {
         if (err) {
             return res.json({ error: err.message });
         }
@@ -745,7 +745,7 @@ router.post('/check-u2f', passport.parse, passport.csrf, (req, res) => {
         return res.json({ error: result.error.message });
     }
 
-    let requestData = { ip: req.ip };
+    let requestData = { ip: req.ip.replace(/^::ffff:/i, '') };
     Object.keys(result.value || {}).forEach(key => {
         if (['signatureData', 'clientData', 'errorCode'].includes(key)) {
             requestData[key] = req.body[key];
@@ -797,7 +797,7 @@ router.post('/setup-u2f', passport.parse, passport.csrf, (req, res) => {
         return res.json({ error: err.message });
     }
 
-    apiClient['2fa'].setupU2f(req.user.id, req.ip, (err, data) => {
+    apiClient['2fa'].setupU2f(req.user.id, req.ip.replace(/^::ffff:/i, ''), (err, data) => {
         if (err) {
             return res.json({ error: err.message });
         }
@@ -813,7 +813,7 @@ router.post('/disable-u2f', passport.parse, passport.csrf, passport.checkLogin, 
         return next(err);
     }
 
-    apiClient['2fa'].disableU2f(req.user.id, req.ip, (err, data) => {
+    apiClient['2fa'].disableU2f(req.user.id, req.ip.replace(/^::ffff:/i, ''), (err, data) => {
         if (err) {
             return next(err);
         }
@@ -831,7 +831,7 @@ router.post('/enable-u2f/verify', passport.parse, passport.csrf, passport.checkL
         return res.json({ error: err.message });
     }
 
-    let requestData = { ip: req.ip };
+    let requestData = { ip: req.ip.replace(/^::ffff:/i, '') };
     Object.keys(req.body || {}).forEach(key => {
         if (['registrationData', 'clientData', 'errorCode'].includes(key)) {
             requestData[key] = req.body[key];
