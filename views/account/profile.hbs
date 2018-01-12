@@ -5,7 +5,7 @@
 </div>
 
 <div class="row">
-    <div class="col-md-8">
+    <div class="col-md-12">
         <form method="post" action="/account/profile">
             <input type="hidden" name="_csrf" value="{{csrfToken}}">
 
@@ -66,81 +66,8 @@
 
             </fieldset>
 
-            <fieldset>
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">GPG Encryption</h3>
-                    </div>
-                    <div class="panel-body">
-
-                        <p>
-                            Wild Duck is able to encrypt all cleartext messages that are sent to your address with your public key before storing these to disk.
-                        </p>
-
-                        <div class="form-group{{#if errors.encryptMessages}} has-error{{/if}}">
-                            <label class="radio-inline">
-                              <input type="radio" name="encryptMessages" id="encryptMessagesNo" value="false" {{#unless values.encryptMessages}}checked{{/unless}}> Disable encryption
-                            </label>
-                            <label class="radio-inline">
-                              <input type="radio" name="encryptMessages" id="encryptMessagesYes" value="true" {{#if values.encryptMessages}}checked{{/if}}> Enable encryption
-                            </label>
-                            {{#if errors.encryptMessages}}
-                                <span class="help-block">{{errors.encryptMessages}}</span>
-                            {{/if}}
-                        </div>
-
-                        <div class="form-group{{#if errors.pubKey}} has-error{{/if}}">
-                            <label for="pubKey">GPG Public Key</label>
-                            <textarea class="form-control" style="font-family: monospace;" rows="6" id="pubKey" name="pubKey" placeholder="Begins with &#39;-----BEGIN PGP PUBLIC KEY BLOCK-----&#39;">{{values.pubKey}}</textarea>
-                            {{#if errors.pubKey}}
-                                <span class="help-block">{{errors.pubKey}}</span>
-                            {{/if}}
-                        </div>
-
-                    </div>
-                </div>
-
-            </fieldset>
-
-            <fieldset>
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">Change password</h3>
-                    </div>
-                    <div class="panel-body">
-
-                        <p>
-                            Leave the following fields blank if you do not wish to change your password
-                        </p>
-
-                        <div class="form-group{{#if errors.existingPassword}} has-error{{/if}}">
-                            <label for="existingPassword">Current password</label>
-                            <input type="password" class="form-control" name="existingPassword" id="existingPassword" placeholder="nt. &quot;supersecret&quot;" autocomplete="off">
-                            {{#if errors.existingPassword}}
-                                <span class="help-block">{{errors.existingPassword}}</span>
-                            {{/if}}
-                        </div>
-
-                        <div class="form-group{{#if errors.password}} has-error{{/if}}">
-                            <label for="password">New password</label>
-                            <input type="password" class="form-control" name="password" id="password" placeholder="nt. &quot;supersecret&quot;" autocomplete="off">
-                            {{#if errors.password}}
-                                <span class="help-block">{{errors.password}}</span>
-                            {{/if}}
-                        </div>
-
-                        <div class="form-group{{#if errors.password}} has-error{{/if}}">
-                            <label for="password2">Repeat password</label>
-                            <input type="password" class="form-control" name="password2" id="password2" placeholder="repeat password" autocomplete="off">
-                        </div>
-
-                    </div>
-                </div>
-
-            </fieldset>
-
             <div class="form-group">
-                <button type="submit" class="btn btn-success">Update</button>
+                <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Update</button>
             </div>
 
         </form>

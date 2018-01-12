@@ -9,8 +9,7 @@
 
         <!-- Nav tabs -->
         <ul class="nav nav-tabs" role="tablist">
-            <li role="presentation" class=""><a href="/account/security/">Settings</a></li>
-            <li role="presentation" class="active"><a href="/account/security/logins">Security events</a></li>
+            {{> securitymenu}}
         </ul>
 
         <div class="tab-content">
@@ -34,6 +33,9 @@
                                 IP
                             </th>
                             <th>
+                                Session
+                            </th>
+                            <th>
                                 Time
                             </th>
                         </tr>
@@ -49,7 +51,9 @@
                                     <td>
                                         {{action}}
                                         {{#if asp}}
-                                            <strong>{{asp.name}}</strong>
+                                            <div class="pull-right">
+                                                <strong>{{asp.name}}</strong>
+                                            </div>
                                         {{/if}}
                                     </td>
                                     <td>
@@ -61,6 +65,13 @@
                                     </td>
                                     <td>
                                         {{ip}}
+                                    </td>
+                                    <td>
+                                        {{#if sess}}
+                                            <a href="/account/security/events?sess={{sess}}">{{sessStr}}</a>
+                                        {{else}}
+                                            –
+                                        {{/if}}
                                     </td>
                                     <td class="datestring-fixed text-right" title="{{created}}">
                                         {{created}}
@@ -80,13 +91,13 @@
                 <nav aria-label="nav">
                     <ul class="pager">
                         {{#if previousCursor}}
-                            <li class="previous"><a href="/account/security/logins?previous={{previousCursor}}&amp;page={{previousPage}}"><span aria-hidden="true">&larr;</span> Newer</a></li>
+                            <li class="previous"><a href="/account/security/events?previous={{previousCursor}}&amp;page={{previousPage}}"><span aria-hidden="true">&larr;</span> Newer</a></li>
                         {{else}}
                             <li class="previous disabled"><a href="#"><span aria-hidden="true">&larr;</span> Newer</a></li>
                         {{/if}}
 
                         {{#if nextCursor}}
-                            <li class="next"><a href="/account/security/logins?next={{nextCursor}}&amp;page={{nextPage}}">Older <span aria-hidden="true">&rarr;</span></a></li>
+                            <li class="next"><a href="/account/security/events?next={{nextCursor}}&amp;page={{nextPage}}">Older <span aria-hidden="true">&rarr;</span></a></li>
                         {{else}}
                             <li class="next disabled"><a href="#">Older <span aria-hidden="true">&rarr;</span></a></li>
                         {{/if}}

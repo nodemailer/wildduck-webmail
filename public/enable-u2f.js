@@ -8,7 +8,7 @@ var message = document.getElementById('message');
 
 if (U2FSUPPORT) {
     document.addEventListener('DOMContentLoaded', function() {
-        fetch('/account/setup-u2f', {
+        fetch('/account/security/2fa/setup-u2f', {
             method: 'post',
             headers: {
                 Accept: 'application/json, text/plain, */*',
@@ -40,7 +40,7 @@ if (U2FSUPPORT) {
                     $(message).text('Verifying response...');
 
                     regResponse._csrf = document.getElementById('_csrf').value;
-                    fetch('/account/enable-u2f/verify', {
+                    fetch('/account/security/2fa/enable-u2f/verify', {
                         method: 'post',
                         headers: {
                             Accept: 'application/json, text/plain, */*',

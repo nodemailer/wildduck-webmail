@@ -163,7 +163,7 @@ router.get('/edit', passport.csrf, (req, res, next) => {
     });
 });
 
-router.post('/delete', passport.parse, passport.csrf, (req, res) => {
+router.post('/delete', passport.csrf, (req, res) => {
     const updateSchema = Joi.object().keys({
         id: Joi.string()
             .trim()
@@ -200,7 +200,7 @@ router.post('/delete', passport.parse, passport.csrf, (req, res) => {
     });
 });
 
-router.post('/create', passport.parse, passport.csrf, (req, res, next) => {
+router.post('/create', passport.csrf, (req, res, next) => {
     apiClient.mailboxes.list(req.user.id, false, (err, mailboxes) => {
         if (err) {
             return next(err);
@@ -279,7 +279,7 @@ router.post('/create', passport.parse, passport.csrf, (req, res, next) => {
     });
 });
 
-router.post('/edit', passport.parse, passport.csrf, (req, res, next) => {
+router.post('/edit', passport.csrf, (req, res, next) => {
     apiClient.mailboxes.list(req.user.id, false, (err, mailboxes) => {
         if (err) {
             return next(err);

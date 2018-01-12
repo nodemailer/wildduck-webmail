@@ -20,7 +20,7 @@ router.get('/', passport.csrf, (req, res, next) => {
     });
 });
 
-router.post('/', passport.parse, passport.csrf, (req, res) => {
+router.post('/', passport.csrf, (req, res) => {
     const updateSchema = Joi.object().keys({
         status: Joi.boolean().required(),
         subject: Joi.string()

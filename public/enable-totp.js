@@ -18,7 +18,7 @@ document.getElementById('totp-form').addEventListener(
         var btn = $(document.getElementById('totp-btn'));
 
         btn.button('loading');
-        fetch('/account/verify-totp', {
+        fetch('/account/security/2fa/verify-totp', {
             method: 'post',
             headers: {
                 Accept: 'application/json, text/plain, */*',

@@ -1,0 +1,81 @@
+<div class="row">
+    <div class="col-md-12">
+        <h1><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Security</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            {{> securitymenu}}
+        </ul>
+
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="overview">
+
+                <p>&nbsp;</p>
+
+                <form method="post" action="/account/security/gpg">
+                    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+                    <fieldset>
+
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">GPG Encryption</h3>
+                            </div>
+                            <div class="panel-body">
+
+                                <p>
+                                    Wild Duck is able to encrypt all cleartext messages that are sent to your address with your public key before storing these to disk.
+                                </p>
+
+                                <div class="form-group{{#if errors.encryptMessages}} has-error{{/if}}">
+                                    <label class="radio-inline">
+                                      <input type="radio" name="encryptMessages" id="encryptMessagesNo" value="false" {{#unless values.encryptMessages}}checked{{/unless}}> Disable encryption
+                                    </label>
+                                    <label class="radio-inline">
+                                      <input type="radio" name="encryptMessages" id="encryptMessagesYes" value="true" {{#if values.encryptMessages}}checked{{/if}}> Enable encryption
+                                    </label>
+                                    {{#if errors.encryptMessages}}
+                                        <span class="help-block">{{errors.encryptMessages}}</span>
+                                    {{/if}}
+                                </div>
+
+                                {{#if fingerprint}}
+                                    <div class="form-group">
+                                        <label>Current key:</label>
+                                        <div class="form-control-static">
+                                            <div class="pull-right">
+                                                <input type="checkbox" name="removeKey" value="yes"/> Remove current key
+                                            </div>
+                                            <div>
+                                                <code class="response">{{fingerprint}}</code>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {{/if}}
+
+                                <div class="form-group{{#if errors.pubKey}} has-error{{/if}}">
+                                    <label for="pubKey">GPG Public Key:</label>
+                                    <textarea class="form-control" style="font-family: monospace;" rows="6" id="pubKey" name="pubKey" placeholder="Begins with &#39;-----BEGIN PGP PUBLIC KEY BLOCK-----&#39;">{{pubKey}}</textarea>
+                                    {{#if errors.pubKey}}
+                                        <span class="help-block">{{errors.pubKey}}</span>
+                                    {{/if}}
+                                    <span class="help-block">Leave empty if you do not want to replace the current key</span>
+                                </div>
+
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Update GPG Key</button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
