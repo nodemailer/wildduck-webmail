@@ -71,8 +71,8 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
                 value: tools.getAddressesHTML(
                     messageData.from ||
                         messageData.sender || {
-                        name: '< >'
-                    }
+                            name: '< >'
+                        }
                 )
             });
 
@@ -433,7 +433,7 @@ function renderMailbox(req, res, next) {
                 previousCursor: result.previousCursor,
                 previousPage: Math.max(result.page - 1, 1),
                 messages: result.results.map(message => {
-                    message.fromHtml = tools.getAddressesHTML(message.from);
+                    message.fromHtml = tools.getAddressesHTML(message.from, true);
                     return message;
                 })
             });

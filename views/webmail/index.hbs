@@ -1,5 +1,7 @@
-<div class="row">
-    <div class="col-sm-3 col-md-2 sidebar">
+</div> <!-- container -->
+
+<div class="webmail-container">
+    <div class="sidebar">
 
         <img src="/images/duck.png" class="img-responsive" style="display: block; margin: 10px auto;">
 
@@ -9,7 +11,7 @@
             {{/each}}
         </ul>
     </div>
-    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <div class="webmail-main">
         <h2 class="sub-header"><span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> {{mailbox.name}}</h2>
 
         <div class="alert alert-warning" role="alert">
@@ -17,14 +19,11 @@
             information.
         </div>
 
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <tbody>
-                    {{#each messages}}
-                        {{>messagerow}}
-                    {{/each}}
-                </tbody>
-            </table>
+
+        <div class="messagelist">
+            {{#each messages}}
+                {{>messagerow}}
+            {{/each}}
         </div>
 
         <nav aria-label="nav">
@@ -44,3 +43,5 @@
         </nav>
     </div>
 </div>
+
+<div class="container"><!-- container -->

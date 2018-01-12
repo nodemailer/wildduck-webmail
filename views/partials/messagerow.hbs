@@ -1,22 +1,24 @@
-<tr style="{{#unless seen}}font-weight: bold;{{/unless}}">
-    <td class="col-md-2 datestring" title="{{date}}">
-        {{date}}
-    </td>
-    <td class="col-md-3">
+<a href="/webmail/{{mailbox}}/message/{{id}}" class="message-item" style="{{#unless seen}}font-weight: bold;{{/unless}}">
+
+    <span class="message-list-from">
         {{{fromHtml}}}
-    </td>
-    <td>
+    </span>
+
+    <span class="message-list-subject">
+        {{subject}}{{#if intro}} <span class="text-muted" style="font-weight: normal;">– {{intro}}</span>{{/if}}
+    </span>
+
+    <span class="message-list-info">
         {{#if encrypted}}
-            <div class="pull-right">
-                <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
-            </div>
+            <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
         {{else}}
             {{#if attachments}}
-                <div class="pull-right">
-                    <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
-                </div>
+                <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
             {{/if}}
         {{/if}}
-        <a href="/webmail/{{mailbox}}/message/{{id}}">{{#if subject}}{{subject}}{{else}}&lt;untitled&gt;{{/if}}</a>
-    </td>
-</tr>
+    </span>
+
+    <span class="message-list-date datestring-fixed" title="{{date}}">
+        {{date}}
+    </span>
+</a>

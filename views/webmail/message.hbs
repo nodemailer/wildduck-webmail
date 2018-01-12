@@ -1,5 +1,7 @@
-<div class="row">
-    <div class="col-sm-3 col-md-2 sidebar">
+</div> <!-- container -->
+
+<div class="webmail-container">
+    <div class="sidebar">
 
         <img src="/images/duck.png" class="img-responsive" style="display: block; margin: 10px auto;">
 
@@ -9,7 +11,8 @@
             {{/each}}
         </ul>
     </div>
-    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <div class="webmail-main">
+
         <h2 class="sub-header">
         <div class="pull-right">
             <a class="btn btn-info btn-sm" href="/webmail/{{mailbox.id}}/audit/{{message.id}}"><span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span> Logs</a>
@@ -25,24 +28,22 @@
             </div>
         {{/if}}
 
-        <table class="table">
-            {{#each message.info}}
-                <tr>
-                    <td>
-                        {{key}}
-                    </td>
-                    <th {{#if isDate}} class="datestring" title="{{value}}" {{/if}}>
-                        {{#if isHtml}}{{{value}}}{{else}}{{value}}{{/if}}
-                    </th>
-                </tr>
-            {{/each}}
-        </table>
-
-        <div class="row">
-            <div class="col-md-12">
-                <div id="message" class="iframe-box"></div>
-            </div>
+        <div class="table-responsive">
+            <table class="table">
+                {{#each message.info}}
+                    <tr>
+                        <td>
+                            {{key}}
+                        </td>
+                        <th {{#if isDate}} class="datestring" title="{{value}}" {{/if}}>
+                            {{#if isHtml}}{{{value}}}{{else}}{{value}}{{/if}}
+                        </th>
+                    </tr>
+                {{/each}}
+            </table>
         </div>
+
+        <div id="message" class="iframe-box"></div>
 
         {{#if message.attachments}}
             <div class="well">
@@ -85,3 +86,4 @@
 
     </div>
 </div>
+<div class="container"><!-- container -->
