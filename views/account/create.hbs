@@ -17,7 +17,7 @@
 
                 <div class="form-group{{#if errors.name}} has-error{{/if}}">
                     <label for="name">Your name</label>
-                    <input type="text" class="form-control" name="name" id="name" placeholder="nt. &quot;Jaan Tamm&quot;" value="{{values.name}}" required>
+                    <input type="text" class="form-control" name="name" id="name" placeholder="eg. &quot;Jaan Tamm&quot;" value="{{values.name}}" required>
                     {{#if errors.name}}
                         <span class="help-block">{{errors.name}}</span>
                     {{/if}}
@@ -25,18 +25,25 @@
 
                 <div class="form-group{{#if errors.username}} has-error{{/if}}">
                     <label class="control-label" for="username">Your username</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control lowercase" name="username" id="username" placeholder="nt. &quot;username&quot;" value="{{values.username}}" pattern="^[A-Za-z0-9][A-Za-z\-\.0-9]*[A-Za-z0-9]$" required title="Valid email address user">
-                        <span class="input-group-addon">@{{serviceDomain}}</span>
-                    </div>
+                    <input type="text" class="form-control lowercase" name="username" id="username" placeholder="eg. &quot;username&quot;" value="{{values.username}}" pattern="^[A-Za-z0-9][A-Za-z\-\.0-9]*[A-Za-z0-9]$" required title="Valid email address user">
+                    <span class="help-block">Username must use ASCII characters only<span>
                     {{#if errors.username}}
                         <span class="help-block">{{errors.username}}{{#if errors.username_action}} –  <a href="{{errors.username_action.target}}">{{errors.username_action.title}}</a>{{/if}}</span>
                     {{/if}}
                 </div>
 
+                <div class="form-group{{#if errors.address}} has-error{{/if}}">
+                    <label for="name">Your new address</label>
+                    <input type="text" class="form-control" name="address" id="address" data-domain="{{serviceDomain}}" placeholder="eg. &quot;username@{{serviceDomain}}&quot;" value="{{values.address}}" required>
+                    <span class="help-block">E-mail address can use Unicode characters<span>
+                    {{#if errors.address}}
+                        <span class="help-block">{{errors.address}}</span>
+                    {{/if}}
+                </div>
+
                 <div class="form-group{{#if errors.password}} has-error{{/if}}">
                     <label for="password">Your password</label>
-                    <input type="password" class="form-control" name="password" id="password" placeholder="nt. &quot;supersecret&quot;" required>
+                    <input type="password" class="form-control" name="password" id="password" placeholder="eg. &quot;supersecret&quot;" required>
                     {{#if errors.password}}
                         <span class="help-block">{{errors.password}}</span>
                     {{/if}}
@@ -46,7 +53,6 @@
                     <label for="password2">Repeat password</label>
                     <input type="password" class="form-control" name="password2" id="password2" placeholder="repeat password" required>
                 </div>
-
 
             </fieldset>
 
@@ -58,3 +64,23 @@
 
     </div>
 </div>
+
+<script>
+var uElm = document.getElementById('username');
+var aElm = document.getElementById('address');
+var lastAddr = aElm.value;
+var domain = aElm.dataset.domain;
+var updateAddr = function(){
+    var username = (uElm.value || '').toString().replace(/^\s+|\s+$/g, '');
+    if(username){
+        if(lastAddr && lastAddr !== aElm.value){
+            // address is manually edited
+            return;
+        }
+        aElm.value = username + '@' + domain;
+        lastAddr = aElm.value;
+    }
+}
+uElm.addEventListener('change', updateAddr, false);
+uElm.addEventListener('keyup', updateAddr, false);
+</script>

@@ -15,10 +15,7 @@
 
                 <div class="form-group{{#if errors.username}} has-error{{/if}}">
                     <label class="control-label" for="username">Username</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control lowercase" name="username" id="username" placeholder="username" value="{{values.username}}" pattern="^[A-Za-z0-9][A-Za-z\-\.0-9]*[A-Za-z0-9]$" required title="Valid email address user">
-                        <span class="input-group-addon">@{{serviceDomain}}</span>
-                    </div>
+                    <input type="text" class="form-control lowercase" name="username" id="username" placeholder="username" value="{{values.username}}" pattern="^[A-Za-z0-9][A-Za-z\-\.0-9]*[A-Za-z0-9]$" required title="Valid email address user">
                     {{#if errors.username}}
                         <span class="help-block">{{errors.username}}{{#if errors.username_action}} –  <a href="{{errors.username_action.target}}">{{errors.username_action.title}}</a>{{/if}}</span>
                     {{/if}}

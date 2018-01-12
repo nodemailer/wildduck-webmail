@@ -85,6 +85,12 @@ router.post('/create', passport.csrf, (req, res, next) => {
             .max(100)
             .label('Your name')
             .required(),
+        address: Joi.string()
+            .email()
+            .trim()
+            .max(255)
+            .label('Your new address')
+            .required(),
         password: Joi.string()
             .min(8)
             .max(100)
@@ -170,12 +176,25 @@ router.post('/create', passport.csrf, (req, res, next) => {
         });
     }
 
+    let addressUser = result.value.address
+        .split('@')
+        .shift()
+        .toLowerCase();
+    if (
+        ['abuse', 'admin', 'administrator', 'hostmaster', 'majordomo', 'postmaster', 'root', 'ssl-admin', 'webmaster'].includes(addressUser) ||
+        roleBasedAddresses.includes(addressUser)
+    ) {
+        return showErrors({
+            address: util.format('"%s" is a reserved username', addressUser)
+        });
+    }
+
     apiClient.users.create(
         {
             name: result.value.name,
             username: result.value.username,
             password: result.value.password,
-            address: result.value.username + '@' + config.service.domain,
+            address: result.value.address,
             recipients: 500,
             forwards: 500,
             quota: 1 * 1024 * 1024 * 1024,
