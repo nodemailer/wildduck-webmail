@@ -2,7 +2,6 @@
 
 const express = require('express');
 const router = new express.Router();
-const passport = require('../../lib/passport');
 const Joi = require('joi');
 const apiClient = require('../../lib/api-client');
 
@@ -77,7 +76,7 @@ const filterBaseSchema = {
         .label('Upload URL')
 };
 
-router.get('/', passport.csrf, (req, res, next) => {
+router.get('/', (req, res, next) => {
     apiClient.filters.list(req.user.id, (err, filters) => {
         if (err) {
             return next(err);
@@ -96,7 +95,7 @@ router.get('/', passport.csrf, (req, res, next) => {
     });
 });
 
-router.get('/create', passport.csrf, (req, res, next) => {
+router.get('/create', (req, res, next) => {
     apiClient.mailboxes.list(req.user.id, false, (err, mailboxes) => {
         if (err) {
             return next(err);
@@ -111,7 +110,7 @@ router.get('/create', passport.csrf, (req, res, next) => {
     });
 });
 
-router.get('/edit', passport.csrf, (req, res, next) => {
+router.get('/edit', (req, res, next) => {
     const updateSchema = Joi.object().keys({
         id: Joi.string()
             .trim()
@@ -163,7 +162,7 @@ router.get('/edit', passport.csrf, (req, res, next) => {
     });
 });
 
-router.post('/delete', passport.csrf, (req, res) => {
+router.post('/delete', (req, res) => {
     const updateSchema = Joi.object().keys({
         id: Joi.string()
             .trim()
@@ -200,7 +199,7 @@ router.post('/delete', passport.csrf, (req, res) => {
     });
 });
 
-router.post('/create', passport.csrf, (req, res, next) => {
+router.post('/create', (req, res, next) => {
     apiClient.mailboxes.list(req.user.id, false, (err, mailboxes) => {
         if (err) {
             return next(err);
@@ -279,7 +278,7 @@ router.post('/create', passport.csrf, (req, res, next) => {
     });
 });
 
-router.post('/edit', passport.csrf, (req, res, next) => {
+router.post('/edit', (req, res, next) => {
     apiClient.mailboxes.list(req.user.id, false, (err, mailboxes) => {
         if (err) {
             return next(err);

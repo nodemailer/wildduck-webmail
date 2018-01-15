@@ -14,10 +14,34 @@
     <div class="webmail-main">
         <h2 class="sub-header"><span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> {{mailbox.name}}</h2>
 
+        <fieldset id="action-toolbar" disabled>
+            <div class="form-group">
+                <button class="btn btn-default btn-xs bulk-mark-seen">Mark as Seen</button>
+                <button class="btn btn-default btn-xs bulk-mark-unseen">Mark as Unseen</button>
+                <!--
+                <button class="btn btn-default btn-xs bulk-mark-flagged"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete</button>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> Move <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu">
+                     {{#each mailboxes}}
+                        {{#unless selected}}
+                            <li><a href="#">{{path}}</a></li>
+                        {{/unless}}
+                    {{/each}}
+                  </ul>
+                </div>
+                -->
+            </div>
+        </fieldset>
+
         <div class="table-responsive">
             <table class="messagelist">
                 <colgroup>
                     <col class="messagerow-spacer-col" />
+                    <col class="messagerow-checkbox-col" />
+                    <col class="messagerow-star-col" />
                     <col class="messagerow-from-col" />
                     <col class="messagerow-subject-col" />
                     <col class="messagerow-info-col" />
@@ -49,5 +73,205 @@
         </nav>
     </div>
 </div>
+
+<input type="hidden" id="_csrf" value="{{csrfToken}}">
+<script src="/whatwg-fetch/fetch.js"></script>
+<script>
+
+// star toggle
+(function(){
+    var toggleStar = function(e, elm){
+        e.preventDefault();
+        e.stopPropagation();
+
+        if(!elm || elm.dataset.status === 'pending'){
+            return;
+        }
+
+        elm.dataset.status = 'pending';
+        var flagged = elm.classList.contains('flagged');
+
+        var done = function(){
+            elm.dataset.status = 'done';
+        }
+
+        fetch('/api/toggle/flagged', {
+            method: 'post',
+            headers: {
+                Accept: 'application/json, text/plain, */*',
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                _csrf: document.getElementById('_csrf').value,
+                mailbox: elm.dataset.mailbox,
+                message: elm.dataset.message,
+                flagged: !flagged // toggle
+            })
+        })
+        .then(function(res) {
+            return res.json();
+        })
+        .then(function(res) {
+            if(res.error){
+                console.error(res.error);
+                return done();
+            }
+
+            if(flagged){
+                elm.classList.remove('flagged');
+                elm.classList.add('unflagged');
+                elm.querySelector('.glyphicon').classList.remove('glyphicon-star');
+                elm.querySelector('.glyphicon').classList.add('glyphicon-star-empty');
+            }else{
+                elm.classList.remove('unflagged');
+                elm.classList.add('flagged');
+                elm.querySelector('.glyphicon').classList.remove('glyphicon-star-empty');
+                elm.querySelector('.glyphicon').classList.add('glyphicon-star');
+            }
+
+            done();
+        }).catch(function(err){
+            console.error(err);
+            done();
+        });
+
+    };
+
+    var setupToggling = function(elm){
+        elm.addEventListener('click', function(e){
+            toggleStar(e, elm);
+        }, false);
+    }
+
+    var starElms = document.querySelectorAll('.message-star');
+    for(var i=0, len = starElms.length; i<len; i++){
+        setupToggling(starElms[i]);
+    }
+})();
+
+// checkboxes
+(function(){
+    var checkboxes = document.querySelectorAll('.message-checkbox');
+    var toolbarElm = document.querySelector('#action-toolbar');
+
+    var getChecked = function(){
+        var result = [];
+        for(var i=0, len = checkboxes.length; i<len; i++){
+            if(checkboxes[i].checked){
+                result.push({
+                    elm: checkboxes[i],
+                    mailbox: checkboxes[i].dataset.mailbox,
+                    message: checkboxes[i].dataset.message
+                });
+            }
+        }
+        return result;
+    }
+
+    var toggleToolbar = function(){
+        for(var i=0, len = checkboxes.length; i<len; i++){
+            if(checkboxes[i].checked){
+                toolbarElm.disabled = false;
+                return;
+            }
+        }
+        toolbarElm.disabled = true;
+    };
+
+    for(var i=0, len = checkboxes.length; i<len; i++){
+        checkboxes[i].addEventListener('click', toggleToolbar, false);
+        checkboxes[i].addEventListener('change', toggleToolbar, false);
+    }
+
+    var pendingSeen = false;
+    var toggleSeen = function(seen){
+        if(pendingSeen){
+            return false;
+        }
+
+        var checked = getChecked();
+        if(!checked.length){
+            return false;
+        }
+
+        pendingSeen = true;
+
+        var mailbox = checked.find(function(m){return m.mailbox;}).mailbox;
+        var messages = checked.map(function(m){return m.message;});
+
+        var done = function(){
+            pendingSeen = false;
+        }
+
+        fetch('/api/toggle/seen', {
+            method: 'post',
+            headers: {
+                Accept: 'application/json, text/plain, */*',
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                _csrf: document.getElementById('_csrf').value,
+                mailbox: mailbox,
+                message: messages.join(','),
+                seen: !!seen
+            })
+        })
+        .then(function(res) {
+            return res.json();
+        })
+        .then(function(res) {
+            if(res.error){
+                console.error(res.error);
+                return done();
+            }
+
+            var findRow = function(elm, level){
+                level = level || 0;
+                var parent = elm.parentNode;
+                if(!parent || level > 10){
+                    return false;
+                }
+                if(parent.classList.contains('messagerow')){
+                    return parent;
+                }
+                return findRow(parent, level+1);
+            }
+
+            checked.forEach(function(checkbox){
+                let row = findRow(checkbox.elm);
+                if(row){
+                    row.classList.remove(seen ? 'message-unseen' : 'message-seen');
+                    row.classList.add(seen ? 'message-seen' : 'message-unseen');
+                }
+            })
+
+            done();
+        }).catch(function(err){
+            console.error(err);
+            done();
+        });
+
+    }
+
+    var setUnseen = function(){
+        toggleSeen(false);
+    };
+
+    var setSeen = function(){
+        toggleSeen(true);
+    };
+
+    document.querySelector('.bulk-mark-unseen').addEventListener('click', setUnseen, false);
+    document.querySelector('.bulk-mark-unseen').addEventListener('touch', setUnseen, false);
+    document.querySelector('.bulk-mark-seen').addEventListener('click', setSeen, false);
+    document.querySelector('.bulk-mark-unseen').addEventListener('touch', setUnseen, false);
+
+    toggleToolbar();
+})();
+
+</script>
+
 
 <div class="container"><!-- container -->

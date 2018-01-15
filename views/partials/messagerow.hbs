@@ -1,14 +1,22 @@
-<tr class="messagerow">
+<tr class="messagerow {{#if seen}}message-seen{{else}}message-unseen{{/if}}">
     <td class="messagerow-spacer"></td>
 
+    <td class="messagerow-checkbox">
+        <input type="checkbox" data-mailbox="{{mailbox}}" data-message="{{id}}" class="message-checkbox"/>
+    </td>
+
+    <td class="messagerow-star">
+        <a href="#" class="message-star {{#if flagged}}flagged{{else}}unflagged{{/if}}" data-mailbox="{{mailbox}}" data-message="{{id}}"><span class="glyphicon glyphicon-{{#if flagged}}star{{else}}star-empty{{/if}}" aria-hidden="true"></span></a>
+    </td>
+
     <td class="messagerow-from">
-        <a href="/webmail/{{mailbox}}/message/{{id}}" class="messagerow-link" style="{{#unless seen}}font-weight: bold;{{/unless}}">
+        <a href="/webmail/{{mailbox}}/message/{{id}}" class="messagerow-link">
             {{{fromHtml}}}
         </a>
     </td>
 
     <td class="messagerow-subject">
-        <a href="/webmail/{{mailbox}}/message/{{id}}" class="messagerow-link" style="{{#unless seen}}font-weight: bold;{{/unless}}">
+        <a href="/webmail/{{mailbox}}/message/{{id}}" class="messagerow-link">
             <span class="messagerow-subject-content">
                 {{subject}}{{#if intro}} <span class="text-muted" style="font-weight: normal;">– {{intro}}</span>{{/if}}
             </span>
@@ -16,7 +24,7 @@
     </td>
 
     <td class="messagerow-info">
-        <a href="/webmail/{{mailbox}}/message/{{id}}" class="messagerow-link" style="{{#unless seen}}font-weight: bold;{{/unless}}">
+        <a href="/webmail/{{mailbox}}/message/{{id}}" class="messagerow-link">
             {{#if encrypted}}
                 <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
             {{else}}
@@ -28,7 +36,7 @@
     </td>
 
     <td class="messagerow-date">
-        <a href="/webmail/{{mailbox}}/message/{{id}}" class="messagerow-link" style="{{#unless seen}}font-weight: bold;{{/unless}}">
+        <a href="/webmail/{{mailbox}}/message/{{id}}" class="messagerow-link">
             <span class="datestring-fixed" title="{{date}}">
                 {{date}}
             </span>

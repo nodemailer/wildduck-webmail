@@ -435,7 +435,8 @@ function renderMailbox(req, res, next) {
                 messages: result.results.map(message => {
                     message.fromHtml = tools.getAddressesHTML(message.from, true);
                     return message;
-                })
+                }),
+                csrfToken: req.csrfToken()
             });
         });
     });

@@ -18,6 +18,7 @@ const db = require('./lib/db');
 const routesIndex = require('./routes/index');
 const routesAccount = require('./routes/account');
 const routesWebmail = require('./routes/webmail');
+const routesApi = require('./routes/api');
 
 const app = express();
 
@@ -133,9 +134,10 @@ app.use((req, res, next) => {
 });
 
 // setup main routes
-app.use('/', routesIndex);
-app.use('/account', routesAccount);
-app.use('/webmail', passport.checkLogin, routesWebmail);
+app.use('/', passport.csrf, routesIndex);
+app.use('/account', passport.csrf, routesAccount);
+app.use('/webmail', passport.csrf, passport.checkLogin, routesWebmail);
+app.use('/api', passport.csrf, passport.checkLogin, routesApi);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

@@ -188,6 +188,14 @@ tr.messagerow:hover td {
     width: 10px;
 }
 
+.messagerow-checkbox-col {
+    width: 20px;
+}
+
+.messagerow-star-col {
+    width: 20px;
+}
+
 .messagerow-from-col {
     width: 200px;
 }
@@ -205,6 +213,15 @@ tr.messagerow:hover td {
 
 .messagerow-spacer {
     empty-cells: show;
+}
+
+.messagerow-star,
+.messagerow-checkbox {
+    line-height: 3rem;
+}
+
+.messagerow-star a {
+    text-align: center;
 }
 
 .messagerow-date a {
@@ -227,4 +244,20 @@ tr.messagerow:hover td {
     white-space: nowrap;
     text-overflow: ellipsis;
     text-decoration: none !important;
+}
+
+a.message-star.flagged {
+    color: #048ba8;
+}
+
+a.message-star.unflagged {
+    color: #a5a5a5;
+}
+
+tr.message-seen td a {
+    font-weight: normal;
+}
+
+tr.message-unseen td a {
+    font-weight: bold;
 }

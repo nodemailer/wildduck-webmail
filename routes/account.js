@@ -17,9 +17,9 @@ const addressparser = require('addressparser');
 router.use('/filters', passport.checkLogin, require('./account/filters'));
 router.use('/autoreply', passport.checkLogin, require('./account/autoreply'));
 
-router.use('/security', passport.csrf, passport.checkLogin, require('./account/security'));
+router.use('/security', passport.checkLogin, require('./account/security'));
 
-router.get('/', passport.csrf, passport.checkLogin, (req, res, next) => {
+router.get('/', passport.checkLogin, (req, res, next) => {
     apiClient.users.get(req.user.id, (err, userData) => {
         if (err) {
             return next(err);
@@ -59,7 +59,7 @@ router.get('/login', (req, res) => {
     });
 });
 
-router.get('/create', passport.csrf, (req, res, next) => {
+router.get('/create', (req, res, next) => {
     if (!config.service.allowJoin) {
         let err = new Error('User registration is disabled');
         err.status = 404;
@@ -72,7 +72,7 @@ router.get('/create', passport.csrf, (req, res, next) => {
     });
 });
 
-router.post('/create', passport.csrf, (req, res, next) => {
+router.post('/create', (req, res, next) => {
     if (!config.service.allowJoin) {
         let err = new Error('User registration is disabled');
         err.status = 404;
@@ -216,7 +216,7 @@ router.post('/create', passport.csrf, (req, res, next) => {
     );
 });
 
-router.get('/profile', passport.csrf, passport.checkLogin, (req, res, next) => {
+router.get('/profile', passport.checkLogin, (req, res, next) => {
     apiClient.users.get(req.user.id, (err, userData) => {
         if (err) {
             return next(err);
@@ -233,7 +233,7 @@ router.get('/profile', passport.csrf, passport.checkLogin, (req, res, next) => {
     });
 });
 
-router.post('/profile', passport.csrf, passport.checkLogin, (req, res) => {
+router.post('/profile', passport.checkLogin, (req, res) => {
     const updateSchema = Joi.object()
         .keys({
             name: Joi.string()
@@ -384,7 +384,7 @@ router.post('/start-u2f', (req, res) => {
     });
 });
 
-router.post('/check-totp', passport.csrf, (req, res) => {
+router.post('/check-totp', (req, res) => {
     const authSchema = Joi.object().keys({
         token: Joi.string()
             .length(6)
@@ -434,7 +434,7 @@ router.post('/check-totp', passport.csrf, (req, res) => {
     });
 });
 
-router.post('/check-u2f', passport.csrf, (req, res) => {
+router.post('/check-u2f', (req, res) => {
     if (!config.u2f.enabled) {
         let err = new Error('U2F support is disabled');
         return res.json({ error: err.message });

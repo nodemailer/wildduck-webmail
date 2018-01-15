@@ -2,11 +2,10 @@
 
 const express = require('express');
 const router = new express.Router();
-const passport = require('../../lib/passport');
 const Joi = require('joi');
 const apiClient = require('../../lib/api-client');
 
-router.get('/', passport.csrf, (req, res, next) => {
+router.get('/', (req, res, next) => {
     apiClient.autoreply.get(req.user.id, (err, autoreply) => {
         if (err) {
             return next(err);
@@ -20,7 +19,7 @@ router.get('/', passport.csrf, (req, res, next) => {
     });
 });
 
-router.post('/', passport.csrf, (req, res) => {
+router.post('/', (req, res) => {
     const updateSchema = Joi.object().keys({
         status: Joi.boolean().required(),
         subject: Joi.string()
