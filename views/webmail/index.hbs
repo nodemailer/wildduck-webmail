@@ -14,8 +14,14 @@
     <div class="webmail-main">
         <h2 class="sub-header"><span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> {{mailbox.name}}</h2>
 
+
+        <div class="pull-left" style="margin-left: 10px; width: 20px;">
+            <input type="checkbox" class="toggle-all" />
+        </div>
+
         <fieldset id="action-toolbar" disabled>
             <div class="form-group">
+
                 <button class="btn btn-default btn-xs bulk-mark-seen">Mark as Seen</button>
                 <button class="btn btn-default btn-xs bulk-mark-unseen">Mark as Unseen</button>
                 <!--
@@ -154,6 +160,7 @@
 (function(){
     var checkboxes = document.querySelectorAll('.message-checkbox');
     var toolbarElm = document.querySelector('#action-toolbar');
+    var toggleAllElm = document.querySelector('.toggle-all');
 
     var getChecked = function(){
         var result = [];
@@ -170,13 +177,21 @@
     }
 
     var toggleToolbar = function(){
+        let checked = 0;
         for(var i=0, len = checkboxes.length; i<len; i++){
             if(checkboxes[i].checked){
-                toolbarElm.disabled = false;
-                return;
+                checked++;
             }
         }
-        toolbarElm.disabled = true;
+        if(checked){
+            toolbarElm.disabled = false;
+            if(checked === checkboxes.length){
+                toggleAllElm.checked = true;
+            }
+        }else{
+            toolbarElm.disabled = true;
+            toggleAllElm.checked = false;
+        }
     };
 
     for(var i=0, len = checkboxes.length; i<len; i++){
@@ -267,6 +282,17 @@
     document.querySelector('.bulk-mark-unseen').addEventListener('touch', setUnseen, false);
     document.querySelector('.bulk-mark-seen').addEventListener('click', setSeen, false);
     document.querySelector('.bulk-mark-unseen').addEventListener('touch', setUnseen, false);
+
+    var toggleAll = function(){
+        var checked = toggleAllElm.checked;
+
+        for(var i=0, len = checkboxes.length; i<len; i++){
+            checkboxes[i].checked = checked;
+        }
+    }
+
+    document.querySelector('.toggle-all').addEventListener('click', toggleAll, false);
+    document.querySelector('.btoggle-all').addEventListener('change', toggleAll, false);
 
     toggleToolbar();
 })();
