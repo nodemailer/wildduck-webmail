@@ -1,24 +1,35 @@
-<a href="/webmail/{{mailbox}}/message/{{id}}" class="message-item" style="{{#unless seen}}font-weight: bold;{{/unless}}">
+<tr class="messagerow">
+    <td class="messagerow-from">
+        <a href="/webmail/{{mailbox}}/message/{{id}}" class="messagerow-link" style="{{#unless seen}}font-weight: bold;{{/unless}}">
+            {{{fromHtml}}}
+        </a>
+    </td>
 
-    <span class="message-list-from">
-        {{{fromHtml}}}
-    </span>
+    <td class="messagerow-subject">
+        <a href="/webmail/{{mailbox}}/message/{{id}}" class="messagerow-link" style="{{#unless seen}}font-weight: bold;{{/unless}}">
+            <span class="messagerow-subject-content">
+                {{subject}}{{#if intro}} <span class="text-muted" style="font-weight: normal;">– {{intro}}</span>{{/if}}
+            </span>
+        </a>
+    </td>
 
-    <span class="message-list-subject">
-        {{subject}}{{#if intro}} <span class="text-muted" style="font-weight: normal;">– {{intro}}</span>{{/if}}
-    </span>
-
-    <span class="message-list-info">
-        {{#if encrypted}}
-            <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
-        {{else}}
-            {{#if attachments}}
-                <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
+    <td class="messagerow-info">
+        <a href="/webmail/{{mailbox}}/message/{{id}}" class="messagerow-link" style="{{#unless seen}}font-weight: bold;{{/unless}}">
+            {{#if encrypted}}
+                <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+            {{else}}
+                {{#if attachments}}
+                    <span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span>
+                {{/if}}
             {{/if}}
-        {{/if}}
-    </span>
+        </a>
+    </td>
 
-    <span class="message-list-date datestring-fixed" title="{{date}}">
-        {{date}}
-    </span>
-</a>
+    <td class="messagerow-date">
+        <a href="/webmail/{{mailbox}}/message/{{id}}" class="messagerow-link" style="{{#unless seen}}font-weight: bold;{{/unless}}">
+            <span class="datestring-fixed" title="{{date}}">
+                {{date}}
+            </span>
+        </a>
+    </td>
+</tr>

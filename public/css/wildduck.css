@@ -153,39 +153,61 @@ input.lowercase {
     padding: 0 40px 0 20px;
 }
 
-.message-item {
-    display: flex;
-    text-decoration: none;
-    color: #333;
-    border: 0;
-    padding: 7px 0;
+.messagelist {
+    table-layout: fixed;
+    width: 100%;
+    border-spacing: 0;
+    border-collapse: collapse;
 }
 
-.message-item:hover {
-    text-decoration: none;
+.messagerow {
+    width: 100%;
+}
+
+tr.messagerow:hover {
     background-color: #f5f5f5;
 }
 
-.message-list-from {
-    width: 150px;
+.messagerow-link {
     display: block;
+    text-decoration: none;
+    color: #333;
+    border: 0;
+    line-height: 3rem;
 }
 
-.message-list-date {
-    width: 150px;
-    display: block;
-    text-align: right;
+.messagerow-link:hover {
+    text-decoration: none;
 }
 
-.message-list-info {
+.messagerow-from-col {
+    width: 200px;
+}
+
+.messagerow-date-col {
+    width: 150px;
+}
+
+.messagerow-info-col {
     width: 40px;
-    display: block;
+}
+
+.messagerow-subject-col {
+}
+
+.messagerow-date a {
     text-align: right;
 }
 
-.message-list-subject {
-    display: block;
-    flex-grow: 1;
+.messagerow-info a {
+    text-align: right;
+}
+
+.messagerow-subject-col {
+    overflow: visible;
+}
+
+.messagerow-subject a {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;

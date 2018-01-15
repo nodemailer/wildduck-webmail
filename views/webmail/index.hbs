@@ -20,11 +20,19 @@
         </div>
 
 
-        <div class="messagelist">
-            {{#each messages}}
-                {{>messagerow}}
-            {{/each}}
-        </div>
+        <table class="messagelist">
+            <colgroup>
+                <col class="messagerow-from-col" />
+                <col class="messagerow-subject-col" />
+                <col class="messagerow-info-col" />
+                <col class="messagerow-date-col" />
+            </colgroup>
+            <tbody>
+                {{#each messages}}
+                    {{>messagerow}}
+                {{/each}}
+            </tbody>
+        </table>
 
         <nav aria-label="nav">
             <ul class="pager">
