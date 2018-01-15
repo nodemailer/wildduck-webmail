@@ -164,8 +164,13 @@ input.lowercase {
     width: 100%;
 }
 
-tr.messagerow:hover {
+.messagerow td {
+    border-bottom: 1px #e5e5e5 solid;
     background-color: #f5f5f5;
+}
+
+tr.messagerow:hover td {
+    background-color: #e7e7e7;
 }
 
 .messagerow-link {
@@ -178,6 +183,9 @@ tr.messagerow:hover {
 
 .messagerow-link:hover {
     text-decoration: none;
+}
+.messagerow-spacer-col {
+    width: 10px;
 }
 
 .messagerow-from-col {
@@ -195,6 +203,10 @@ tr.messagerow:hover {
 .messagerow-subject-col {
 }
 
+.messagerow-spacer {
+    empty-cells: show;
+}
+
 .messagerow-date a {
     text-align: right;
 }
@@ -203,11 +215,13 @@ tr.messagerow:hover {
     text-align: right;
 }
 
-.messagerow-subject-col {
+.messagerow-subject-col,
+.messagerow-from-col {
     overflow: visible;
 }
 
-.messagerow-subject a {
+.messagerow-subject a,
+.messagerow-from a {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;

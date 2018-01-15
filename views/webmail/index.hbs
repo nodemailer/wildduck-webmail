@@ -14,18 +14,14 @@
     <div class="webmail-main">
         <h2 class="sub-header"><span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> {{mailbox.name}}</h2>
 
-        <div class="alert alert-warning" role="alert">
-            This webmail interface is for demo purposes only. You can read mail here but for any advanced actions or even composing messages you would have to use an external email client. See <a href="/help" class="alert-link">here</a> for configuration
-            information.
-        </div>
-
-
         <table class="messagelist">
             <colgroup>
+                <col class="messagerow-spacer-col" />
                 <col class="messagerow-from-col" />
                 <col class="messagerow-subject-col" />
                 <col class="messagerow-info-col" />
                 <col class="messagerow-date-col" />
+                <col class="messagerow-spacer-col" />
             </colgroup>
             <tbody>
                 {{#each messages}}
