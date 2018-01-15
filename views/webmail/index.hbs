@@ -14,21 +14,23 @@
     <div class="webmail-main">
         <h2 class="sub-header"><span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> {{mailbox.name}}</h2>
 
-        <table class="messagelist">
-            <colgroup>
-                <col class="messagerow-spacer-col" />
-                <col class="messagerow-from-col" />
-                <col class="messagerow-subject-col" />
-                <col class="messagerow-info-col" />
-                <col class="messagerow-date-col" />
-                <col class="messagerow-spacer-col" />
-            </colgroup>
-            <tbody>
-                {{#each messages}}
-                    {{>messagerow}}
-                {{/each}}
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="messagelist">
+                <colgroup>
+                    <col class="messagerow-spacer-col" />
+                    <col class="messagerow-from-col" />
+                    <col class="messagerow-subject-col" />
+                    <col class="messagerow-info-col" />
+                    <col class="messagerow-date-col" />
+                    <col class="messagerow-spacer-col" />
+                </colgroup>
+                <tbody>
+                    {{#each messages}}
+                        {{>messagerow}}
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
 
         <nav aria-label="nav">
             <ul class="pager">

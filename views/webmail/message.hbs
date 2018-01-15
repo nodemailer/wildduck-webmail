@@ -13,13 +13,48 @@
     </div>
     <div class="webmail-main">
 
-        <h2 class="sub-header">
         <div class="pull-right">
-            <a class="btn btn-info btn-sm" href="/webmail/{{mailbox.id}}/audit/{{message.id}}"><span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span> Logs</a>
-            <a class="btn btn-success btn-sm" href="/webmail/{{mailbox.id}}/raw/{{message.id}}.eml" role="button" download="{{message.id}}.eml"><span class="glyphicon glyphicon-cloud-download" aria-hidden="true"></span> Raw source</a>
+            <div class="btn-group">
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> Message details <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-right">
+                <li><a href="/webmail/{{mailbox.id}}/audit/{{message.id}}"><span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span> Logs</a></li>
+                <li><a href="/webmail/{{mailbox.id}}/raw/{{message.id}}.eml"><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> Original message</a></li>
+                {{#if message.attachments}}
+                    <li role="separator" class="divider"></li>
+                    {{#each message.attachments}}
+                        <li><a href="/webmail/{{../mailbox.id}}/attachment/{{../message.id}}/{{id}}" download="{{filename}}"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span> {{filename}} [{{sizeKb}}kB]</a></li>
+                    {{/each}}
+                {{/if}}
+              </ul>
+            </div>
         </div>
+        <div>
+            <h4>
+                {{message.subject}}
+            </h4>
+        </div>
+        {{#each message.info}}
+            <div>
+                <strong>{{key}}:</strong>
+                <span {{#if isDate}} class="datestring" title="{{value}}" {{/if}}>
+                    {{#if isHtml}}{{{value}}}{{else}}{{value}}{{/if}}
+                </span>
+            </div>
+        {{/each}}
+        {{#if expires}}
+            <div class="text-muted">
+                <strong>Message expires:</strong>
+                <span class="datestring" title="{{expires}}">
+                    {{expires}}
+                </span>
+            </div>
+        {{/if}}
 
-        <span class="glyphicon glyphicon-comment" aria-hidden="true"></span> {{message.subject}}</h2>
+        <p>
+            &nbsp;
+        </p>
 
         {{#if message.encrypted}}
             <div class="alert alert-warning" role="alert">
@@ -27,21 +62,6 @@
                 This message is encrypted and can not be properly displayed. Download the original message <a href="/webmail/{{mailbox.id}}/raw/{{message.id}}.eml" role="button" download="{{message.id}}.eml" class="alert-link">from here </a> to open it in an e-mail client that is able to read encrypted messages.
             </div>
         {{/if}}
-
-        <div class="table-responsive">
-            <table class="table">
-                {{#each message.info}}
-                    <tr>
-                        <td>
-                            {{key}}
-                        </td>
-                        <th {{#if isDate}} class="datestring" title="{{value}}" {{/if}}>
-                            {{#if isHtml}}{{{value}}}{{else}}{{value}}{{/if}}
-                        </th>
-                    </tr>
-                {{/each}}
-            </table>
-        </div>
 
         <div id="message" class="iframe-box"></div>
 
