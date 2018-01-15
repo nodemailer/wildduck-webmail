@@ -1,15 +1,20 @@
 </div> <!-- container -->
 
 <div class="webmail-container">
-    <div class="sidebar">
-
-        <img src="/images/duck.png" class="img-responsive" style="display: block; margin: 10px auto;">
-
-        <ul class="nav nav-sidebar">
-            {{#each mailboxes}}
-                <li {{#if selected}} class="active" {{/if}}><a href="/webmail/{{id}}">{{index}}. {{path}}{{#if unseen}} <span class="badge">{{unseen}}</span>{{/if}}</a></li>
-            {{/each}}
-        </ul>
+    <div class="sidebar-container">
+        <div class="sidebar">
+            <img src="/images/duck.png" class="img-responsive" style="display: block; margin: 10px auto;">
+            <ul class="nav nav-sidebar">
+                {{#each mailboxes}}
+                    <li {{#if selected}} class="active" {{/if}}>
+                        <a href="/webmail/{{id}}">
+                            {{#if unseen}}<span class="badge pull-right">{{unseen}}</span>{{/if}}
+                            <span>{{index}}. {{path}}</span>
+                        </a>
+                    </li>
+                {{/each}}
+            </ul>
+        </div>
     </div>
     <div class="webmail-main">
         <h2 class="sub-header"><span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> {{mailbox.name}}</h2>

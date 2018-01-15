@@ -61,13 +61,10 @@ input.lowercase {
 
 /* Hide for mobile, show later */
 .sidebar {
-}
-@media (min-width: 768px) {
-    .sidebar {
-        padding: 20px;
-        background-color: #f5f5f5;
-        border-right: 1px solid #eee;
-    }
+    width: 250px;
+    padding: 20px;
+    background-color: #f5f5f5;
+    border-right: 1px solid #eee;
 }
 
 /* Sidebar navigation */
@@ -77,8 +74,7 @@ input.lowercase {
     margin-left: -20px;
 }
 .nav-sidebar > li > a {
-    padding-right: 20px;
-    padding-left: 20px;
+    padding: 6px 20px;
 }
 .nav-sidebar > .active > a,
 .nav-sidebar > .active > a:hover,
@@ -91,12 +87,11 @@ input.lowercase {
  * Main content
  */
 
-@media (min-width: 768px) {
-    .main {
-        padding-right: 40px;
-        padding-left: 40px;
-    }
+.main {
+    padding-right: 40px;
+    padding-left: 40px;
 }
+
 .main .page-header {
     margin-top: 0;
 }
@@ -142,6 +137,7 @@ input.lowercase {
 
 .webmail-container {
     display: flex;
+    margin-top: -20px;
 }
 
 .sidebar {
