@@ -289,10 +289,14 @@
         for(var i=0, len = checkboxes.length; i<len; i++){
             checkboxes[i].checked = checked;
         }
+
+        if(checked && checkboxes.length){
+            toolbarElm.disabled = false;
+        }
     }
 
     document.querySelector('.toggle-all').addEventListener('click', toggleAll, false);
-    document.querySelector('.btoggle-all').addEventListener('change', toggleAll, false);
+    document.querySelector('.toggle-all').addEventListener('change', toggleAll, false);
 
     toggleToolbar();
 })();
