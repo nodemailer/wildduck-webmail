@@ -221,8 +221,10 @@ tr.messagerow:hover td {
 }
 
 .messagerow-subject a,
+.messagerow-date a,
 .messagerow-from a {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    text-decoration: none !important;
 }
