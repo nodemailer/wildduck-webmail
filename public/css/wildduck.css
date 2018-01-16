@@ -260,3 +260,16 @@ tr.message-unseen td a {
 .bulk-move-path {
     font-weight: bold;
 }
+
+table.limited {
+    table-layout: fixed;
+    width: 100%;
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+
+.message-subject-line {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}

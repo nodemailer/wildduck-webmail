@@ -411,8 +411,6 @@ router.get('/:mailbox/settings', (req, res, next) => {
             entry.index = i + 1;
 
             let parts = entry.path.split('/');
-            console.log(parts);
-            console.log(parts.slice(0, 1));
 
             if (entry.id === mailbox) {
                 entry.selected = true;
@@ -455,9 +453,6 @@ router.get('/:mailbox/settings', (req, res, next) => {
         if (!mailboxExists) {
             return res.redirect('/webmail');
         }
-
-        console.log(require('util').inspect(mailboxes, false, 22));
-        console.log(parents);
 
         res.render('webmail/mailbox', {
             layout: 'layout-webmail',
@@ -528,8 +523,6 @@ router.post('/:mailbox/settings', (req, res) => {
             path
         },
         (err, response) => {
-            console.log(err || response);
-
             if (err) {
                 req.flash('danger', err.message);
             }

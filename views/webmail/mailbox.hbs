@@ -23,10 +23,10 @@
                     <div class="form-group{{#if errors.parent}} has-error{{/if}}">
                         <label for="parent">Mailbox Parent</label>
                         <select class="form-control" name="parent" id="parent">
-                            <option value="">/</option>
+                            <option value="">[No parent]</option>
                             {{#each parents}}
                                 <option value="{{path}}" {{#if isParent}} selected {{/if}} >
-                                    / {{name}}
+                                    {{name}}
                                 </option>
                             {{/each}}
                         </select>

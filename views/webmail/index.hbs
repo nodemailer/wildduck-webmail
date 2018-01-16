@@ -554,25 +554,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('.bulk-move-confirm').addEventListener('click', moveMessage, false);
     document.querySelector('.bulk-move-confirm').addEventListener('touch', moveMessage, false);
 
-    /*
-    var moveTargets = document.querySelectorAll('.bulk-move-confirm');
-    Array.prototype.slice.call(moveTargets).forEach(function(elm){
-        var target = elm.dataset.mailbox;
-        if(!target){
-            return;
-        }
-        var moveMessageEvt = function(e){
-            moveMessage(target);
-        };
-        elm.addEventListener('click', moveMessageEvt, false);
-        elm.addEventListener('touch', moveMessageEvt, false);
-    });
-    */
-
     toggleToolbar();
 }, false);
 
 </script>
-
-
-<div class="container"><!-- container -->

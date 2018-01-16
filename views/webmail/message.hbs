@@ -1,26 +1,35 @@
 
-<div>
-    <h4>
-        <div class="pull-right">
-            <div class="btn-group">
-              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> Message details <span class="caret"></span>
-              </button>
-              <ul class="dropdown-menu dropdown-menu-right">
-                <li><a href="/webmail/{{mailbox.id}}/audit/{{message.id}}"><span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span> Logs</a></li>
-                <li><a href="/webmail/{{mailbox.id}}/raw/{{message.id}}.eml"><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> Original message</a></li>
-                {{#if message.attachments}}
-                    <li role="separator" class="divider"></li>
-                    {{#each message.attachments}}
-                        <li><a href="/webmail/{{../mailbox.id}}/attachment/{{../message.id}}/{{id}}" download="{{filename}}"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span> {{filename}} [{{sizeKb}}kB]</a></li>
-                    {{/each}}
-                {{/if}}
-              </ul>
-            </div>
+<h2 class="sub-header">
+
+    <div class="pull-right">
+        <div class="btn-group">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> Message details <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-right">
+            <li><a href="/webmail/{{mailbox.id}}/audit/{{message.id}}"><span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span> Logs</a></li>
+            <li><a href="/webmail/{{mailbox.id}}/raw/{{message.id}}.eml"><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span> Original message</a></li>
+            {{#if message.attachments}}
+                <li role="separator" class="divider"></li>
+                {{#each message.attachments}}
+                    <li><a href="/webmail/{{../mailbox.id}}/attachment/{{../message.id}}/{{id}}" download="{{filename}}"><span class="glyphicon glyphicon-paperclip" aria-hidden="true"></span> {{filename}} [{{sizeKb}}kB]</a></li>
+                {{/each}}
+            {{/if}}
+          </ul>
         </div>
-        <span>{{message.subject}}</span>
-    </h4>
-</div>
+    </div>
+
+    <div  style="margin-right: 220px;">
+        <table class="limited">
+            <tr>
+                <td class="message-subject-line">
+                    <span class="glyphicon glyphicon-comment" aria-hidden="true"></span> <span>{{message.subject}}</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+</h2>
+
 {{#each message.info}}
     <div>
         <strong>{{key}}:</strong>
