@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    {{>header}}
+</head>
+
+<body>
+
+    {{>navbar}}
+
+
+    <div class="webmail-container">
+        <div class="sidebar-container">
+            <div class="sidebar">
+                <img src="/images/duck.png" class="img-responsive" style="display: block; margin: 10px auto;">
+                <ul class="nav nav-sidebar">
+                    {{#each mailboxes}}
+                        <li {{#if selected}} class="active" {{/if}}>
+                            <a href="/webmail/{{id}}">
+                                {{#if unseen}}<span class="badge pull-right">{{unseen}}</span>{{/if}}
+                                <span>{{index}}. {{path}}</span>
+                            </a>
+                        </li>
+                    {{/each}}
+                </ul>
+            </div>
+        </div>
+        <div class="webmail-main">
+
+            <div>
+                {{flash_messages}}
+            </div>
+
+            {{{body}}}
+
+        </div>
+    </div>
+
+
+    <footer class="footer">
+        <div class="container">
+            <p class="text-muted">&copy; 2017 <a href="/">{{serviceName}}</a>. <a href="mailto:info@{{serviceDomain}}">info@{{serviceDomain}}</a>. </p>
+        </div>
+    </footer>
+
+    <script src="/jquery-3.1.1/jquery.min.js"></script>
+    <script src="/bootstrap-3.3.7/js/bootstrap.js"></script>
+    <script src="/moment/moment.min.js"></script>
+    <script src="/daterangepicker/daterangepicker.js"></script>
+    <script src="/wd.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            $("[rel='tooltip']").tooltip();
+        });
+    </script>
+</body>
+
+</html>

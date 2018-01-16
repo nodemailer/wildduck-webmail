@@ -1,23 +1,6 @@
-</div> <!-- container -->
 
-<div class="webmail-container">
-    <div class="sidebar-container">
-        <div class="sidebar">
-            <img src="/images/duck.png" class="img-responsive" style="display: block; margin: 10px auto;">
-            <ul class="nav nav-sidebar">
-                {{#each mailboxes}}
-                    <li {{#if selected}} class="active" {{/if}}>
-                        <a href="/webmail/{{id}}">
-                            {{#if unseen}}<span class="badge pull-right">{{unseen}}</span>{{/if}}
-                            <span>{{index}}. {{path}}</span>
-                        </a>
-                    </li>
-                {{/each}}
-            </ul>
-        </div>
-    </div>
-    <div class="webmail-main">
-
+<div>
+    <h4>
         <div class="pull-right">
             <div class="btn-group">
               <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -35,79 +18,74 @@
               </ul>
             </div>
         </div>
-        <div>
-            <h4>
-                {{message.subject}}
-            </h4>
-        </div>
-        {{#each message.info}}
-            <div>
-                <strong>{{key}}:</strong>
-                <span {{#if isDate}} class="datestring" title="{{value}}" {{/if}}>
-                    {{#if isHtml}}{{{value}}}{{else}}{{value}}{{/if}}
-                </span>
-            </div>
-        {{/each}}
-        {{#if expires}}
-            <div class="text-muted">
-                <strong>Message expires:</strong>
-                <span class="datestring" title="{{expires}}">
-                    {{expires}}
-                </span>
-            </div>
-        {{/if}}
-
-        <p>
-            &nbsp;
-        </p>
-
-        {{#if message.encrypted}}
-            <div class="alert alert-warning" role="alert">
-                <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
-                This message is encrypted and can not be properly displayed. Download the original message <a href="/webmail/{{mailbox.id}}/raw/{{message.id}}.eml" role="button" download="{{message.id}}.eml" class="alert-link">from here </a> to open it in an e-mail client that is able to read encrypted messages.
-            </div>
-        {{/if}}
-
-        <div id="message" class="iframe-box"></div>
-
-        {{#if message.attachments}}
-            <div class="well">
-                {{#each message.attachments}}
-                    <a class="btn btn-success btn-sm" href="/webmail/{{../mailbox.id}}/attachment/{{../message.id}}/{{id}}" role="button" download="{{filename}}"><span class="glyphicon glyphicon-cloud-download" aria-hidden="true"></span> {{filename}}</a>
-                {{/each}}
-            </div>
-        {{/if}}
-
-        <p>
-            &nbsp;
-        </p>
-
-        <script type="text/javascript" src="/purify-0.9.0/purify.min.js"></script>
-        <script>
-            var message = {{{messageJson}}};
-
-            document.addEventListener("DOMContentLoaded", function(event) {
-                if (message.html) {
-                    var clean = DOMPurify.sanitize(message.html.join('\n'), {
-                        ALLOW_UNKNOWN_PROTOCOLS: true,
-                        WHOLE_DOCUMENT: true,
-                        FORBID_TAGS: ['form']
-                    });
-
-                    clean = clean.replace(/head>/, 'head><link rel="stylesheet" href="/css/mail.css" /><base target="_parent"><script>function resizeIframe(obj) {obj.style.height = obj.contentWindow.document.body.scrollHeight + "px";}</'+'script>');
-
-                    var iframe = document.createElement('iframe');
-
-                    document.getElementById('message').appendChild(iframe);
-                    iframe.contentWindow.document.open();
-                    iframe.contentWindow.document.write(clean);
-                    iframe.contentWindow.document.close();
-                    iframe.contentWindow.addEventListener('load', function(){
-                        iframe.contentWindow.resizeIframe(iframe);
-                    });
-                }
-            }, false);
-        </script>
-    </div>
+        <span>{{message.subject}}</span>
+    </h4>
 </div>
-<div class="container"><!-- container -->
+{{#each message.info}}
+    <div>
+        <strong>{{key}}:</strong>
+        <span {{#if isDate}} class="datestring" title="{{value}}" {{/if}}>
+            {{#if isHtml}}{{{value}}}{{else}}{{value}}{{/if}}
+        </span>
+    </div>
+{{/each}}
+{{#if expires}}
+    <div class="text-muted">
+        <strong>Message expires:</strong>
+        <span class="datestring" title="{{expires}}">
+            {{expires}}
+        </span>
+    </div>
+{{/if}}
+
+<p>
+    &nbsp;
+</p>
+
+{{#if message.encrypted}}
+    <div class="alert alert-warning" role="alert">
+        <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+        This message is encrypted and can not be properly displayed. Download the original message <a href="/webmail/{{mailbox.id}}/raw/{{message.id}}.eml" role="button" download="{{message.id}}.eml" class="alert-link">from here </a> to open it in an e-mail client that is able to read encrypted messages.
+    </div>
+{{/if}}
+
+<div id="message" class="iframe-box"></div>
+
+{{#if message.attachments}}
+    <div class="well">
+        {{#each message.attachments}}
+            <a class="btn btn-success btn-sm" href="/webmail/{{../mailbox.id}}/attachment/{{../message.id}}/{{id}}" role="button" download="{{filename}}"><span class="glyphicon glyphicon-cloud-download" aria-hidden="true"></span> {{filename}}</a>
+        {{/each}}
+    </div>
+{{/if}}
+
+<p>
+    &nbsp;
+</p>
+
+<script type="text/javascript" src="/purify-0.9.0/purify.min.js"></script>
+<script>
+    var message = {{{messageJson}}};
+
+    document.addEventListener("DOMContentLoaded", function(event) {
+        if (message.html) {
+            var clean = DOMPurify.sanitize(message.html.join('\n'), {
+                ALLOW_UNKNOWN_PROTOCOLS: true,
+                WHOLE_DOCUMENT: true,
+                FORBID_TAGS: ['form']
+            });
+
+            clean = clean.replace(/head>/, 'head><link rel="stylesheet" href="/css/mail.css" /><base target="_parent"><script>function resizeIframe(obj) {obj.style.height = obj.contentWindow.document.body.scrollHeight + "px";}</'+'script>');
+
+            var iframe = document.createElement('iframe');
+
+            document.getElementById('message').appendChild(iframe);
+            iframe.contentWindow.document.open();
+            iframe.contentWindow.document.write(clean);
+            iframe.contentWindow.document.close();
+            iframe.contentWindow.addEventListener('load', function(){
+                iframe.contentWindow.resizeIframe(iframe);
+            });
+        }
+    }, false);
+</script>

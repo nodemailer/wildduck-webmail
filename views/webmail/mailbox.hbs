@@ -1,0 +1,85 @@
+
+<h2 class="sub-header"><span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> {{mailbox.name}}</h2>
+
+<form method="post" action="/webmail/{{mailbox.id}}/settings">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+    <fieldset>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Mailbox settings</h3>
+            </div>
+            <div class="panel-body">
+
+                {{#if isInbox}}
+                    <div class="form-group">
+                        <label for="name">Mailbox name</label>
+                        <div class="input-group">
+                            <p class="form-control-static">{{values.name}}</p>
+                        </div>
+                    </div>
+                {{else}}
+
+                    <div class="form-group{{#if errors.parent}} has-error{{/if}}">
+                        <label for="parent">Mailbox Parent</label>
+                        <select class="form-control" name="parent" id="parent">
+                            <option value="">/</option>
+                            {{#each parents}}
+                                <option value="{{path}}" {{#if isParent}} selected {{/if}} >
+                                    / {{name}}
+                                </option>
+                            {{/each}}
+                        </select>
+
+                        {{#if errors.parent}}
+                            <span class="help-block">{{errors.parent}}</span>
+                        {{/if}}
+                    </div>
+
+                    <div class="form-group{{#if errors.name}} has-error{{/if}}">
+                        <label for="name">Mailbox name</label>
+                        <input type="text" class="form-control" name="name" id="name" placeholder="eg. &quot;Important Stuff&quot;" value="{{values.name}}">
+                        {{#if errors.name}}
+                            <span class="help-block">{{errors.name}}</span>
+                        {{/if}}
+                    </div>
+                {{/if}}
+            </div>
+        </div>
+
+    </fieldset>
+
+    {{#unless isInbox}}
+        <div class="form-group">
+            {{#unless isSpecial}}
+                <div class="pull-right">
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete</button>
+                </div>
+            {{/unless}}
+            <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Update</button>
+        </div>
+    {{/unless}}
+
+</form>
+
+<div class="modal" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="deleteModalLabel">Delete folder</h4>
+      </div>
+      <div class="modal-body">
+            Are you sure you want to permanently delete <strong>{{mailbox.name}}</strong> and all its contents?
+      </div>
+      <div class="modal-footer">
+        <form method="post" action="/webmail/{{mailbox.id}}/delete">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+            <button type="button" class="btn btn-default" data-dismiss="modal">No, cancel</button>
+            <button type="submit" class="btn btn-danger">Yes, delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

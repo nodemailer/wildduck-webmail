@@ -1,95 +1,79 @@
-</div> <!-- container -->
 
-<div class="webmail-container">
-    <div class="sidebar-container">
-        <div class="sidebar">
-            <img src="/images/duck.png" class="img-responsive" style="display: block; margin: 10px auto;">
-            <ul class="nav nav-sidebar">
-                {{#each mailboxes}}
-                    <li {{#if selected}} class="active" {{/if}}>
-                        <a href="/webmail/{{id}}">
-                            {{#if unseen}}<span class="badge pull-right">{{unseen}}</span>{{/if}}
-                            <span>{{index}}. {{path}}</span>
-                        </a>
-                    </li>
-                {{/each}}
-            </ul>
-        </div>
+<h2 class="sub-header">
+    <div class="pull-right">
+        <a href="/webmail/{{mailbox.id}}/settings" class="btn btn-default"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Mailbox settings</a>
     </div>
-    <div class="webmail-main">
-        <h2 class="sub-header"><span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> {{mailbox.name}}</h2>
+    <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> {{mailbox.name}}
+</h2>
 
-
-        <div class="pull-left" style="margin-left: 10px; width: 20px;">
-            <input type="checkbox" class="toggle-all" />
-        </div>
-
-        <fieldset id="action-toolbar" disabled>
-            <div class="form-group">
-
-                <button class="btn btn-default btn-xs bulk-mark-seen">Mark as Seen</button>
-                <button class="btn btn-default btn-xs bulk-mark-unseen">Mark as Unseen</button>
-
-                <button class="btn btn-default btn-xs bulk-delete" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete</button>
-
-
-                <div class="btn-group">
-                  <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> Move <span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu">
-                     {{#each mailboxes}}
-                        {{#if canMoveTo}}
-                            <li><a href="#" class="bulk-move" data-mailbox="{{id}}"  data-mailbox-path="{{path}}" data-toggle="modal" data-target="#moveModal">{{path}}</a></li>
-                        {{/if}}
-                    {{/each}}
-                  </ul>
-                </div>
-
-            </div>
-        </fieldset>
-
-        <div class="table-responsive">
-            <table class="messagelist">
-                <colgroup>
-                    <col class="messagerow-spacer-col" />
-                    <col class="messagerow-checkbox-col" />
-                    <col class="messagerow-star-col" />
-                    <col class="messagerow-from-col" />
-                    <col class="messagerow-subject-col" />
-                    <col class="messagerow-info-col" />
-                    <col class="messagerow-date-col" />
-                    <col class="messagerow-spacer-col" />
-                </colgroup>
-                <tbody>
-                    {{#each messages}}
-                        {{>messagerow}}
-                    {{/each}}
-                </tbody>
-            </table>
-        </div>
-
-        <nav aria-label="nav">
-            <ul class="pager">
-                {{#if previousCursor}}
-                    <li class="previous"><a href="/webmail/{{mailbox.id}}?previous={{previousCursor}}&amp;page={{previousPage}}"><span aria-hidden="true">&larr;</span> Newer</a></li>
-                {{else}}
-                    <li class="previous disabled"><a href="#"><span aria-hidden="true">&larr;</span> Newer</a></li>
-                {{/if}}
-
-                <li style="display: inline-block; padding-top: 7px;">
-                    Page {{page}}
-                </li>
-
-                {{#if nextCursor}}
-                    <li class="next"><a href="/webmail/{{mailbox.id}}?next={{nextCursor}}&amp;page={{nextPage}}">Older <span aria-hidden="true">&rarr;</span></a></li>
-                {{else}}
-                    <li class="next disabled"><a href="#">Older <span aria-hidden="true">&rarr;</span></a></li>
-                {{/if}}
-            </ul>
-        </nav>
-    </div>
+<div class="pull-left" style="margin-left: 10px; width: 20px;">
+    <input type="checkbox" class="toggle-all" />
 </div>
+
+<fieldset id="action-toolbar" disabled>
+    <div class="form-group">
+
+        <button class="btn btn-default btn-xs bulk-mark-seen">Mark as Seen</button>
+        <button class="btn btn-default btn-xs bulk-mark-unseen">Mark as Unseen</button>
+
+        <button class="btn btn-default btn-xs bulk-delete" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete</button>
+
+
+        <div class="btn-group">
+          <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> Move <span class="caret"></span>
+          </button>
+          <ul class="dropdown-menu">
+             {{#each mailboxes}}
+                {{#if canMoveTo}}
+                    <li><a href="#" class="bulk-move" data-mailbox="{{id}}"  data-mailbox-path="{{path}}" data-toggle="modal" data-target="#moveModal">{{path}}</a></li>
+                {{/if}}
+            {{/each}}
+          </ul>
+        </div>
+
+    </div>
+</fieldset>
+
+<div class="table-responsive">
+    <table class="messagelist">
+        <colgroup>
+            <col class="messagerow-spacer-col" />
+            <col class="messagerow-checkbox-col" />
+            <col class="messagerow-star-col" />
+            <col class="messagerow-from-col" />
+            <col class="messagerow-subject-col" />
+            <col class="messagerow-info-col" />
+            <col class="messagerow-date-col" />
+            <col class="messagerow-spacer-col" />
+        </colgroup>
+        <tbody>
+            {{#each messages}}
+                {{>messagerow}}
+            {{/each}}
+        </tbody>
+    </table>
+</div>
+
+<nav aria-label="nav">
+    <ul class="pager">
+        {{#if previousCursor}}
+            <li class="previous"><a href="/webmail/{{mailbox.id}}?previous={{previousCursor}}&amp;page={{previousPage}}"><span aria-hidden="true">&larr;</span> Newer</a></li>
+        {{else}}
+            <li class="previous disabled"><a href="#"><span aria-hidden="true">&larr;</span> Newer</a></li>
+        {{/if}}
+
+        <li style="display: inline-block; padding-top: 7px;">
+            Page {{page}}
+        </li>
+
+        {{#if nextCursor}}
+            <li class="next"><a href="/webmail/{{mailbox.id}}?next={{nextCursor}}&amp;page={{nextPage}}">Older <span aria-hidden="true">&rarr;</span></a></li>
+        {{else}}
+            <li class="next disabled"><a href="#">Older <span aria-hidden="true">&rarr;</span></a></li>
+        {{/if}}
+    </ul>
+</nav>
 
 <!-- Modal -->
 <div class="modal" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel">

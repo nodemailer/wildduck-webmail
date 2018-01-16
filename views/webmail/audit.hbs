@@ -1,108 +1,88 @@
-</div> <!-- container -->
+<h2 class="sub-header">
 
-<div class="webmail-container">
-    <div class="sidebar">
+<span class="glyphicon glyphicon-comment" aria-hidden="true"></span> {{messageData.subject}} – timeline</h2>
 
-        <img src="/images/duck.png" class="img-responsive" style="display: block; margin: 10px auto;">
+<p>
+    Below are displayed timeline events related to the selected message. This includes receive info, forwarding and autoreplies
+</p>
 
-        <ul class="nav nav-sidebar">
-            {{#each mailboxes}}
-                <li {{#if selected}} class="active" {{/if}}><a href="/webmail/{{id}}">{{index}}. {{path}}{{#if unseen}} <span class="badge">{{unseen}}</span>{{/if}}</a></li>
-            {{/each}}
-        </ul>
-    </div>
-    <div class="webmail-main">
+{{#each events}}
+    <dl class="dl-horizontal">
 
-        <h2 class="sub-header">
+        {{#if actionDescription}}
+            {{#if action}}
+                  <dt>Action</dt>
+                  <dd><strong><span class="text-{{actionLabel}}">{{actionDescription}}</span></strong></dd>
+            {{/if}}
+        {{else}}
+            {{#if action}}
+                  <dt>Action</dt>
+                  <dd><strong>{{action}}</strong></dd>
+            {{/if}}
+        {{/if}}
 
-        <span class="glyphicon glyphicon-comment" aria-hidden="true"></span> {{messageData.subject}} – timeline</h2>
+        <dt>ID</dt>
+        <dd><strong>{{id}}{{#if seq}}.{{seq}}{{/if}}</strong></dd>
 
-        <p>
-            Below are displayed timeline events related to the selected message. This includes receive info, forwarding and autoreplies
-        </p>
+        <dt>Time</dt>
+        <dd><span class="datestring-fixed" title="{{time}}">{{time}}</span></dd>
 
-        {{#each events}}
-            <dl class="dl-horizontal">
+        {{#if messageId}}
+          <dt>Message-ID</dt>
+          <dd>{{messageId}}</dd>
+        {{/if}}
 
-                {{#if actionDescription}}
-                    {{#if action}}
-                          <dt>Action</dt>
-                          <dd><strong><span class="text-{{actionLabel}}">{{actionDescription}}</span></strong></dd>
-                    {{/if}}
-                {{else}}
-                    {{#if action}}
-                          <dt>Action</dt>
-                          <dd><strong>{{action}}</strong></dd>
-                    {{/if}}
-                {{/if}}
+        {{#if from}}
+              <dt>From</dt>
+              <dd>{{from}}</dd>
+        {{/if}}
 
-                <dt>ID</dt>
-                <dd><strong>{{id}}{{#if seq}}.{{seq}}{{/if}}</strong></dd>
+        {{#if to}}
+              <dt>To</dt>
+              <dd>{{to}}</dd>
+        {{/if}}
 
-                <dt>Time</dt>
-                <dd><span class="datestring-fixed" title="{{time}}">{{time}}</span></dd>
+        {{#if targetList}}
+            <dt>{{#if toTitle}}{{toTitle}}{{else}}Forwarding{{/if}}</dt>
+            <dd>
+                {{#each targetList}}
+                    <div><strong>{{../id}}.{{seq}}:</strong> {{text}} <code class="response">{{value}}</code></div>
+                {{/each}}
+            </dd>
+        {{/if}}
 
-                {{#if messageId}}
-                  <dt>Message-ID</dt>
-                  <dd>{{messageId}}</dd>
-                {{/if}}
+        {{#if origin}}
+              <dt>Sending host</dt>
+              <dd>{{origin}}</dd>
+        {{/if}}
 
-                {{#if from}}
-                      <dt>From</dt>
-                      <dd>{{from}}</dd>
-                {{/if}}
+        {{#if src}}
+              <dt>Local address</dt>
+              <dd>{{src}}</dd>
+        {{/if}}
 
-                {{#if to}}
-                      <dt>To</dt>
-                      <dd>{{to}}</dd>
-                {{/if}}
+        {{#if mx}}
+              <dt>Destination</dt>
+              <dd>{{mx}}
+                  {{#if dst}}
+                  [{{dst}}]
+                  {{/if}}
+              </dd>
+        {{/if}}
 
-                {{#if targetList}}
-                    <dt>{{#if toTitle}}{{toTitle}}{{else}}Forwarding{{/if}}</dt>
-                    <dd>
-                        {{#each targetList}}
-                            <div><strong>{{../id}}.{{seq}}:</strong> {{text}} <code class="response">{{value}}</code></div>
-                        {{/each}}
-                    </dd>
-                {{/if}}
+        {{#if response}}
+              <dt>Server response</dt>
+              <dd><code class="response">{{response}}</code></dd>
+        {{/if}}
 
-                {{#if origin}}
-                      <dt>Sending host</dt>
-                      <dd>{{origin}}</dd>
-                {{/if}}
+        {{#if error}}
+              <dt>Error message</dt>
+              <dd><code class="response">{{error}}</code></dd>
+        {{/if}}
 
-                {{#if src}}
-                      <dt>Local address</dt>
-                      <dd>{{src}}</dd>
-                {{/if}}
+    </dl>
+{{/each}}
 
-                {{#if mx}}
-                      <dt>Destination</dt>
-                      <dd>{{mx}}
-                          {{#if dst}}
-                          [{{dst}}]
-                          {{/if}}
-                      </dd>
-                {{/if}}
-
-                {{#if response}}
-                      <dt>Server response</dt>
-                      <dd><code class="response">{{response}}</code></dd>
-                {{/if}}
-
-                {{#if error}}
-                      <dt>Error message</dt>
-                      <dd><code class="response">{{error}}</code></dd>
-                {{/if}}
-
-            </dl>
-        {{/each}}
-
-        <p>
-            &nbsp;
-        </p>
-
-    </div>
-</div>
-
-<div class="container"><!-- container -->
+<p>
+    &nbsp;
+</p>
