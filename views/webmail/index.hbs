@@ -549,7 +549,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var path = button.data('mailbox-path');
         $('.bulk-move-path').text(path);
         document.querySelector('.bulk-move-confirm').dataset.mailbox = mailbox;
-    })
+    });
 
     document.querySelector('.bulk-move-confirm').addEventListener('click', moveMessage, false);
     document.querySelector('.bulk-move-confirm').addEventListener('touch', moveMessage, false);

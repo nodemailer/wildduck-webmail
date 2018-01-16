@@ -38,10 +38,7 @@
                                 </td>
                                 <td class="text-right">
                                     {{#if enabled2fa}}
-                                        <form method="post" id="disable-2fa" action="/account/security/2fa/disable-totp" onsubmit="return confirm('Are you sure?')">
-                                            <input type="hidden" name="_csrf" value="{{csrfToken}}">
-                                            <button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span> Disable</button>
-                                        </form>
+                                        <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span> Disable</button>
                                     {{else}}
                                         <form method="post" id="enable-2fa" action="/account/security/2fa/enable-totp">
                                             <input type="hidden" name="_csrf" value="{{csrfToken}}">
@@ -67,10 +64,7 @@
                                     </td>
                                     <td class="text-right">
                                         {{#if enabledU2f}}
-                                            <form method="post" id="disable-u2f" action="/account/security/2fa/disable-u2f">
-                                                <input type="hidden" name="_csrf" value="{{csrfToken}}">
-                                                <button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span> Revoke</button>
-                                            </form>
+                                            <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#revokeModal"><span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span> Revoke</button>
                                         {{else}}
                                             <form method="post" id="enable-u2f" action="/account/security/2fa/enable-u2f">
                                                 <input type="hidden" name="_csrf" value="{{csrfToken}}">
@@ -86,4 +80,47 @@
             </div>
         </div>
     </div>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="deleteModalLabel">Disable 2FA</h4>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to disable two factor authentication?
+      </div>
+      <div class="modal-footer">
+        <form method="post" action="/account/security/2fa/disable-totp">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+            <button type="button" class="btn btn-default" data-dismiss="modal">No, cancel</button>
+            <button type="submit" class="btn btn-danger bulk-delete-confirm">Yes, disable</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="revokeModal" tabindex="-1" role="dialog" aria-labelledby="revokeModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="revokeModalLabel">Revoke key</h4>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to revoke U2F security key?
+      </div>
+      <div class="modal-footer">
+        <form method="post" action="/account/security/2fa/disable-u2f">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+            <button type="button" class="btn btn-default" data-dismiss="modal">No, cancel</button>
+            <button type="submit" class="btn btn-danger bulk-delete-confirm">Yes, revoke</button>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>

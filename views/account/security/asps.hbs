@@ -69,11 +69,7 @@
                                         </td>
                                         <td>
                                             <div class="pull-right">
-                                                <form method="post" action="/account/security/asps/delete" onsubmit="return confirm('Are you sure?')">
-                                                    <input type="hidden" name="_csrf" value="{{../csrfToken}}">
-                                                    <input type="hidden" name="id" value="{{id}}" />
-                                                    <button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete</button>
-                                                </form>
+                                                <button type="button" data-asp="{{id}}" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete</button>
                                             </div>
                                         </td>
                                     </tr>
@@ -119,3 +115,37 @@
         </div>
     </div>
 </div>
+
+
+<!-- Modal -->
+<div class="modal" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="deleteModalLabel">Delete password</h4>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to permanently delete Application Specific Password?
+      </div>
+      <div class="modal-footer">
+        <form method="post" action="/account/security/asps/delete">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+            <input type="hidden" id="delete-form-asp" name="id" value="">
+            <button type="button" class="btn btn-default" data-dismiss="modal">No, cancel</button>
+            <button type="submit" class="btn btn-danger bulk-delete-confirm">Yes, delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    $('#deleteModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var asp = button.data('asp'); // Extract info from data-* attributes
+        document.getElementById('delete-form-asp').value = asp;
+    });
+}, false);
+</script>
