@@ -55,7 +55,8 @@ router.post('/login', (req, res, next) => passport.login(req, res, next));
 
 router.get('/login', (req, res) => {
     res.render('account/login', {
-        activeLogin: true
+        activeLogin: true,
+        csrfToken: req.csrfToken()
     });
 });
 
