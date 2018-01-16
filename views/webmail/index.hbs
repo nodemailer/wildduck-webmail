@@ -1,9 +1,14 @@
 
 <h2 class="sub-header">
     <div class="pull-right">
-        <a href="/webmail/{{mailbox.id}}/settings" class="btn btn-default"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Mailbox settings</a>
+        <a href="/webmail/{{mailbox.id}}/settings" class="btn btn-default"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Settings</a>
     </div>
-    <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> {{mailbox.name}}
+    {{#if mailbox.icon}}
+        <span class="glyphicon glyphicon-{{mailbox.icon}}" aria-hidden="true"></span>
+    {{else}}
+        <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span>
+    {{/if}}
+    {{mailbox.name}}
 </h2>
 
 <div class="pull-left" style="margin-left: 10px; width: 20px;">

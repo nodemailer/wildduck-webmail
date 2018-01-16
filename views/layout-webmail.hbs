@@ -9,26 +9,34 @@
 
     {{>navbar}}
 
-
     <div class="webmail-container">
         <div class="sidebar-container">
             <div class="sidebar">
                 <img src="/images/duck.png" class="img-responsive" style="display: block; margin: 10px auto;">
                 <ul class="nav nav-sidebar">
                     {{#each mailboxes}}
-                        <li {{#if selected}} class="active" {{/if}}>
+                        <li id="mailbox-list-{{id}}" {{#if selected}} class="active" {{/if}}>
                             <a href="/webmail/{{id}}">
                                 {{#if unseen}}<span class="badge pull-right">{{unseen}}</span>{{/if}}
-                                <span>{{index}}. {{path}}</span>
+                                {{{prefix}}}
+                                    {{#if icon}}
+                                        <span class="glyphicon glyphicon-{{icon}}" aria-hidden="true"></span>
+                                    {{else}}
+                                        <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+                                    {{/if}}
+                                    <span>{{formatted}}</span> {{{suffix}}}
                             </a>
                         </li>
                     {{/each}}
+                    <li style="margin-top: 20px;">
+                        <a href="/webmail/create" class="text-muted"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create folder</a>
+                    </li>
                 </ul>
             </div>
         </div>
         <div class="webmail-main">
 
-            <div>
+            <div style="margin-top: 5px;">
                 {{flash_messages}}
             </div>
 

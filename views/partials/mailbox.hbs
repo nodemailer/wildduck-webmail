@@ -1,0 +1,44 @@
+<fieldset>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Mailbox settings</h3>
+        </div>
+        <div class="panel-body">
+
+            {{#if isInbox}}
+
+                <div class="form-group">
+                    <label for="name">Mailbox name</label>
+                    <input type="text" class="form-control" name="name" id="name" placeholder="eg. &quot;Important Stuff&quot;" value="{{values.name}}" disabled>
+                    <span class="help-block">INBOX folder can not be modified</span>
+                </div>
+
+            {{else}}
+
+                <div class="form-group{{#if errors.parent}} has-error{{/if}}">
+                    <label for="parent">Mailbox Parent</label>
+                    <select class="form-control" name="parent" id="parent">
+                        <option value="">[No parent]</option>
+                        {{#each parents}}
+                            <option value="{{path}}" {{#if isParent}} selected {{/if}} >
+                                {{name}}
+                            </option>
+                        {{/each}}
+                    </select>
+
+                    {{#if errors.parent}}
+                        <span class="help-block">{{errors.parent}}</span>
+                    {{/if}}
+                </div>
+
+                <div class="form-group{{#if errors.name}} has-error{{/if}}">
+                    <label for="name">Mailbox name</label>
+                    <input type="text" class="form-control" name="name" id="name" placeholder="eg. &quot;Important Stuff&quot;" value="{{values.name}}" required>
+                    {{#if errors.name}}
+                        <span class="help-block">{{errors.name}}</span>
+                    {{/if}}
+                </div>
+            {{/if}}
+        </div>
+    </div>
+</fieldset>

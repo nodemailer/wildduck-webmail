@@ -11,6 +11,113 @@ const templates = {
     messageRowTemplate: fs.readFileSync(__dirname + '/../views/partials/messagerow.hbs', 'utf-8')
 };
 
+router.get('/create', (req, res) => {
+    apiClient.mailboxes.list(req.user.id, true, (err, mailboxes) => {
+        if (err) {
+            req.flash('danger', err.message);
+            res.redirect('/webmail');
+            return;
+        }
+
+        res.render('webmail/create', {
+            layout: 'layout-webmail',
+            activeWebmail: true,
+            mailboxes: prepareMailboxList(mailboxes),
+
+            values: {
+                name: ''
+            },
+            parents: getParents(mailboxes, false),
+            csrfToken: req.csrfToken()
+        });
+    });
+});
+
+router.post('/create', (req, res) => {
+    const schema = Joi.object().keys({
+        parent: Joi.string()
+            .default('')
+            .allow(''),
+        name: Joi.string()
+            .regex(/\//, { name: 'folder', invert: true })
+            .required()
+    });
+
+    delete req.body._csrf;
+
+    let result = Joi.validate(req.body, schema, {
+        abortEarly: false,
+        convert: true,
+        allowUnknown: true
+    });
+
+    let showErrors = (errors, disableDefault) => {
+        if (!disableDefault) {
+            req.flash('danger', 'Failed creating mailbox');
+        }
+
+        apiClient.mailboxes.list(req.user.id, true, (err, mailboxes) => {
+            if (err) {
+                req.flash('danger', err.message);
+                return res.redirect('/webmail');
+            }
+
+            res.render('webmail/create', {
+                layout: 'layout-webmail',
+                activeWebmail: true,
+                mailboxes: prepareMailboxList(mailboxes),
+
+                values: result.value,
+                errors,
+
+                parents: getParents(mailboxes, false, result.value.parent),
+
+                csrfToken: req.csrfToken()
+            });
+        });
+    };
+
+    if (result.error) {
+        let errors = {};
+
+        if (result.error && result.error.details) {
+            result.error.details.forEach(detail => {
+                if (!errors[detail.path]) {
+                    errors[detail.path] = detail.message;
+                }
+            });
+        }
+
+        return showErrors(errors);
+    }
+
+    let path = result.value.parent
+        .split('/')
+        .concat(result.value.name.split('/') || [])
+        .map(name => name.trim())
+        .filter(name => name)
+        .join('/');
+
+    apiClient.mailboxes.create(
+        req.user.id,
+        {
+            path
+        },
+        (err, response) => {
+            if (err) {
+                req.flash('danger', err.message);
+                return showErrors({}, true);
+            }
+
+            if (response && response.success) {
+                req.flash('success', 'Mailbox folder was created');
+            }
+
+            return res.redirect('/webmail/' + response.id);
+        }
+    );
+});
+
 /* GET home page. */
 router.get('/', renderMailbox);
 router.get('/:mailbox', renderMailbox);
@@ -127,7 +234,7 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
             res.render('webmail/message', {
                 layout: 'layout-webmail',
                 activeWebmail: true,
-                mailboxes,
+                mailboxes: prepareMailboxList(mailboxes),
                 mailbox: selectedMailbox,
 
                 message: messageData,
@@ -301,7 +408,7 @@ router.get('/:mailbox/audit/:message', (req, res, next) => {
                 res.render('webmail/audit', {
                     layout: 'layout-webmail',
                     activeWebmail: true,
-                    mailboxes,
+                    mailboxes: prepareMailboxList(mailboxes),
                     mailbox: selectedMailbox,
 
                     events: events.map(event => {
@@ -400,54 +507,16 @@ router.get('/:mailbox/settings', (req, res, next) => {
             return next(err);
         }
 
-        let parents = new Map();
-
         let mailbox = result.value.mailbox || mailboxes[0].id;
         let mailboxExists = false;
         let selectedMailbox = false;
-        let parentPath = false;
 
-        mailboxes.forEach((entry, i) => {
-            entry.index = i + 1;
-
-            let parts = entry.path.split('/');
-
+        mailboxes.forEach(entry => {
             if (entry.id === mailbox) {
                 entry.selected = true;
                 mailboxExists = true;
                 selectedMailbox = entry;
             }
-
-            for (let i = 0; i < parts.length; i++) {
-                let path = parts.slice(0, i + 1).join('/');
-                let mbox = {
-                    id: path === entry.path ? entry.id : false,
-                    path,
-                    level: i + 1,
-                    name: parts.slice(0, i + 1).join(' / '),
-                    prefix: '&nbsp;&nbsp;&nbsp;&nbsp'.repeat(i)
-                };
-                if (entry.path === path && entry.id === mailbox) {
-                    continue;
-                }
-                if (!parents.has(path) || path === entry.path) {
-                    parents.set(path, mbox);
-                }
-            }
-        });
-
-        if (selectedMailbox) {
-            parentPath = selectedMailbox.path.split('/');
-            parentPath.pop();
-            parentPath = parentPath.join('/');
-        }
-
-        parents = Array.from(parents).map(entry => {
-            let parent = entry[1];
-            if (parent.path === parentPath) {
-                parent.isParent = true;
-            }
-            return parent;
         });
 
         if (!mailboxExists) {
@@ -457,14 +526,14 @@ router.get('/:mailbox/settings', (req, res, next) => {
         res.render('webmail/mailbox', {
             layout: 'layout-webmail',
             activeWebmail: true,
-            mailboxes,
+            mailboxes: prepareMailboxList(mailboxes),
             mailbox: selectedMailbox,
 
             values: {
                 name: selectedMailbox.name
             },
 
-            parents,
+            parents: getParents(mailboxes, selectedMailbox),
 
             isSpecial: selectedMailbox.path === 'INBOX' || selectedMailbox.specialUse,
 
@@ -500,13 +569,68 @@ router.post('/:mailbox/settings', (req, res) => {
         allowUnknown: true
     });
 
+    let showErrors = (errors, disableDefault) => {
+        if (!disableDefault) {
+            req.flash('danger', 'Failed updating mailbox');
+        }
+
+        apiClient.mailboxes.list(req.user.id, true, (err, mailboxes) => {
+            if (err) {
+                req.flash('danger', err.message);
+                return res.redirect('/webmail');
+            }
+
+            let mailbox = result.value.mailbox || mailboxes[0].id;
+            let mailboxExists = false;
+            let selectedMailbox = false;
+
+            mailboxes.forEach(entry => {
+                if (entry.id === mailbox) {
+                    entry.selected = true;
+                    mailboxExists = true;
+                    selectedMailbox = entry;
+                }
+            });
+
+            if (!mailboxExists) {
+                return res.redirect('/webmail');
+            }
+
+            res.render('webmail/mailbox', {
+                layout: 'layout-webmail',
+                activeWebmail: true,
+                mailboxes: prepareMailboxList(mailboxes),
+                mailbox: selectedMailbox,
+
+                values: result.value,
+                errors,
+
+                parents: getParents(mailboxes, selectedMailbox, result.value.parent),
+
+                isSpecial: selectedMailbox.path === 'INBOX' || selectedMailbox.specialUse,
+
+                isInbox: selectedMailbox.path === 'INBOX',
+                isTrash: selectedMailbox.specialUse === '\\Trash',
+                isSent: selectedMailbox.specialUse === '\\Sent',
+                isJunk: selectedMailbox.specialUse === '\\Junk',
+
+                csrfToken: req.csrfToken()
+            });
+        });
+    };
+
     if (result.error) {
+        let errors = {};
+
         if (result.error && result.error.details) {
             result.error.details.forEach(detail => {
-                req.flash('danger', detail.message);
+                if (!errors[detail.path]) {
+                    errors[detail.path] = detail.message;
+                }
             });
         }
-        return res.redirect('/webmail/' + result.value.mailbox + '/settings');
+
+        return showErrors(errors);
     }
 
     let path = result.value.parent
@@ -525,13 +649,14 @@ router.post('/:mailbox/settings', (req, res) => {
         (err, response) => {
             if (err) {
                 req.flash('danger', err.message);
+                return showErrors({}, true);
             }
 
             if (response && response.success) {
-                req.flash('success', 'Mailbox folder was updated');
+                req.flash('success', 'Mailbox settings were updated');
             }
 
-            return res.redirect('/webmail/' + result.value.mailbox + '/settings');
+            return res.redirect('/webmail/' + result.value.mailbox);
         }
     );
 });
@@ -641,6 +766,8 @@ function renderMailbox(req, res, next) {
             return res.redirect('/webmail');
         }
 
+        selectedMailbox.icon = getIcon(selectedMailbox);
+
         apiClient.messages.list(req.user.id, mailbox, { next: req.query.next, previous: req.query.previous, page: result.value.page || 1 }, (err, result) => {
             if (err) {
                 return next(err);
@@ -649,7 +776,7 @@ function renderMailbox(req, res, next) {
             res.render('webmail/index', {
                 layout: 'layout-webmail',
                 activeWebmail: true,
-                mailboxes,
+                mailboxes: prepareMailboxList(mailboxes),
                 mailbox: selectedMailbox,
 
                 cursorType,
@@ -674,6 +801,96 @@ function renderMailbox(req, res, next) {
             });
         });
     });
+}
+
+function getParents(mailboxes, mailbox, parentPath) {
+    let parents = new Map();
+
+    mailboxes.forEach((entry, i) => {
+        let index = i + 1;
+
+        let parts = entry.path.split('/');
+
+        for (let i = 0; i < parts.length; i++) {
+            let path = parts.slice(0, i + 1).join('/');
+            let mbox = {
+                id: path === entry.path ? entry.id : false,
+                index,
+                path,
+                level: i + 1,
+                folder: parts[i],
+                name: parts.slice(0, i + 1).join(' / ')
+            };
+            if (mailbox && entry.path === path && entry.id === mailbox.id) {
+                // skip current path
+                continue;
+            }
+            if (!parents.has(path) || path === entry.path) {
+                parents.set(path, mbox);
+            }
+        }
+    });
+
+    if (mailbox && !parentPath) {
+        parentPath = mailbox.path.split('/');
+        parentPath.pop();
+        parentPath = parentPath.join('/');
+    }
+
+    return Array.from(parents).map(entry => {
+        let parent = entry[1];
+        if (parent.path === parentPath) {
+            // immediate parent of current mailbox
+            parent.isParent = true;
+        }
+        return parent;
+    });
+}
+
+function getIcon(mailbox) {
+    if (mailbox.path === 'INBOX') {
+        return 'inbox';
+    } else if (mailbox.specialUse) {
+        switch (mailbox.specialUse) {
+            case '\\Trash':
+                return 'trash';
+            case '\\Sent':
+                return 'send';
+            case '\\Junk':
+                return 'ban-circle';
+            case '\\Drafts':
+                return 'edit';
+            case '\\Archive':
+                return 'hdd';
+        }
+    }
+    return false;
+}
+
+function prepareMailboxList(mailboxes) {
+    mailboxes.forEach((mailbox, i) => {
+        mailbox.index = i + 1;
+
+        let parts = mailbox.path.split('/');
+
+        for (let i = 0; i < parts.length; i++) {
+            let level = i + 1;
+
+            mailbox.formatted = parts[i];
+
+            if (level > 1) {
+                mailbox.prefix = '<div style="padding-left: ' + (level - 1) * 10 + 'px;">';
+                mailbox.suffix = '</div>';
+            } else {
+                mailbox.prefix = '';
+                mailbox.suffix = '';
+            }
+
+            mailbox.icon = getIcon(mailbox);
+        }
+    });
+
+    return mailboxes;
 }
 
 function leftPad(val, chr, len) {
