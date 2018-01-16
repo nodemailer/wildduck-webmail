@@ -31,7 +31,15 @@
           <ul class="dropdown-menu">
              {{#each mailboxes}}
                 {{#if canMoveTo}}
-                    <li><a href="#" class="bulk-move" data-mailbox="{{id}}"  data-mailbox-path="{{path}}" data-toggle="modal" data-target="#moveModal">{{path}}</a></li>
+                    <li><a href="#" class="bulk-move" data-mailbox="{{id}}"  data-mailbox-path="{{path}}" data-toggle="modal" data-target="#moveModal">
+                        {{{prefix}}}
+                        {{#if icon}}
+                            <span class="glyphicon glyphicon-{{icon}}" aria-hidden="true"></span>
+                        {{else}}
+                            <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+                        {{/if}}
+                        {{formatted}}
+                        {{{suffix}}}</a></li>
                 {{/if}}
             {{/each}}
           </ul>
