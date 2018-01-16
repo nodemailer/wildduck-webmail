@@ -5,6 +5,11 @@ const router = new express.Router();
 const apiClient = require('../lib/api-client');
 const Joi = require('joi');
 const tools = require('../lib/tools');
+const fs = require('fs');
+
+const templates = {
+    messageRowTemplate: fs.readFileSync(__dirname + '/../views/partials/messagerow.hbs', 'utf-8')
+};
 
 /* GET home page. */
 router.get('/', renderMailbox);
@@ -398,6 +403,16 @@ function renderMailbox(req, res, next) {
         return res.redirect('/webmail');
     }
 
+    let cursorType, cursorValue;
+
+    if (result.value.next) {
+        cursorType = 'next';
+        cursorValue = result.value.next;
+    } else if (result.value.previous) {
+        cursorType = 'previous';
+        cursorValue = result.value.previous;
+    }
+
     apiClient.mailboxes.list(req.user.id, true, (err, mailboxes) => {
         if (err) {
             return next(err);
@@ -407,11 +422,16 @@ function renderMailbox(req, res, next) {
         let mailboxExists = false;
         let selectedMailbox = false;
         mailboxes.forEach((entry, i) => {
+            if (entry.path === 'INBOX') {
+                entry.specialUse = 'INBOX';
+            }
             entry.index = i + 1;
             if (entry.id === mailbox) {
                 entry.selected = true;
                 mailboxExists = true;
                 selectedMailbox = entry;
+            } else {
+                entry.canMoveTo = true;
             }
         });
 
@@ -428,10 +448,16 @@ function renderMailbox(req, res, next) {
                 activeWebmail: true,
                 mailboxes,
                 mailbox: selectedMailbox,
+                cursorType,
+                cursorValue,
+                page: result.page,
                 nextCursor: result.nextCursor,
                 nextPage: result.page + 1,
                 previousCursor: result.previousCursor,
                 previousPage: Math.max(result.page - 1, 1),
+                isTrash: selectedMailbox.specialUse === '\\Trash',
+                isSent: selectedMailbox.specialUse === '\\Sent',
+                messageRowTemplate: templates.messageRowTemplate,
                 messages: result.results.map(message => {
                     message.fromHtml = tools.getAddressesHTML(message.from, true);
                     return message;

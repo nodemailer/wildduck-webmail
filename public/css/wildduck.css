@@ -228,9 +228,8 @@ tr.messagerow:hover td {
     text-align: right;
 }
 
-.messagerow-subject-col,
-.messagerow-from-col {
-    overflow: visible;
+.messagerow-subject,
+.messagerow-from {
 }
 
 .messagerow-subject a,
@@ -255,5 +254,9 @@ tr.message-seen td a {
 }
 
 tr.message-unseen td a {
+    font-weight: bold;
+}
+
+.bulk-move-path {
     font-weight: bold;
 }

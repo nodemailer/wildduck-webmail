@@ -29,21 +29,23 @@
 
                 <button class="btn btn-default btn-xs bulk-mark-seen">Mark as Seen</button>
                 <button class="btn btn-default btn-xs bulk-mark-unseen">Mark as Unseen</button>
-                <!--
-                <button class="btn btn-default btn-xs bulk-mark-flagged"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete</button>
+
+                <button class="btn btn-default btn-xs bulk-delete" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete</button>
+
+
                 <div class="btn-group">
                   <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> Move <span class="caret"></span>
                   </button>
                   <ul class="dropdown-menu">
                      {{#each mailboxes}}
-                        {{#unless selected}}
-                            <li><a href="#">{{path}}</a></li>
-                        {{/unless}}
+                        {{#if canMoveTo}}
+                            <li><a href="#" class="bulk-move" data-mailbox="{{id}}"  data-mailbox-path="{{path}}" data-toggle="modal" data-target="#moveModal">{{path}}</a></li>
+                        {{/if}}
                     {{/each}}
                   </ul>
                 </div>
-                -->
+
             </div>
         </fieldset>
 
@@ -75,6 +77,10 @@
                     <li class="previous disabled"><a href="#"><span aria-hidden="true">&larr;</span> Newer</a></li>
                 {{/if}}
 
+                <li style="display: inline-block; padding-top: 7px;">
+                    Page {{page}}
+                </li>
+
                 {{#if nextCursor}}
                     <li class="next"><a href="/webmail/{{mailbox.id}}?next={{nextCursor}}&amp;page={{nextPage}}">Older <span aria-hidden="true">&rarr;</span></a></li>
                 {{else}}
@@ -85,8 +91,60 @@
     </div>
 </div>
 
+<!-- Modal -->
+<div class="modal" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="deleteModalLabel">Delete messages</h4>
+      </div>
+      <div class="modal-body">
+        {{#if isTrash}}
+            Are you sure you want to permanently delete selected messages?
+        {{else}}
+            Are you sure you want to move selected messages to Trash folder?
+        {{/if}}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">No, cancel</button>
+        <button type="button" class="btn btn-danger bulk-delete-confirm" data-loading-text="Deleting..." >Yes, delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="moveModal" tabindex="-1" role="dialog" aria-labelledby="moveModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="moveModalLabel">Move messages</h4>
+      </div>
+      <div class="modal-body">
+          Are you sure you want to move selected messages to <span class="bulk-move-path">another folder</span>?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">No, cancel</button>
+        <button type="button" class="btn btn-primary bulk-move-confirm" data-loading-text="Moving..." >Yes, move</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script id="messagerow-template" type="text/x-handlebars-template">
+    {{{messageRowTemplate}}}
+</script>
+
 <input type="hidden" id="_csrf" value="{{csrfToken}}">
+<input type="hidden" id="mailbox" value="{{mailbox.id}}">
+<input type="hidden" id="cursor-type" value="{{cursorType}}">
+<input type="hidden" id="cursor-value" value="{{cursorValue}}">
+<input type="hidden" id="page" value="{{page}}">
+<input type="hidden" id="mailbox-type" value="{{mailbox.specialUse}}">
+
 <script src="/whatwg-fetch/fetch.js"></script>
+<script src="/handlebars/handlebars.min.js"></script>
 <script>
 
 // star toggle
@@ -115,7 +173,7 @@
             credentials: 'include',
             body: JSON.stringify({
                 _csrf: document.getElementById('_csrf').value,
-                mailbox: elm.dataset.mailbox,
+                mailbox: document.getElementById('mailbox').value,
                 message: elm.dataset.message,
                 flagged: !flagged // toggle
             })
@@ -162,10 +220,16 @@
 })();
 
 // checkboxes
-(function(){
+document.addEventListener('DOMContentLoaded', function() {
     var checkboxes = document.querySelectorAll('.message-checkbox');
     var toolbarElm = document.querySelector('#action-toolbar');
+    var mailboxType = document.querySelector('#mailbox-type');
     var toggleAllElm = document.querySelector('.toggle-all');
+
+    var isInbox = mailboxType === 'INBOX';
+    var isSent = mailboxType === '\\Sent';
+    var isTrash= mailboxType === '\\Trash';
+    var isJunk = mailboxType === '\\Junk';
 
     var getChecked = function(){
         var result = [];
@@ -173,7 +237,6 @@
             if(checkboxes[i].checked){
                 result.push({
                     elm: checkboxes[i],
-                    mailbox: checkboxes[i].dataset.mailbox,
                     message: checkboxes[i].dataset.message
                 });
             }
@@ -204,6 +267,72 @@
         checkboxes[i].addEventListener('change', toggleToolbar, false);
     }
 
+    var findRow = function(elm, level){
+        level = level || 0;
+        var parent = elm.parentNode;
+        if(!parent || level > 10){
+            return false;
+        }
+        if(parent.classList.contains('messagerow')){
+            return parent;
+        }
+        return findRow(parent, level+1);
+    }
+
+    var removeRow = function(id){
+        var row = document.getElementById('msg_' + id);
+        if(row && row.parentNode){
+            row.parentNode.removeChild(row);
+        }
+    }
+
+    var messagerowSource = document.getElementById('messagerow-template').innerHTML;
+    var messagerowTemplate = Handlebars.compile(messagerowSource);
+
+    var redrawList = function(done){
+        fetch('/api/list', {
+            method: 'post',
+            headers: {
+                Accept: 'application/json, text/plain, */*',
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                _csrf: document.getElementById('_csrf').value,
+                mailbox: document.getElementById('mailbox').value,
+                cursorType: document.getElementById('cursor-type').value,
+                cursorValue: document.getElementById('cursor-value').value,
+                page: document.getElementById('page').value
+            })
+        })
+        .then(function(res) {
+            return res.json();
+        })
+        .then(function(res) {
+            if(res.error){
+                console.error(res.error);
+                return done();
+            }
+
+            var html = res.results.map(function(message){
+                return messagerowTemplate(message);
+            }).join('\n');
+
+            document.querySelector('.messagelist tbody').innerHTML = html;
+
+            // reset page load handlers
+            checkboxes = document.querySelectorAll('.message-checkbox');
+            toggleToolbar();
+            $("[rel='tooltip']").tooltip();
+            updateFixedDatestrings()
+
+            done();
+        }).catch(function(err){
+            console.error(err);
+            done();
+        });
+    };
+
     var pendingSeen = false;
     var toggleSeen = function(seen){
         if(pendingSeen){
@@ -217,7 +346,6 @@
 
         pendingSeen = true;
 
-        var mailbox = checked.find(function(m){return m.mailbox;}).mailbox;
         var messages = checked.map(function(m){return m.message;});
 
         var done = function(){
@@ -233,7 +361,7 @@
             credentials: 'include',
             body: JSON.stringify({
                 _csrf: document.getElementById('_csrf').value,
-                mailbox: mailbox,
+                mailbox: document.getElementById('mailbox').value,
                 message: messages.join(','),
                 seen: !!seen
             })
@@ -245,18 +373,6 @@
             if(res.error){
                 console.error(res.error);
                 return done();
-            }
-
-            var findRow = function(elm, level){
-                level = level || 0;
-                var parent = elm.parentNode;
-                if(!parent || level > 10){
-                    return false;
-                }
-                if(parent.classList.contains('messagerow')){
-                    return parent;
-                }
-                return findRow(parent, level+1);
             }
 
             checked.forEach(function(checkbox){
@@ -272,7 +388,6 @@
             console.error(err);
             done();
         });
-
     }
 
     var setUnseen = function(){
@@ -303,8 +418,175 @@
     document.querySelector('.toggle-all').addEventListener('click', toggleAll, false);
     document.querySelector('.toggle-all').addEventListener('change', toggleAll, false);
 
+    var pendingDeleted = false;
+    var deleteMessage = function(){
+        if(pendingDeleted){
+            return false;
+        }
+
+        var checked = getChecked();
+        if(!checked.length){
+            return false;
+        }
+
+        pendingDeleted = true;
+        $('#deleteModal .bulk-delete-confirm').button('loading');
+
+        var messages = checked.map(function(m){return m.message;});
+
+        var done = function(){
+            pendingDeleted = false;
+            $('#deleteModal .bulk-delete-confirm').button('reset');
+            $('#deleteModal').modal('hide');
+        }
+
+        fetch('/api/delete', {
+            method: 'post',
+            headers: {
+                Accept: 'application/json, text/plain, */*',
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                _csrf: document.getElementById('_csrf').value,
+                mailbox: document.getElementById('mailbox').value,
+                message: messages.join(',')
+            })
+        })
+        .then(function(res) {
+            return res.json();
+        })
+        .then(function(res) {
+            if(res.error){
+                console.error(res.error);
+                return done();
+            }
+
+            var removeRow = function(id){
+                var row = document.getElementById('msg_' + id);
+                if(row && row.parentNode){
+                    row.parentNode.removeChild(row);
+                }
+            }
+
+            var deleted = 0
+            if(res.id && res.id.length){
+                for(var i=0, len = res.id.length; i<len; i++){
+                    if(res.id[i] && res.id[i][0] && res.id[i][1]){
+                        removeRow(res.id[i][0]);
+                        deleted++;
+                    }
+                }
+            }
+
+            if(deleted){
+                return redrawList(done);
+            }
+
+            done();
+        }).catch(function(err){
+            console.error(err);
+            done();
+        });
+    };
+
+    document.querySelector('.bulk-delete-confirm').addEventListener('click', deleteMessage, false);
+    document.querySelector('.bulk-delete-confirm').addEventListener('touch', deleteMessage, false);
+
+    var pendingMove = false;
+    var moveMessage = function(target){
+        if(pendingMove){
+            return false;
+        }
+
+        var checked = getChecked();
+        if(!checked.length){
+            return false;
+        }
+
+        pendingMove = true;
+        $('#moveModal .bulk-move-confirm').button('loading');
+
+        var messages = checked.map(function(m){return m.message;});
+
+        var done = function(){
+            pendingMove = false;
+            $('#moveModal .bulk-move-confirm').button('reset');
+            $('#moveModal').modal('hide');
+        }
+
+        fetch('/api/move', {
+            method: 'post',
+            headers: {
+                Accept: 'application/json, text/plain, */*',
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                _csrf: document.getElementById('_csrf').value,
+                mailbox: document.getElementById('mailbox').value,
+                message: messages.join(','),
+                target: document.querySelector('.bulk-move-confirm').dataset.mailbox
+            })
+        })
+        .then(function(res) {
+            return res.json();
+        })
+        .then(function(res) {
+            if(res.error){
+                console.error(res.error);
+                return done();
+            }
+
+            var moved = 0;
+            if(res.id && res.id.length){
+                for(var i=0, len = res.id.length; i<len; i++){
+                    if(res.id[i] && res.id[i][0] && res.id[i][1]){
+                        removeRow(res.id[i][0]);
+                        moved++;
+                    }
+                }
+            }
+
+            if(moved){
+                return redrawList(done);
+            }
+
+            done();
+        }).catch(function(err){
+            console.error(err);
+            done();
+        });
+    };
+
+    $('#moveModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget); // Button that triggered the modal
+        var mailbox = button.data('mailbox'); // Extract info from data-* attributes
+        var path = button.data('mailbox-path');
+        $('.bulk-move-path').text(path);
+        document.querySelector('.bulk-move-confirm').dataset.mailbox = mailbox;
+    })
+
+    document.querySelector('.bulk-move-confirm').addEventListener('click', moveMessage, false);
+    document.querySelector('.bulk-move-confirm').addEventListener('touch', moveMessage, false);
+
+    /*
+    var moveTargets = document.querySelectorAll('.bulk-move-confirm');
+    Array.prototype.slice.call(moveTargets).forEach(function(elm){
+        var target = elm.dataset.mailbox;
+        if(!target){
+            return;
+        }
+        var moveMessageEvt = function(e){
+            moveMessage(target);
+        };
+        elm.addEventListener('click', moveMessageEvt, false);
+        elm.addEventListener('touch', moveMessageEvt, false);
+    });
+    */
+
     toggleToolbar();
-})();
+}, false);
 
 </script>
 
