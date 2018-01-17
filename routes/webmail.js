@@ -6,6 +6,8 @@ const apiClient = require('../lib/api-client');
 const Joi = require('joi');
 const tools = require('../lib/tools');
 const fs = require('fs');
+const humanize = require('humanize');
+const SearchString = require('search-string');
 
 const templates = {
     messageRowTemplate: fs.readFileSync(__dirname + '/../views/partials/messagerow.hbs', 'utf-8')
@@ -701,7 +703,10 @@ function renderMailbox(req, res, next) {
         mailbox: Joi.string()
             .hex()
             .length(24)
-            .allow('starred')
+            .allow('starred', 'search')
+            .empty(''),
+        query: Joi.string()
+            .max(255)
             .empty(''),
         next: Joi.string()
             .max(100)
@@ -751,6 +756,7 @@ function renderMailbox(req, res, next) {
         let mailbox = result.value.mailbox || mailboxes[0].id;
         let mailboxExists = false;
         let selectedMailbox = false;
+        let searchQuery = result.value.query;
 
         mailboxes.forEach((entry, i) => {
             if (entry.path === 'INBOX') {
@@ -766,6 +772,15 @@ function renderMailbox(req, res, next) {
             }
         });
 
+        if (mailbox === 'search') {
+            mailboxExists = true;
+            selectedMailbox = {
+                id: 'search',
+                name: 'Search results',
+                icon: 'search'
+            };
+        }
+
         if (!mailboxExists) {
             req.flash('danger', 'Selected mailbox does not exist');
             return res.redirect('/webmail');
@@ -774,8 +789,37 @@ function renderMailbox(req, res, next) {
         selectedMailbox.icon = getIcon(selectedMailbox);
 
         let makeRequest = done => {
-            if (selectedMailbox.id === 'starred') {
+            if (mailbox === 'starred') {
                 let data = { next: req.query.next, previous: req.query.previous, page: result.value.page || 1, flagged: true, searchable: true };
+                return apiClient.messages.search(req.user.id, data, done);
+            } else if (mailbox === 'search') {
+                let data = { next: req.query.next, previous: req.query.previous, page: result.value.page || 1 };
+
+                const searchString = SearchString.parse(searchQuery);
+                let keys = searchString.getParsedQuery();
+                let text = searchString
+                    .getTextSegments()
+                    .map(text => text.text)
+                    .join(' ');
+
+                Object.keys(keys).forEach(key => {
+                    let fkey = key.toLowerCase().trim();
+                    if (['from', 'to', 'subject'].includes(fkey)) {
+                        data[fkey] = keys[key].join(' ');
+                    }
+                    switch (fkey) {
+                        case 'start':
+                        case 'end': {
+                            let date = new Date(keys[key].shift());
+                            if (date.toString() !== 'Invalid Date') {
+                                data.date[fkey] = date.toISOString();
+                            }
+                            break;
+                        }
+                    }
+                });
+                data.query = text;
+
                 return apiClient.messages.search(req.user.id, data, done);
             } else {
                 let data = { next: req.query.next, previous: req.query.previous, page: result.value.page || 1 };
@@ -794,9 +838,14 @@ function renderMailbox(req, res, next) {
                 mailboxes,
                 mailbox: selectedMailbox,
 
+                query: searchQuery,
+
                 cursorType,
                 cursorValue,
                 page: result.page,
+                startStr: humanize.numberFormat((result.page - 1) * 20 + 1 || 0, 0, ',', ' '),
+                endStr: humanize.numberFormat(Math.min((result.page - 1) * 20 + 20 || 0, result.total || 0), 0, ',', ' '),
+                resultsStr: humanize.numberFormat(result.total || 0, 0, ',', ' '),
                 nextCursor: result.nextCursor,
                 nextPage: result.page + 1,
                 previousCursor: result.previousCursor,
@@ -867,6 +916,9 @@ function getParents(mailboxes, mailbox, parentPath) {
 }
 
 function getIcon(mailbox) {
+    if (mailbox.icon) {
+        return mailbox.icon;
+    }
     if (mailbox.path === 'INBOX') {
         return 'inbox';
     } else if (mailbox.specialUse) {

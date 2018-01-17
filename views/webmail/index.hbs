@@ -17,6 +17,17 @@
     <input type="checkbox" class="toggle-all" />
 </div>
 
+<div class="pull-right" style="width: 300px;">
+    <form method="get" action="/webmail/search">
+        <div class="input-group">
+          <input type="text" class="form-control input" name="query" placeholder="Search for..." value="{{query}}" required>
+          <span class="input-group-btn">
+            <button class="btn btn-default btn" type="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+          </span>
+        </div>
+    </form>
+</div>
+
 <fieldset id="action-toolbar" disabled>
     <div class="form-group">
 
@@ -50,6 +61,8 @@
     </div>
 </fieldset>
 
+<div class="clearfix"></div>
+
 <div class="table-responsive">
     <table class="messagelist">
         <colgroup>
@@ -73,17 +86,17 @@
 <nav aria-label="nav">
     <ul class="pager">
         {{#if previousCursor}}
-            <li class="previous"><a href="/webmail/{{mailbox.id}}?previous={{previousCursor}}&amp;page={{previousPage}}"><span aria-hidden="true">&larr;</span> Newer</a></li>
+            <li class="previous"><a href="/webmail/{{mailbox.id}}?previous={{previousCursor}}&amp;page={{previousPage}}&amp;query={{query}}"><span aria-hidden="true">&larr;</span> Newer</a></li>
         {{else}}
             <li class="previous disabled"><a href="#"><span aria-hidden="true">&larr;</span> Newer</a></li>
         {{/if}}
 
         <li style="display: inline-block; padding-top: 7px;">
-            Page {{page}}
+            Page <strong>{{page}}</strong> (<strong>{{startStr}}</strong>–<strong>{{endStr}}</strong> out of <strong>{{resultsStr}}</strong> messages)
         </li>
 
         {{#if nextCursor}}
-            <li class="next"><a href="/webmail/{{mailbox.id}}?next={{nextCursor}}&amp;page={{nextPage}}">Older <span aria-hidden="true">&rarr;</span></a></li>
+            <li class="next"><a href="/webmail/{{mailbox.id}}?next={{nextCursor}}&amp;page={{nextPage}}&amp;query={{query}}">Older <span aria-hidden="true">&rarr;</span></a></li>
         {{else}}
             <li class="next disabled"><a href="#">Older <span aria-hidden="true">&rarr;</span></a></li>
         {{/if}}
@@ -322,6 +335,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // reset page load handlers
             checkboxes = document.querySelectorAll('.message-checkbox');
+            for(var i=0, len = checkboxes.length; i<len; i++){
+                checkboxes[i].addEventListener('click', toggleToolbar, false);
+                checkboxes[i].addEventListener('change', toggleToolbar, false);
+            }
             toggleToolbar();
             $("[rel='tooltip']").tooltip();
             updateFixedDatestrings()
