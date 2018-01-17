@@ -1,0 +1,107 @@
+
+<h2 class="sub-header">
+    <span>Send</span> – FUTURE FEATURE
+</h2>
+
+<form method="post" class="form-horizontal" action="/webmail/send">
+    <input type="hidden" id="_csrf" value="{{csrfToken}}">
+    <input type="hidden" id="action" value="{{action}}">
+    <input type="hidden" id="mailbox-ref" value="{{mailboxRef}}">
+    <input type="hidden" id="message-ref" value="{{messageRef}}">
+
+    <div class="form-group">
+        <label for="inputTo" class="col-sm-1 control-label">To</label>
+        <div class="col-sm-11">
+            <input type="text" class="form-control" name="to" id="inputTo" value="{{values.to}}" placeholder="Recipient">
+        </div>
+    </div>
+
+    <div id="cc-field" class="form-group" {{#unless values.cc}}style="display:none"{{/unless}}>
+        <label for="inputCc" class="col-sm-1 control-label">Cc</label>
+        <div class="col-sm-11">
+            <input type="text" class="form-control" name="cc" id="inputCc" value="{{values.cc}}" placeholder="Cc">
+        </div>
+    </div>
+
+    <div id="bcc-field" class="form-group" {{#unless values.bcc}}style="display:none"{{/unless}}>
+        <label for="inputBcc" class="col-sm-1 control-label">Bcc</label>
+        <div class="col-sm-11">
+            <input type="text" class="form-control" name="bcc" id="inputBcc" value="{{values.bcc}}" placeholder="Bcc">
+        </div>
+    </div>
+
+    <div class="text-right" style="margin-top: -10px; margin-bottom: 10px;">
+        <a href="#" id="link-add-cc" {{#if values.cc}}style="display:none"{{/if}}>Cc</a>
+        <a href="#" id="link-add-bcc" {{#if values.bcc}}style="display:none"{{/if}}>Bcc</a>
+    </div>
+
+    <div class="form-group">
+        <label for="inputSubject" class="col-sm-1 control-label">Subject</label>
+        <div class="col-sm-11">
+            <input type="text" class="form-control" id="inputSubject" name="subject" value="{{values.subject}}" placeholder="Message subject">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="col-sm-12">
+            <textarea id="summernote" name="editordata"></textarea>
+        </div>
+    </div>
+</form>
+
+<script type="text/javascript" src="/purify-0.9.0/purify.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(event) {
+        var messageHtml = {{{messageHtml}}};
+
+        if (messageHtml && messageHtml.length && /^\s*$/.test(document.getElementById('summernote').value)) {
+            // make sure that server timestamps get converted to browser time strings
+            // {%DATE ... %}
+            messageHtml = messageHtml.map(function(html){
+                return html.replace(/\{&DATE ([^&]+)&\}/g, function(m, d){
+                    return moment(d.trim()).format('LLLL');
+                });
+            })
+            var clean = DOMPurify.sanitize(messageHtml.join('\n'), {
+                ALLOW_UNKNOWN_PROTOCOLS: true,
+                WHOLE_DOCUMENT: false,
+                FORBID_TAGS: ['form']
+            });
+
+            document.getElementById('summernote').value = '<br/><br/>\n<blockquote>' + clean + '</blockquote>';
+        }
+
+        $('#summernote').summernote({
+            toolbar: [
+                // [groupName, [list of button]]
+                ['style', ['bold', 'italic', 'underline', 'clear']],
+                ['fontsize', ['fontsize']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']]
+            ],
+            height: 300
+        });
+
+        var linkAddCc = document.getElementById('link-add-cc');
+        var linkAddBcc = document.getElementById('link-add-bcc');
+
+        var showCc = function(){
+            document.getElementById('cc-field').style.display = 'block';
+            linkAddCc.style.display = 'none';
+            document.getElementById('inputCc').focus();
+        };
+
+        var showBcc = function(){
+            document.getElementById('bcc-field').style.display = 'block';
+            linkAddBcc.style.display = 'none';
+            document.getElementById('inputBcc').focus();
+        };
+
+        linkAddCc.addEventListener('click', showCc, false);
+        linkAddCc.addEventListener('touch', showCc, false);
+        linkAddBcc.addEventListener('click', showBcc, false);
+        linkAddBcc.addEventListener('touch', showBcc, false);
+
+    }, false);
+</script>

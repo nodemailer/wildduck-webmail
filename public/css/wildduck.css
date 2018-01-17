@@ -74,7 +74,7 @@ input.lowercase {
     margin-left: -20px;
 }
 .nav-sidebar > li > a {
-    padding: 6px 20px;
+    padding: 3px 20px;
 }
 .nav-sidebar > .active > a,
 .nav-sidebar > .active > a:hover,
@@ -272,4 +272,11 @@ table.limited {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+}
+
+.note-editable blockquote {
+    padding: 7px 10px;
+    margin: 0 0 10px;
+    font-size: inherit;
+    border-left: 2px solid #eeeeee;
 }

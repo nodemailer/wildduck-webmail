@@ -13,6 +13,11 @@
         <div class="sidebar-container">
             <div class="sidebar">
                 <img src="/images/duck.png" class="img-responsive" style="display: block; margin: 10px auto;">
+
+                <div style="margin: 10px 0 10px 0;" class="text-center">
+                    <a href="/webmail/send" style="width: 100%" class="btn btn-default"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Compose message</a>
+                </div>
+
                 <ul class="nav nav-sidebar">
                     {{#each mailboxes}}
                         <li id="mailbox-list-{{id}}" {{#if selected}} class="active" {{/if}}>
@@ -54,6 +59,8 @@
 
     <script src="/jquery-3.1.1/jquery.min.js"></script>
     <script src="/bootstrap-3.3.7/js/bootstrap.js"></script>
+    <link href="/summernote-0.8.9/summernote.css" rel="stylesheet">
+    <script src="/summernote-0.8.9/summernote.min.js"></script>
     <script src="/moment/moment.min.js"></script>
     <script src="/daterangepicker/daterangepicker.js"></script>
     <script src="/wd.js"></script>

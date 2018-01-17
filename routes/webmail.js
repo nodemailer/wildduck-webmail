@@ -6,12 +6,148 @@ const apiClient = require('../lib/api-client');
 const Joi = require('joi');
 const tools = require('../lib/tools');
 const fs = require('fs');
+const util = require('util');
 const humanize = require('humanize');
 const SearchString = require('search-string');
+const he = require('he');
 
 const templates = {
     messageRowTemplate: fs.readFileSync(__dirname + '/../views/partials/messagerow.hbs', 'utf-8')
 };
+
+router.get('/send', (req, res) => {
+    const schema = Joi.object().keys({
+        action: Joi.string()
+            .valid('reply', 'replyAll', 'forward', 'send')
+            .default('send'),
+        mailbox: Joi.string()
+            .hex()
+            .length(24)
+            .empty(''),
+        message: Joi.number()
+            .min(1)
+            .empty('')
+    });
+
+    let result = Joi.validate(req.query, schema, {
+        abortEarly: false,
+        convert: true,
+        allowUnknown: true
+    });
+
+    if (result.error) {
+        if (result.error && result.error.details) {
+            result.error.details.forEach(detail => {
+                req.flash('danger', detail.message);
+            });
+        }
+        return res.redirect('/webmail/send');
+    }
+
+    let action = result.value.action;
+
+    apiClient.mailboxes.list(req.user.id, true, (err, mailboxes) => {
+        if (err) {
+            req.flash('danger', err.message);
+            res.redirect('/webmail');
+            return;
+        }
+
+        let getMessageData = done => {
+            if (!result.value.mailbox || !result.value.message) {
+                return done();
+            }
+
+            apiClient.messages.get(req.user.id, result.value.mailbox, result.value.message, done);
+        };
+
+        getMessageData((err, messageData) => {
+            if (err) {
+                req.flash('danger', err.message);
+                res.redirect('/webmail');
+                return;
+            }
+
+            let subject = '';
+            let html = [];
+            if (messageData) {
+                switch (action) {
+                    case 'reply':
+                    case 'replyAll':
+                        subject = 'Re: ' + messageData.subject;
+
+                        html.push(
+                            util.format(
+                                'On {&DATE %s&}, %s wrote:<br/><br/>\n',
+                                messageData.date,
+                                tools.getAddressesHTML(
+                                    messageData.from ||
+                                        messageData.sender || {
+                                            name: '< >'
+                                        }
+                                )
+                            )
+                        );
+                        break;
+                    case 'forward':
+                        subject = 'Fwd: ' + messageData.subject;
+
+                        html.push('Begin forwarded message:<br/><br/>');
+
+                        html.push('<table>');
+
+                        html.push(
+                            util.format(
+                                '<tr><th>From</th><td>%s</td></tr>',
+                                tools.getAddressesHTML(
+                                    messageData.from ||
+                                        messageData.sender || {
+                                            name: '< >'
+                                        }
+                                )
+                            )
+                        );
+
+                        if (messageData.subject) {
+                            html.push(util.format('<tr><th>Subject</th><td>%s</td></tr>', he.encode(messageData.subject)));
+                        }
+
+                        html.push(util.format('<tr><th>Date</th><td>{&DATE %s&}</td></tr>', messageData.date));
+
+                        if (messageData.to) {
+                            html.push(util.format('<tr><th>To</th><td>%s</td></tr>', tools.getAddressesHTML(messageData.to)));
+                        }
+
+                        if (messageData.cc) {
+                            html.push(util.format('<tr><th>Cc</th><td>%s</td></tr>', tools.getAddressesHTML(messageData.cc)));
+                        }
+
+                        html.push('</table><br/>');
+                        break;
+                }
+
+                html = html.concat(messageData.html || []);
+            }
+
+            res.render('webmail/send', {
+                layout: 'layout-webmail',
+                activeWebmail: true,
+                mailboxes: prepareMailboxList(mailboxes),
+
+                values: {
+                    subject
+                },
+
+                messageRef: messageData && messageData.id,
+                mailboxRef: messageData && messageData.mailbox,
+                action,
+                messageHtml: JSON.stringify(html).replace(/\//g, '\\u002f'),
+
+                csrfToken: req.csrfToken()
+            });
+        });
+    });
+});
 
 router.get('/create', (req, res) => {
     apiClient.mailboxes.list(req.user.id, true, (err, mailboxes) => {
@@ -161,6 +297,8 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
                 entry.selected = true;
                 mailboxExists = true;
                 selectedMailbox = entry;
+            } else if (typeof entry.canMoveTo === 'undefined') {
+                entry.canMoveTo = true;
             }
         });
 
@@ -239,8 +377,12 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
                 mailboxes: prepareMailboxList(mailboxes),
                 mailbox: selectedMailbox,
 
+                isTrash: selectedMailbox.specialUse === '\\Trash',
+
                 message: messageData,
-                messageJson: JSON.stringify(messageData).replace(/\//g, '\\u002f')
+                messageJson: JSON.stringify(messageData).replace(/\//g, '\\u002f'),
+
+                csrfToken: req.csrfToken()
             });
         });
     });

@@ -34,6 +34,8 @@
         <button class="btn btn-default btn-xs bulk-mark-seen">Mark as Seen</button>
         <button class="btn btn-default btn-xs bulk-mark-unseen">Mark as Unseen</button>
 
+        <span style="display: inline-block; width: 10px;"></span>
+
         <button class="btn btn-default btn-xs bulk-delete" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete</button>
 
 
@@ -438,7 +440,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('.bulk-mark-unseen').addEventListener('click', setUnseen, false);
     document.querySelector('.bulk-mark-unseen').addEventListener('touch', setUnseen, false);
     document.querySelector('.bulk-mark-seen').addEventListener('click', setSeen, false);
-    document.querySelector('.bulk-mark-unseen').addEventListener('touch', setUnseen, false);
+    document.querySelector('.bulk-mark-seen').addEventListener('touch', setSeen, false);
 
     var toggleAll = function(){
         var checked = toggleAllElm.checked;
