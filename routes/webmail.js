@@ -891,7 +891,7 @@ function getIcon(mailbox) {
 function prepareMailboxList(mailboxes, skipStarred) {
     if (!skipStarred) {
         for (let i = 0, len = mailboxes.length; i < len; i++) {
-            if (mailboxes[i].path !== 'INBOX' && mailboxes[i].path.indexof('INBOX/') < 0) {
+            if (mailboxes[i].path !== 'INBOX' && mailboxes[i].path.indexOf('INBOX/') < 0) {
                 mailboxes.splice(i, 0, {
                     id: 'starred',
                     specialUse: 'Starred',
