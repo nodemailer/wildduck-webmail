@@ -890,17 +890,22 @@ function getIcon(mailbox) {
 
 function prepareMailboxList(mailboxes, skipStarred) {
     if (!skipStarred) {
-        mailboxes.splice(1, 0, {
-            id: 'starred',
-            specialUse: 'Starred',
-            path: '',
-            suffix: '',
-            prefix: '',
-            name: 'Starred',
-            formatted: 'Starred',
-            editable: false,
-            canMoveTo: false
-        });
+        for (let i = 0, len = mailboxes.length; i < len; i++) {
+            if (mailboxes[i].path !== 'INBOX' && mailboxes[i].path.indexof('INBOX/') < 0) {
+                mailboxes.splice(i, 0, {
+                    id: 'starred',
+                    specialUse: 'Starred',
+                    path: '',
+                    suffix: '',
+                    prefix: '',
+                    name: 'Starred',
+                    formatted: 'Starred',
+                    editable: false,
+                    canMoveTo: false
+                });
+                break;
+            }
+        }
     }
 
     mailboxes.forEach((mailbox, i) => {
