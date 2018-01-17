@@ -2,11 +2,11 @@
     <td class="messagerow-spacer"></td>
 
     <td class="messagerow-checkbox">
-        <input type="checkbox" data-message="{{id}}" class="message-checkbox"/>
+        <input type="checkbox" data-mailbox="{{mailbox}}" data-message="{{id}}" class="message-checkbox"/>
     </td>
 
     <td class="messagerow-star">
-        <a href="#" class="message-star {{#if flagged}}flagged{{else}}unflagged{{/if}}" data-message="{{id}}"><span class="glyphicon glyphicon-{{#if flagged}}star{{else}}star-empty{{/if}}" aria-hidden="true"></span></a>
+        <a href="#" class="message-star {{#if flagged}}flagged{{else}}unflagged{{/if}}" data-mailbox="{{mailbox}}" data-message="{{id}}"><span class="glyphicon glyphicon-{{#if flagged}}star{{else}}star-empty{{/if}}" aria-hidden="true"></span></a>
     </td>
 
     <td class="messagerow-from">

@@ -238,13 +238,14 @@ router.post('/list', (req, res) => {
             .hex()
             .lowercase()
             .length(24)
+            .allow('starred')
             .required(),
         cursorType: Joi.string()
             .empty('')
             .valid('next', 'previous'),
         cursorValue: Joi.string()
-            .empty('')
-            .base64(),
+            .max(100)
+            .empty(''),
         page: Joi.number()
             .empty('')
             .default(1)
@@ -269,7 +270,17 @@ router.post('/list', (req, res) => {
         params[result.value.cursorType] = result.value.cursorValue;
     }
 
-    apiClient.messages.list(req.user.id, result.value.mailbox, params, (err, response) => {
+    let makeRequest = done => {
+        if (result.value.mailbox === 'starred') {
+            params.flagged = true;
+            params.searchable = true;
+            return apiClient.messages.search(req.user.id, params, done);
+        } else {
+            apiClient.messages.list(req.user.id, result.value.mailbox, params, done);
+        }
+    };
+
+    makeRequest((err, response) => {
         if (err) {
             return res.json(err.message);
         }

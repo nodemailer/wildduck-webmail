@@ -701,6 +701,7 @@ function renderMailbox(req, res, next) {
         mailbox: Joi.string()
             .hex()
             .length(24)
+            .allow('starred')
             .empty(''),
         next: Joi.string()
             .max(100)
@@ -745,9 +746,12 @@ function renderMailbox(req, res, next) {
             return next(err);
         }
 
+        mailboxes = prepareMailboxList(mailboxes);
+
         let mailbox = result.value.mailbox || mailboxes[0].id;
         let mailboxExists = false;
         let selectedMailbox = false;
+
         mailboxes.forEach((entry, i) => {
             if (entry.path === 'INBOX') {
                 entry.specialUse = 'INBOX';
@@ -757,18 +761,29 @@ function renderMailbox(req, res, next) {
                 entry.selected = true;
                 mailboxExists = true;
                 selectedMailbox = entry;
-            } else {
+            } else if (typeof entry.canMoveTo === 'undefined') {
                 entry.canMoveTo = true;
             }
         });
 
         if (!mailboxExists) {
+            req.flash('danger', 'Selected mailbox does not exist');
             return res.redirect('/webmail');
         }
 
         selectedMailbox.icon = getIcon(selectedMailbox);
 
-        apiClient.messages.list(req.user.id, mailbox, { next: req.query.next, previous: req.query.previous, page: result.value.page || 1 }, (err, result) => {
+        let makeRequest = done => {
+            if (selectedMailbox.id === 'starred') {
+                let data = { next: req.query.next, previous: req.query.previous, page: result.value.page || 1, flagged: true, searchable: true };
+                return apiClient.messages.search(req.user.id, data, done);
+            } else {
+                let data = { next: req.query.next, previous: req.query.previous, page: result.value.page || 1 };
+                apiClient.messages.list(req.user.id, mailbox, data, done);
+            }
+        };
+
+        makeRequest((err, result) => {
             if (err) {
                 return next(err);
             }
@@ -776,7 +791,7 @@ function renderMailbox(req, res, next) {
             res.render('webmail/index', {
                 layout: 'layout-webmail',
                 activeWebmail: true,
-                mailboxes: prepareMailboxList(mailboxes),
+                mailboxes,
                 mailbox: selectedMailbox,
 
                 cursorType,
@@ -807,6 +822,10 @@ function getParents(mailboxes, mailbox, parentPath) {
     let parents = new Map();
 
     mailboxes.forEach((entry, i) => {
+        if (!entry.path) {
+            return;
+        }
+
         let index = i + 1;
 
         let parts = entry.path.split('/');
@@ -862,32 +881,54 @@ function getIcon(mailbox) {
                 return 'edit';
             case '\\Archive':
                 return 'hdd';
+            case 'Starred':
+                return 'star';
         }
     }
     return false;
 }
 
-function prepareMailboxList(mailboxes) {
+function prepareMailboxList(mailboxes, skipStarred) {
+    if (!skipStarred) {
+        mailboxes.splice(1, 0, {
+            id: 'starred',
+            specialUse: 'Starred',
+            path: '',
+            suffix: '',
+            prefix: '',
+            name: 'Starred',
+            formatted: 'Starred',
+            editable: false,
+            canMoveTo: false
+        });
+    }
+
     mailboxes.forEach((mailbox, i) => {
         mailbox.index = i + 1;
 
-        let parts = mailbox.path.split('/');
+        if (mailbox.path) {
+            let parts = mailbox.path.split('/');
+            let level = 0;
 
-        for (let i = 0; i < parts.length; i++) {
-            let level = i + 1;
+            for (let i = 0; i < parts.length; i++) {
+                level++;
 
-            mailbox.formatted = parts[i];
+                mailbox.formatted = parts[i];
+                if (mailbox.path !== 'INBOX') {
+                    mailbox.editable = true;
+                }
 
-            if (level > 1) {
-                mailbox.prefix = '<div style="padding-left: ' + (level - 1) * 10 + 'px;">';
-                mailbox.suffix = '</div>';
-            } else {
-                mailbox.prefix = '';
-                mailbox.suffix = '';
+                if (level > 1) {
+                    mailbox.prefix = '<div style="padding-left: ' + (level - 1) * 10 + 'px;">';
+                    mailbox.suffix = '</div>';
+                } else {
+                    mailbox.prefix = '';
+                    mailbox.suffix = '';
+                }
             }
-
-            mailbox.icon = getIcon(mailbox);
         }
+
+        mailbox.icon = getIcon(mailbox);
     });
 
     return mailboxes;

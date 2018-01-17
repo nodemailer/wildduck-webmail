@@ -5,7 +5,7 @@
 'use strict';
 
 window.loginKeyHandler = {
-    setup(usernameElm, valueElm, scope) {
+    setup: function(usernameElm, valueElm, scope) {
         var that = this;
         var formElm = usernameElm.form;
         if (!formElm) {

@@ -1,8 +1,10 @@
 
 <h2 class="sub-header">
-    <div class="pull-right">
-        <a href="/webmail/{{mailbox.id}}/settings" class="btn btn-default"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Settings</a>
-    </div>
+    {{#if mailbox.editable}}
+        <div class="pull-right">
+            <a href="/webmail/{{mailbox.id}}/settings" class="btn btn-default"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Settings</a>
+        </div>
+    {{/if}}
     {{#if mailbox.icon}}
         <span class="glyphicon glyphicon-{{mailbox.icon}}" aria-hidden="true"></span>
     {{else}}
@@ -170,7 +172,7 @@
             credentials: 'include',
             body: JSON.stringify({
                 _csrf: document.getElementById('_csrf').value,
-                mailbox: document.getElementById('mailbox').value,
+                mailbox: elm.dataset.mailbox,
                 message: elm.dataset.message,
                 flagged: !flagged // toggle
             })
@@ -234,7 +236,8 @@ document.addEventListener('DOMContentLoaded', function() {
             if(checkboxes[i].checked){
                 result.push({
                     elm: checkboxes[i],
-                    message: checkboxes[i].dataset.message
+                    message: checkboxes[i].dataset.message,
+                    mailbox: checkboxes[i].dataset.mailbox
                 });
             }
         }
@@ -242,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     var toggleToolbar = function(){
-        let checked = 0;
+        var checked = 0;
         for(var i=0, len = checkboxes.length; i<len; i++){
             if(checkboxes[i].checked){
                 checked++;
@@ -343,48 +346,68 @@ document.addEventListener('DOMContentLoaded', function() {
 
         pendingSeen = true;
 
-        var messages = checked.map(function(m){return m.message;});
+        var groupkeys= [];
+        var groups = {};
+        checked.forEach(function(entry){
+            if(!groups[entry.mailbox]){
+                groups[entry.mailbox] = [];
+                groupkeys.push(entry.mailbox);
+            }
+            groups[entry.mailbox].push(entry.message);
+        })
 
         var done = function(){
             pendingSeen = false;
         }
 
-        fetch('/api/toggle/seen', {
-            method: 'post',
-            headers: {
-                Accept: 'application/json, text/plain, */*',
-                'Content-Type': 'application/json'
-            },
-            credentials: 'include',
-            body: JSON.stringify({
-                _csrf: document.getElementById('_csrf').value,
-                mailbox: document.getElementById('mailbox').value,
-                message: messages.join(','),
-                seen: !!seen
-            })
-        })
-        .then(function(res) {
-            return res.json();
-        })
-        .then(function(res) {
-            if(res.error){
-                console.error(res.error);
+        var batchPos = 0;
+        var processBatch = function(){
+            if(batchPos >= groupkeys.length){
                 return done();
             }
+            var mailbox = groupkeys[batchPos++];
+            var messages = groups[mailbox];
 
-            checked.forEach(function(checkbox){
-                let row = findRow(checkbox.elm);
-                if(row){
-                    row.classList.remove(seen ? 'message-unseen' : 'message-seen');
-                    row.classList.add(seen ? 'message-seen' : 'message-unseen');
-                }
+            fetch('/api/toggle/seen', {
+                method: 'post',
+                headers: {
+                    Accept: 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    _csrf: document.getElementById('_csrf').value,
+                    mailbox: mailbox,
+                    message: messages.join(','),
+                    seen: !!seen
+                })
             })
+            .then(function(res) {
+                return res.json();
+            })
+            .then(function(res) {
+                if(res.error){
+                    console.error(res.error);
+                    return done();
+                }
 
-            done();
-        }).catch(function(err){
-            console.error(err);
-            done();
-        });
+                checked.forEach(function(checkbox){
+                    var row = findRow(checkbox.elm);
+                    if(row){
+                        row.classList.remove(seen ? 'message-unseen' : 'message-seen');
+                        row.classList.add(seen ? 'message-seen' : 'message-unseen');
+                    }
+                })
+
+                // continue processing
+                processBatch();
+            }).catch(function(err){
+                console.error(err);
+                done();
+            });
+        }
+
+        processBatch();
     }
 
     var setUnseen = function(){
@@ -429,62 +452,79 @@ document.addEventListener('DOMContentLoaded', function() {
         pendingDeleted = true;
         $('#deleteModal .bulk-delete-confirm').button('loading');
 
-        var messages = checked.map(function(m){return m.message;});
-
         var done = function(){
             pendingDeleted = false;
             $('#deleteModal .bulk-delete-confirm').button('reset');
             $('#deleteModal').modal('hide');
         }
 
-        fetch('/api/delete', {
-            method: 'post',
-            headers: {
-                Accept: 'application/json, text/plain, */*',
-                'Content-Type': 'application/json'
-            },
-            credentials: 'include',
-            body: JSON.stringify({
-                _csrf: document.getElementById('_csrf').value,
-                mailbox: document.getElementById('mailbox').value,
-                message: messages.join(',')
-            })
+        var groupkeys= [];
+        var groups = {};
+        checked.forEach(function(entry){
+            if(!groups[entry.mailbox]){
+                groups[entry.mailbox] = [];
+                groupkeys.push(entry.mailbox);
+            }
+            groups[entry.mailbox].push(entry.message);
         })
-        .then(function(res) {
-            return res.json();
-        })
-        .then(function(res) {
-            if(res.error){
-                console.error(res.error);
+
+        var deleted = 0;
+        var batchPos = 0;
+        var processBatch = function(){
+            if(batchPos >= groupkeys.length){
+                if(deleted){
+                    return redrawList(done);
+                }
                 return done();
             }
+            var mailbox = groupkeys[batchPos++];
+            var messages = groups[mailbox];
 
-            var removeRow = function(id){
-                var row = document.getElementById('msg_' + id);
-                if(row && row.parentNode){
-                    row.parentNode.removeChild(row);
+            fetch('/api/delete', {
+                method: 'post',
+                headers: {
+                    Accept: 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    _csrf: document.getElementById('_csrf').value,
+                    mailbox: mailbox,
+                    message: messages.join(',')
+                })
+            })
+            .then(function(res) {
+                return res.json();
+            })
+            .then(function(res) {
+                if(res.error){
+                    console.error(res.error);
+                    return done();
                 }
-            }
 
-            var deleted = 0
-            if(res.id && res.id.length){
-                for(var i=0, len = res.id.length; i<len; i++){
-                    if(res.id[i] && res.id[i][0] && res.id[i][1]){
-                        removeRow(res.id[i][0]);
-                        deleted++;
+                var removeRow = function(id){
+                    var row = document.getElementById('msg_' + id);
+                    if(row && row.parentNode){
+                        row.parentNode.removeChild(row);
                     }
                 }
-            }
 
-            if(deleted){
-                return redrawList(done);
-            }
+                if(res.id && res.id.length){
+                    for(var i=0, len = res.id.length; i<len; i++){
+                        if(res.id[i] && res.id[i][0] && res.id[i][1]){
+                            removeRow(res.id[i][0]);
+                            deleted++;
+                        }
+                    }
+                }
 
-            done();
-        }).catch(function(err){
-            console.error(err);
-            done();
-        });
+                processBatch();
+            }).catch(function(err){
+                console.error(err);
+                done();
+            });
+        }
+        processBatch();
     };
 
     document.querySelector('.bulk-delete-confirm').addEventListener('click', deleteMessage, false);
@@ -504,56 +544,78 @@ document.addEventListener('DOMContentLoaded', function() {
         pendingMove = true;
         $('#moveModal .bulk-move-confirm').button('loading');
 
-        var messages = checked.map(function(m){return m.message;});
-
         var done = function(){
             pendingMove = false;
             $('#moveModal .bulk-move-confirm').button('reset');
             $('#moveModal').modal('hide');
         }
 
-        fetch('/api/move', {
-            method: 'post',
-            headers: {
-                Accept: 'application/json, text/plain, */*',
-                'Content-Type': 'application/json'
-            },
-            credentials: 'include',
-            body: JSON.stringify({
-                _csrf: document.getElementById('_csrf').value,
-                mailbox: document.getElementById('mailbox').value,
-                message: messages.join(','),
-                target: document.querySelector('.bulk-move-confirm').dataset.mailbox
-            })
+        var targetMailbox = document.querySelector('.bulk-move-confirm').dataset.mailbox;
+        var groupkeys= [];
+        var groups = {};
+        checked.forEach(function(entry){
+            if(targetMailbox === entry.mailbox){
+                // skip
+                return;
+            }
+            if(!groups[entry.mailbox]){
+                groups[entry.mailbox] = [];
+                groupkeys.push(entry.mailbox);
+            }
+            groups[entry.mailbox].push(entry.message);
         })
-        .then(function(res) {
-            return res.json();
-        })
-        .then(function(res) {
-            if(res.error){
-                console.error(res.error);
+
+        var moved = 0;
+        var batchPos = 0;
+        var processBatch = function(){
+            if(batchPos >= groupkeys.length){
+                if(moved){
+                    return redrawList(done);
+                }
                 return done();
             }
+            var mailbox = groupkeys[batchPos++];
+            var messages = groups[mailbox];
 
-            var moved = 0;
-            if(res.id && res.id.length){
-                for(var i=0, len = res.id.length; i<len; i++){
-                    if(res.id[i] && res.id[i][0] && res.id[i][1]){
-                        removeRow(res.id[i][0]);
-                        moved++;
+            fetch('/api/move', {
+                method: 'post',
+                headers: {
+                    Accept: 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    _csrf: document.getElementById('_csrf').value,
+                    mailbox: mailbox,
+                    message: messages.join(','),
+                    target: targetMailbox
+                })
+            })
+            .then(function(res) {
+                return res.json();
+            })
+            .then(function(res) {
+                if(res.error){
+                    console.error(res.error);
+                    return done();
+                }
+
+                if(res.id && res.id.length){
+                    for(var i=0, len = res.id.length; i<len; i++){
+                        if(res.id[i] && res.id[i][0] && res.id[i][1]){
+                            removeRow(res.id[i][0]);
+                            moved++;
+                        }
                     }
                 }
-            }
 
-            if(moved){
-                return redrawList(done);
-            }
-
-            done();
-        }).catch(function(err){
-            console.error(err);
-            done();
-        });
+                processBatch();
+            }).catch(function(err){
+                console.error(err);
+                done();
+            });
+        }
+        processBatch();
     };
 
     $('#moveModal').on('show.bs.modal', function (event) {
