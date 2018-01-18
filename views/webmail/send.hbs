@@ -87,7 +87,7 @@
             var clean = DOMPurify.sanitize(messageHtml.join('\n'), {
                 ALLOW_UNKNOWN_PROTOCOLS: true,
                 WHOLE_DOCUMENT: false,
-                FORBID_TAGS: ['form']
+                FORBID_TAGS: ['form', 'style']
             });
 
             {{#unless keepHtmlAsIs}}
