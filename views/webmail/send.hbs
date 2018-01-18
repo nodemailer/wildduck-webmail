@@ -1,32 +1,46 @@
 
-<h2 class="sub-header">
-    <span>Send</span> – FUTURE FEATURE
-</h2>
 
 <form method="post" class="form-horizontal" action="/webmail/send">
-    <input type="hidden" id="_csrf" value="{{csrfToken}}">
-    <input type="hidden" id="action" value="{{action}}">
-    <input type="hidden" id="mailbox-ref" value="{{mailboxRef}}">
-    <input type="hidden" id="message-ref" value="{{messageRef}}">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+    <input type="hidden" name="action" value="{{values.action}}">
+    <input type="hidden" name="mailboxRef" value="{{values.mailboxRef}}">
+    <input type="hidden" name="messageRef" value="{{values.messageRef}}">
 
     <div class="form-group">
+        <div class="col-sm-offset-1 col-sm-11" style="margin-top: 20px;">
+            <button class="btn btn-primary btn-xs" type="submit"><span class="glyphicon glyphicon-send" aria-hidden="true"></span> Send message</button>
+
+            <a {{#if messageRef}} href="/webmail/{{mailboxRef}}/message/{{messageRef}}" {{else}} href="/webmail" {{/if}} class="btn btn-danger btn-xs" type="submit"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Discard Draft</a>
+        </div>
+    </div>
+
+    <div class="form-group{{#if errors.to}} has-error{{/if}}">
         <label for="inputTo" class="col-sm-1 control-label">To</label>
         <div class="col-sm-11">
             <input type="text" class="form-control" name="to" id="inputTo" value="{{values.to}}" placeholder="Recipient">
+            {{#if errors.to}}
+                <span class="help-block">{{errors.to}}</span>
+            {{/if}}
         </div>
     </div>
 
-    <div id="cc-field" class="form-group" {{#unless values.cc}}style="display:none"{{/unless}}>
+    <div id="cc-field" class="form-group{{#if errors.cc}} has-error{{/if}}" {{#unless values.cc}}style="display:none"{{/unless}}>
         <label for="inputCc" class="col-sm-1 control-label">Cc</label>
         <div class="col-sm-11">
             <input type="text" class="form-control" name="cc" id="inputCc" value="{{values.cc}}" placeholder="Cc">
+            {{#if errors.cc}}
+                <span class="help-block">{{errors.cc}}</span>
+            {{/if}}
         </div>
     </div>
 
-    <div id="bcc-field" class="form-group" {{#unless values.bcc}}style="display:none"{{/unless}}>
+    <div id="bcc-field" class="form-group{{#if errors.bcc}} has-error{{/if}}" {{#unless values.bcc}}style="display:none"{{/unless}}>
         <label for="inputBcc" class="col-sm-1 control-label">Bcc</label>
         <div class="col-sm-11">
             <input type="text" class="form-control" name="bcc" id="inputBcc" value="{{values.bcc}}" placeholder="Bcc">
+            {{#if errors.bcc}}
+                <span class="help-block">{{errors.bcc}}</span>
+            {{/if}}
         </div>
     </div>
 
@@ -35,16 +49,22 @@
         <a href="#" id="link-add-bcc" {{#if values.bcc}}style="display:none"{{/if}}>Bcc</a>
     </div>
 
-    <div class="form-group">
+    <div class="form-group{{#if errors.subject}} has-error{{/if}}">
         <label for="inputSubject" class="col-sm-1 control-label">Subject</label>
         <div class="col-sm-11">
             <input type="text" class="form-control" id="inputSubject" name="subject" value="{{values.subject}}" placeholder="Message subject">
+            {{#if errors.subject}}
+                <span class="help-block">{{errors.subject}}</span>
+            {{/if}}
         </div>
     </div>
 
-    <div class="form-group">
+    <div class="form-group{{#if errors.editordata}} has-error{{/if}}">
         <div class="col-sm-12">
             <textarea id="summernote" name="editordata"></textarea>
+            {{#if errors.editordata}}
+                <span class="help-block">{{errors.editordata}}</span>
+            {{/if}}
         </div>
     </div>
 </form>
@@ -62,14 +82,19 @@
                 return html.replace(/\{&DATE ([^&]+)&\}/g, function(m, d){
                     return moment(d.trim()).format('LLLL');
                 });
-            })
+            });
+
             var clean = DOMPurify.sanitize(messageHtml.join('\n'), {
                 ALLOW_UNKNOWN_PROTOCOLS: true,
                 WHOLE_DOCUMENT: false,
                 FORBID_TAGS: ['form']
             });
 
-            document.getElementById('summernote').value = '<br/><br/>\n<blockquote>' + clean + '</blockquote>';
+            {{#unless keepHtmlAsIs}}
+                clean = '<br/><br/>\n<blockquote>' + clean + '</blockquote>';
+            {{/unless}}
+
+            document.getElementById('summernote').value = clean;
         }
 
         $('#summernote').summernote({

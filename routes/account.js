@@ -11,7 +11,7 @@ const apiClient = require('../lib/api-client');
 const roleBasedAddresses = require('role-based-email-addresses');
 const util = require('util');
 const humanize = require('humanize');
-const addressparser = require('addressparser');
+const addressparser = require('nodemailer/lib/addressparser');
 
 // sub services
 router.use('/filters', passport.checkLogin, require('./account/filters'));
