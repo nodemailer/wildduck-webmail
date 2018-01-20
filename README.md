@@ -25,4 +25,4 @@ After you have started the server, head to http://localhost:3000/
 
 ## License
 
-[European Union Public License 1.1](http://ec.europa.eu/idabc/eupl.html).
+[European Union Public License 1.1](http://ec.europa.eu/idabc/eupl.html) or later.

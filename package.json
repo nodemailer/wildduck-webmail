@@ -8,7 +8,7 @@
         "test": "grunt"
     },
     "author": "Andris Reinman",
-    "license": "EUPL-1.1",
+    "license": "EUPL-1.1+",
     "devDependencies": {
         "eslint-config-nodemailer": "^1.2.0",
         "grunt": "^1.0.1",
