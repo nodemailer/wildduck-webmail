@@ -12,6 +12,8 @@ const SearchString = require('search-string');
 const he = require('he');
 const addressparser = require('nodemailer/lib/addressparser');
 
+const PAGE_LIMIT = 20;
+
 const templates = {
     messageRowTemplate: fs.readFileSync(__dirname + '/../views/partials/messagerow.hbs', 'utf-8')
 };
@@ -1160,7 +1162,7 @@ function renderMailbox(req, res, next) {
                 let data = { next: req.query.next, previous: req.query.previous, page: result.value.page || 1, flagged: true, searchable: true };
                 return apiClient.messages.search(req.user.id, data, done);
             } else if (mailbox === 'search') {
-                let data = { next: req.query.next, previous: req.query.previous, page: result.value.page || 1 };
+                let data = { next: req.query.next, previous: req.query.previous, page: result.value.page || 1, limit: PAGE_LIMIT };
 
                 const searchString = SearchString.parse(searchQuery);
                 let keys = searchString.getParsedQuery();
@@ -1189,7 +1191,7 @@ function renderMailbox(req, res, next) {
 
                 return apiClient.messages.search(req.user.id, data, done);
             } else {
-                let data = { next: req.query.next, previous: req.query.previous, page: result.value.page || 1 };
+                let data = { next: req.query.next, previous: req.query.previous, page: result.value.page || 1, limit: PAGE_LIMIT };
                 apiClient.messages.list(req.user.id, mailbox, data, done);
             }
         };
@@ -1210,8 +1212,8 @@ function renderMailbox(req, res, next) {
                 cursorType,
                 cursorValue,
                 page: result.page,
-                startStr: humanize.numberFormat((result.page - 1) * 20 + 1 || 0, 0, ',', ' '),
-                endStr: humanize.numberFormat(Math.min((result.page - 1) * 20 + 20 || 0, result.total || 0), 0, ',', ' '),
+                startStr: humanize.numberFormat((result.page - 1) * PAGE_LIMIT + 1 || 0, 0, ',', ' '),
+                endStr: humanize.numberFormat(Math.min((result.page - 1) * PAGE_LIMIT + PAGE_LIMIT || 0, result.total || 0), 0, ',', ' '),
                 resultsStr: humanize.numberFormat(result.total || 0, 0, ',', ' '),
                 nextCursor: result.nextCursor,
                 nextPage: result.page + 1,
