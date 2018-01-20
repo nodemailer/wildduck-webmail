@@ -3,8 +3,11 @@
 <form method="post" class="form-horizontal" action="/webmail/send">
     <input type="hidden" name="_csrf" value="{{csrfToken}}">
     <input type="hidden" name="action" value="{{values.action}}">
-    <input type="hidden" name="mailboxRef" value="{{values.mailboxRef}}">
-    <input type="hidden" name="messageRef" value="{{values.messageRef}}">
+    <input type="hidden" name="refMailbox" value="{{values.refMailbox}}">
+    <input type="hidden" name="refMessage" value="{{values.refMessage}}">
+    <input type="hidden" name="draftMailbox" value="{{values.draftMailbox}}">
+    <input type="hidden" name="draftMessage" value="{{values.draftMessage}}">
+    <input type="hidden" name="draft" value="{{values.draft}}">
 
     <div class="form-group">
         <div class="col-sm-offset-1 col-sm-11" style="margin-top: 20px;">

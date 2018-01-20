@@ -110,19 +110,11 @@
                     {{/if}}
                 </div>
 
-                <div class="form-group{{#if errors.action_forward}} has-error{{/if}}">
-                    <label for="action_forward">Forward it to address:</label>
-                    <input type="email" class="form-control input-sm" name="action_forward" id="action_forward" value="{{values.action_forward}}" placeholder="user@example.com">
-                    {{#if errors.action_forward}}
-                        <span class="help-block">{{errors.action_forward}}</span>
-                    {{/if}}
-                </div>
-
-                <div class="form-group{{#if errors.action_targetUrl}} has-error{{/if}}">
-                    <label for="action_targetUrl">Upload to URL:</label>
-                    <input type="url" class="form-control input-sm" name="action_targetUrl" id="action_targetUrl" value="{{values.action_targetUrl}}" placeholder="http://example.com/email.php">
-                    {{#if errors.action_targetUrl}}
-                        <span class="help-block">{{errors.action_targetUrl}}</span>
+                <div class="form-group{{#if errors.action_targets}} has-error{{/if}}">
+                    <label for="action_targets">Forward it to address:</label>
+                    <input type="text" class="form-control input-sm" name="action_targets" id="action_targets" value="{{values.action_targets}}" placeholder="user@example.com">
+                    {{#if errors.action_targets}}
+                        <span class="help-block">{{errors.action_targets}}</span>
                     {{/if}}
                 </div>
 

@@ -21,13 +21,24 @@ router.get('/send', (req, res) => {
         action: Joi.string()
             .valid('reply', 'replyAll', 'forward', 'send')
             .default('send'),
-        mailbox: Joi.string()
+        refMailbox: Joi.string()
             .hex()
             .length(24)
             .empty(''),
-        message: Joi.number()
+        refMessage: Joi.number()
             .min(1)
-            .empty('')
+            .empty(''),
+        draftMailbox: Joi.string()
+            .hex()
+            .length(24)
+            .empty(''),
+        draftMessage: Joi.number()
+            .min(1)
+            .empty(''),
+        draft: Joi.boolean()
+            .truthy(['Y', 'true', 'yes', 'on', 1])
+            .falsy(['N', 'false', 'no', 'off', 0, ''])
+            .default(false)
     });
 
     let result = Joi.validate(req.query, schema, {
@@ -46,6 +57,11 @@ router.get('/send', (req, res) => {
     }
 
     let action = result.value.action;
+    let refMailbox = result.value.refMailbox;
+    let refMessage = result.value.refMessage;
+    let draftMailbox = result.value.draftMailbox;
+    let draftMessage = result.value.draftMessage;
+    let isDraft = result.value.draft && draftMailbox && draftMessage && true;
 
     apiClient.addresses.list(req.user.id, (err, addresses) => {
         if (err) {
@@ -67,11 +83,15 @@ router.get('/send', (req, res) => {
             }
 
             let getMessageData = done => {
-                if (!result.value.mailbox || !result.value.message) {
-                    return done();
+                if (isDraft) {
+                    return apiClient.messages.get(req.user.id, draftMailbox, draftMessage, done);
                 }
 
-                apiClient.messages.get(req.user.id, result.value.mailbox, result.value.message, done);
+                if (refMailbox && refMessage) {
+                    return apiClient.messages.get(req.user.id, refMailbox, refMessage, done);
+                }
+
+                return done();
             };
 
             getMessageData((err, messageData) => {
@@ -83,10 +103,21 @@ router.get('/send', (req, res) => {
 
                 let to = [];
                 let cc = [];
+                let bcc = [];
 
                 let subject = '';
                 let html = [];
-                if (messageData) {
+                let keepHtmlAsIs = false;
+
+                if (isDraft && messageData) {
+                    action = result.value.draftAction || action;
+                    to = [].concat(messageData.to || []);
+                    cc = [].concat(messageData.cc || []);
+                    bcc = [].concat(messageData.bcc || []);
+                    subject = messageData.subject;
+                    keepHtmlAsIs = true;
+                    html = html.concat(messageData.html || []);
+                } else if (messageData) {
                     switch (action) {
                         case 'reply':
                         case 'replyAll':
@@ -183,16 +214,20 @@ router.get('/send', (req, res) => {
                     mailboxes: prepareMailboxList(mailboxes),
 
                     values: {
-                        messageRef: messageData && messageData.id,
-                        mailboxRef: messageData && messageData.mailbox,
+                        refMailbox,
+                        refMessage,
+                        draftMailbox: isDraft ? draftMailbox : false,
+                        draftMessage: isDraft ? draftMessage : false,
                         action,
                         subject,
                         to: to.map(renderAddress).join(', '),
-                        cc: cc.map(renderAddress).join(', ')
+                        cc: cc.map(renderAddress).join(', '),
+                        bcc: bcc.map(renderAddress).join(', '),
+                        draft: isDraft ? 'true' : 'false'
                     },
 
                     messageHtml: JSON.stringify(html).replace(/\//g, '\\u002f'),
-
+                    keepHtmlAsIs,
                     csrfToken: req.csrfToken()
                 });
             });
@@ -203,20 +238,31 @@ router.get('/send', (req, res) => {
 router.post('/send', (req, res) => {
     const schema = Joi.object().keys({
         action: Joi.string()
-            .valid('reply', 'replyAll', 'forward', 'send')
+            .valid('reply', 'replyAll', 'forward', 'send', 'draft')
             .default('send'),
-        mailboxRef: Joi.string()
+        refMailbox: Joi.string()
             .hex()
             .length(24)
             .empty(''),
-        messageRef: Joi.number()
+        refMessage: Joi.number()
+            .min(1)
+            .empty(''),
+        draftMailbox: Joi.string()
+            .hex()
+            .length(24)
+            .empty(''),
+        draftMessage: Joi.number()
             .min(1)
             .empty(''),
         to: Joi.string().empty(''),
         cc: Joi.string().empty(''),
         bcc: Joi.string().empty(''),
         subject: Joi.string().empty(''),
-        editordata: Joi.string().empty('')
+        editordata: Joi.string().empty(''),
+        draft: Joi.boolean()
+            .truthy(['Y', 'true', 'yes', 'on', 1])
+            .falsy(['N', 'false', 'no', 'off', 0, ''])
+            .default(false)
     });
 
     delete req.body._csrf;
@@ -268,6 +314,13 @@ router.post('/send', (req, res) => {
         return showErrors(errors);
     }
 
+    let action = result.value.action;
+    let refMailbox = result.value.refMailbox;
+    let refMessage = result.value.refMessage;
+    let draftMailbox = result.value.draftMailbox;
+    let draftMessage = result.value.draftMessage;
+    let isDraft = result.value.draft && draftMailbox && draftMessage && true;
+
     let messageData = {
         to: result.value.to && addressparser(result.value.to),
         cc: result.value.cc && addressparser(result.value.cc),
@@ -282,13 +335,14 @@ router.post('/send', (req, res) => {
         });
     }
 
-    switch (result.value.action) {
+    switch (action) {
         case 'reply':
         case 'replyAll':
+        case 'forward':
             messageData.reference = {
-                mailbox: result.value.mailboxRef,
-                id: result.value.messageRef,
-                action: result.value.action
+                mailbox: refMailbox,
+                id: refMessage,
+                action
             };
             break;
     }
@@ -301,8 +355,15 @@ router.post('/send', (req, res) => {
 
         req.flash('success', 'Message was queued for delivery');
 
+        let removeDraft = done => {
+            if (!isDraft) {
+                return done();
+            }
+            apiClient.messages.delete(req.user.id, draftMailbox, draftMessage, done);
+        };
+
         if (response.message) {
-            return res.redirect('/webmail/' + response.message.mailbox + '/audit/' + response.message.id);
+            return removeDraft(() => res.redirect('/webmail/' + response.message.mailbox + '/audit/' + response.message.id));
         }
 
         return res.redirect('/webmail/');
@@ -473,6 +534,10 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
 
             if (!messageData) {
                 return res.redirect('/webmail');
+            }
+
+            if (messageData.draft) {
+                return res.redirect('/webmail/send?draft=true&action=send&draftMailbox=' + mailbox + '&draftMessage=' + result.value.message);
             }
 
             let info = [];

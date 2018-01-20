@@ -5,13 +5,11 @@ const crypto = require('crypto');
 const express = require('express');
 const router = new express.Router();
 const passport = require('../lib/passport');
-const tools = require('../lib/tools');
 const Joi = require('joi');
 const apiClient = require('../lib/api-client');
 const roleBasedAddresses = require('role-based-email-addresses');
 const util = require('util');
 const humanize = require('humanize');
-const addressparser = require('nodemailer/lib/addressparser');
 
 // sub services
 router.use('/filters', passport.checkLogin, require('./account/filters'));
@@ -223,7 +221,10 @@ router.get('/profile', passport.checkLogin, (req, res, next) => {
             return next(err);
         }
 
-        userData.forward = [].concat(userData.forward).join(', ');
+        userData.targets = []
+            .concat(userData.targets)
+            .map(target => target.value)
+            .join(', ');
 
         res.render('account/profile', {
             title: 'Account',
@@ -242,18 +243,20 @@ router.post('/profile', passport.checkLogin, (req, res) => {
                 .max(100)
                 .label('Your name'),
 
-            forward: Joi.string()
-                .empty('')
-                .label('Forward address'),
-            targetUrl: Joi.string()
-                .trim()
-                .uri({
-                    scheme: ['http', 'https'],
-                    allowRelative: false,
-                    relativeOnly: false
-                })
-                .empty('')
-                .label('Upload URL'),
+            targets: Joi.array().items(
+                Joi.string()
+                    .trim()
+                    .email()
+                    .empty(''),
+                Joi.string()
+                    .trim()
+                    .uri({
+                        scheme: [/smtps?/, /https?/],
+                        allowRelative: false,
+                        relativeOnly: false
+                    })
+                    .empty('')
+            ),
 
             pubKey: Joi.string()
                 .empty('')
@@ -291,6 +294,9 @@ router.post('/profile', passport.checkLogin, (req, res) => {
         .and('password', 'existingPassword', 'password2');
 
     delete req.body._csrf;
+    if (req.body.targets) {
+        req.body.targets = req.body.targets.split(',');
+    }
     let result = Joi.validate(req.body, updateSchema, {
         abortEarly: false,
         convert: true,
@@ -313,8 +319,8 @@ router.post('/profile', passport.checkLogin, (req, res) => {
             req.flash('danger', 'Account update failed');
         }
 
-        if (Array.isArray(result.value.forward)) {
-            result.value.forward = result.value.forward.join(', ');
+        if (Array.isArray(result.value.targets)) {
+            result.value.targets = result.value.targets.join(', ');
         }
 
         res.render('account/profile', {
@@ -346,11 +352,7 @@ router.post('/profile', passport.checkLogin, (req, res) => {
 
     delete result.value.password2;
     result.value.name = result.value.name || '';
-    result.value.forward = addressparser(result.value.forward || '')
-        .map(addr => tools.normalizeAddress(addr.address))
-        .filter(fwd => fwd);
-
-    result.value.targetUrl = result.value.targetUrl || '';
+    result.value.targets = result.value.targets || '';
     result.value.pubKey = result.value.pubKey || '';
 
     result.value.sess = req.session.id;

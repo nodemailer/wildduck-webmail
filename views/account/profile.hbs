@@ -44,23 +44,14 @@
                             Leave the following fields blank if you do not wish to forward all incoming emails
                         </p>
 
-                        <div class="form-group{{#if errors.forward}} has-error{{/if}}">
-                            <label for="forward">Forward incoming messages to:</label>
-                            <input type="text" class="form-control" name="forward" id="forward" placeholder="user@example.com" value="{{values.forward}}">
-                            {{#if errors.forward}}
-                                <span class="help-block">{{errors.forward}}</span>
+                        <div class="form-group{{#if errors.targets}} has-error{{/if}}">
+                            <label for="targets">Forward incoming messages to:</label>
+                            <input type="text" class="form-control" name="targets" id="targets" placeholder="user@example.com" value="{{values.targets}}">
+                            {{#if errors.targets}}
+                                <span class="help-block">{{errors.targets}}</span>
                             {{/if}}
                             <span class="help-block">Use comma separated list of addresses for multiple recipients</span>
                         </div>
-
-                        <div class="form-group{{#if errors.targetUrl}} has-error{{/if}}">
-                            <label for="targetUrl">Upload incoming messages to URL:</label>
-                            <input type="text" class="form-control" name="targetUrl" id="targetUrl" placeholder="http://example.com/email.php" value="{{values.targetUrl}}">
-                            {{#if errors.targetUrl}}
-                                <span class="help-block">{{errors.targetUrl}}</span>
-                            {{/if}}
-                        </div>
-
                     </div>
                 </div>
 

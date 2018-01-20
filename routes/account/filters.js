@@ -62,18 +62,20 @@ const filterBaseSchema = {
         .optional()
         .label('Do not mark as spam'),
 
-    action_forward: Joi.string()
-        .empty('')
-        .email()
-        .label('Forward address'),
-    action_targetUrl: Joi.string()
-        .empty('')
-        .uri({
-            scheme: ['http', 'https'],
-            allowRelative: false,
-            relativeOnly: false
-        })
-        .label('Upload URL')
+    action_targets: Joi.array().items(
+        Joi.string()
+            .email()
+            .trim()
+            .empty(''),
+        Joi.string()
+            .trim()
+            .uri({
+                scheme: [/smtps?/, /https?/],
+                allowRelative: false,
+                relativeOnly: false
+            })
+            .empty('')
+    )
 };
 
 router.get('/', (req, res, next) => {
@@ -151,8 +153,8 @@ router.get('/edit', (req, res, next) => {
                 activeFilters: true,
                 csrfToken: req.csrfToken(),
                 mailboxes: mailboxes.map(mailbox => {
-                    if (filter.action_mailbox) {
-                        mailbox.selected = mailbox.id === filter.action_mailbox;
+                    if (filter.action.mailbox) {
+                        mailbox.selected = mailbox.id === filter.action.mailbox;
                     }
                     return mailbox;
                 }),
@@ -222,6 +224,9 @@ router.post('/create', (req, res, next) => {
             });
 
         delete req.body._csrf;
+        if (req.body.action_targets) {
+            req.body.action_targets = req.body.action_targets.split(',');
+        }
         let result = Joi.validate(req.body, createSchema, {
             abortEarly: false,
             convert: true,
@@ -230,7 +235,7 @@ router.post('/create', (req, res, next) => {
 
         let showErrors = (errors, disableDefault) => {
             if (!disableDefault) {
-                req.flash('danger', 'Failed to update filter');
+                req.flash('danger', 'Failed to create filter');
             }
 
             prepareFilter(result.value);
@@ -241,7 +246,7 @@ router.post('/create', (req, res, next) => {
                 errors,
                 activeFilters: true,
                 mailboxes: mailboxes.map(mailbox => {
-                    mailbox.selected = mailbox.id.toString() === result.value.action_mailbox;
+                    mailbox.selected = mailbox.id.toString() === result.value.action.mailbox;
                     return mailbox;
                 }),
                 csrfToken: req.csrfToken()
@@ -309,6 +314,9 @@ router.post('/edit', (req, res, next) => {
             });
 
         delete req.body._csrf;
+        if (req.body.action_targets) {
+            req.body.action_targets = req.body.action_targets.split(',');
+        }
         let result = Joi.validate(req.body, createSchema, {
             abortEarly: false,
             convert: true,
@@ -328,7 +336,7 @@ router.post('/edit', (req, res, next) => {
                 errors,
                 activeFilters: true,
                 mailboxes: mailboxes.map(mailbox => {
-                    mailbox.selected = mailbox.id.toString() === result.value.action_mailbox;
+                    mailbox.selected = mailbox.id.toString() === result.value.action.mailbox;
                     return mailbox;
                 }),
                 csrfToken: req.csrfToken()
@@ -366,20 +374,29 @@ router.post('/edit', (req, res, next) => {
 });
 
 function prepareFilter(filter) {
-    if ('query_ha' in filter) {
-        filter.query_haYes = !!filter.query_ha;
-        filter.query_haNo = !filter.query_ha;
+    filter.query = filter.query || {};
+    filter.action = filter.action || {};
+
+    ['from', 'to', 'subject', 'text'].forEach(key => {
+        if (key in filter.query) {
+            filter['query_' + key] = filter.query[key];
+        }
+    });
+
+    if ('ha' in filter.query) {
+        filter.query_haYes = !!filter.query.ha;
+        filter.query_haNo = !filter.query.ha;
     }
 
-    if (filter.query_size) {
+    if (filter.query.size) {
         // from actual filter data
-        let size = Math.abs(filter.query_size);
-        filter.query_sizeTypeGt = filter.query_size > 0;
-        filter.query_sizeTypeLt = filter.query_size < 0;
+        let size = Math.abs(filter.query.size);
+        filter.query_sizeTypeGt = filter.query.size > 0;
+        filter.query_sizeTypeLt = filter.query.size < 0;
         if (size >= 1024 * 1024 && !(size % (1024 * 1024))) {
             filter.query_sizeUnitMB = true;
             filter.query_sizeValue = Math.round(size / (1024 * 1024));
-        } else if (size >= 1024 && !(filter.query_size % 1024)) {
+        } else if (size >= 1024 && !(filter.query.size % 1024)) {
             filter.query_sizeUnitKB = true;
             filter.query_sizeValue = Math.round(size / 1024);
         } else {
@@ -396,41 +413,53 @@ function prepareFilter(filter) {
         filter.query_sizeUnitB = filter.query_sizeUnit === 'B';
     }
 
-    if ('query_ha' in filter) {
-        filter.query_haYes = !!filter.query_ha;
-        filter.query_haNo = !filter.query_ha;
-    }
-
     ['seen', 'flag', 'delete', 'spam'].forEach(key => {
-        if ('action_' + key in filter) {
-            filter['action_' + key + 'Yes'] = !!filter['action_' + key];
-            filter['action_' + key + 'No'] = !filter['action_' + key];
+        if (key in filter.action) {
+            filter['action_' + key + 'Yes'] = !!filter.action[key];
+            filter['action_' + key + 'No'] = !filter.action[key];
         }
     });
+
+    if (filter.action.targets) {
+        filter.action_targets = filter.action.targets.map(target => target.value).join(', ');
+    }
 }
 
 function getFilterObject(data) {
-    let filter = {};
+    let filter = {
+        query: {},
+        action: {}
+    };
 
     // exact values
-    ['name', 'query_from', 'query_to', 'query_subject', 'query_text', 'action_mailbox', 'action_forward', 'action_targetUrl'].forEach(key => {
+    ['name', 'query_from', 'query_to', 'query_subject', 'query_text', 'action_mailbox', 'action_targets'].forEach(key => {
+        let parts = key.split('_');
+        let keyName = parts.pop();
+        let keyPrefix = parts[0] || false;
+        let obj = keyPrefix ? filter[keyPrefix] : filter;
+
         if (key in data) {
-            filter[key] = data[key];
+            obj[keyName] = data[key];
         } else {
             // unset
-            filter[key] = '';
+            obj[keyName] = '';
         }
     });
 
     // booleans
     ['query_ha', 'action_seen', 'action_flag', 'action_delete', 'action_spam'].forEach(key => {
+        let parts = key.split('_');
+        let keyName = parts.pop();
+        let keyPrefix = parts[0] || false;
+        let obj = keyPrefix ? filter[keyPrefix] : filter;
+
         if (key + 'Yes' in data) {
-            filter[key] = true;
+            obj[keyName] = true;
         } else if (key + 'No' in data) {
-            filter[key] = false;
+            obj[keyName] = false;
         } else {
             // unset
-            filter[key] = '';
+            obj[keyName] = '';
         }
     });
 
@@ -442,7 +471,7 @@ function getFilterObject(data) {
         } else if (data.query_sizeUnit === 'kB') {
             unit = 1024;
         }
-        filter.query_size = data.query_sizeType * data.query_sizeValue * unit;
+        filter.query.size = data.query_sizeType * data.query_sizeValue * unit;
     }
 
     return filter;
