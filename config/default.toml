@@ -31,6 +31,7 @@ title="wildduck-www"
     secret="a cat"
     baseurl="http://localhost" # link used in emails etc
     secure=false
+    listSize=20
 
 [totp]
     # Issuer name for TOTP, defaults to config.name
