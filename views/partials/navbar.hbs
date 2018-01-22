@@ -18,11 +18,6 @@
             <ul class="nav navbar-nav navbar-right">
 
                 {{#if user}}
-                    <li {{#if activeHome}} class="active" {{/if}}>
-                        <a href="/account/">
-                            <span class="glyphicon glyphicon-dashboard" aria-hidden="true"></span> Overview
-                        </a>
-                    </li>
                     <li {{#if activeWebmail}} class="active" {{/if}}>
                         <a href="/webmail/">
                             <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> Webmail
@@ -38,25 +33,32 @@
                             <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Autoreply
                         </a>
                     </li>
-                    <li {{#if activeProfile}} class="active" {{/if}}>
-                        <a href="/account/profile">
-                            <span class="glyphicon glyphicon-user" aria-hidden="true"></span> Account
-                        </a>
-                    </li>
-                    <li {{#if activeSecurity}} class="active" {{/if}}>
-                        <a href="/account/security">
-                            <span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Security
-                        </a>
-                    </li>
                     <li {{#if activeHelp}} class="active" {{/if}}>
                         <a href="/help">
                             <span class="glyphicon glyphicon glyphicon-question-sign" aria-hidden="true"></span> Help
                         </a>
                     </li>
-                    <li>
-                        <a href="/account/logout">
-                            <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Log out
-                        </a>
+                    <li class="dropdown">
+                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> {{user.username}} <span class="caret"></span></a>
+                      <ul class="dropdown-menu">
+                          <li {{#if activeHome}} class="active" {{/if}}>
+                              <a href="/account/">
+                                  <span class="glyphicon glyphicon-dashboard" aria-hidden="true"></span> Overview
+                              </a>
+                          </li>
+                          <li {{#if activeProfile}} class="active" {{/if}}>
+                              <a href="/account/profile">
+                                  <span class="glyphicon glyphicon-user" aria-hidden="true"></span> Account
+                              </a>
+                          </li>
+                          <li {{#if activeSecurity}} class="active" {{/if}}>
+                              <a href="/account/security">
+                                  <span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Security
+                              </a>
+                          </li>
+                          <li role="separator" class="divider"></li>
+                         <li><a href="/account/logout"><span class="glyphicon glyphicon-log-out" aria-hidden="true"></span> Log out</a></li>
+                      </ul>
                     </li>
                 {{else}}
                     {{#if allowJoin}}
