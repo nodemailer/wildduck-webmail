@@ -5,11 +5,13 @@
     "description": "WildDuck mail service",
     "main": "server.js",
     "scripts": {
-        "test": "grunt"
+        "test": "grunt",
+        "bowerdeps": "mkdir -p public/components && bower install"
     },
     "author": "Andris Reinman",
     "license": "EUPL-1.1+",
     "devDependencies": {
+        "bower": "^1.8.2",
         "eslint-config-nodemailer": "^1.2.0",
         "grunt": "^1.0.1",
         "grunt-cli": "^1.2.0",
