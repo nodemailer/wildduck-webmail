@@ -169,7 +169,7 @@
   </div>
 </div>
 
-<script type="text/javascript" src="/purify-0.9.0/purify.min.js"></script>
+<script type="text/javascript" src="/components/DOMPurify/dist/purify.min.js"></script>
 <script>
     var message = {{{messageJson}}};
 
@@ -190,6 +190,9 @@
             iframe.contentWindow.document.write(clean);
             iframe.contentWindow.document.close();
             iframe.contentWindow.addEventListener('load', function(){
+                iframe.contentWindow.resizeIframe(iframe);
+            });
+            iframe.contentWindow.document.addEventListener('DOMContentLoaded', function(){
                 iframe.contentWindow.resizeIframe(iframe);
             });
         }
