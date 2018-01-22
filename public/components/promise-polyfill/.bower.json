@@ -1,0 +1,35 @@
+{
+  "name": "promise-polyfill",
+  "version": "7.0.0",
+  "homepage": "https://github.com/taylorhakes/promise-polyfill",
+  "authors": [
+    "Taylor Hakes"
+  ],
+  "description": "Lightweight promise polyfill for the browser and node. A+ Compliant.",
+  "main": "lib/index.js",
+  "moduleType": "node",
+  "keywords": [
+    "promise",
+    "es6",
+    "polyfill",
+    "html5"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "_release": "7.0.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "7.0.0",
+    "commit": "2073a1deabd17c8c0395d28ff4fd86a5e235a919"
+  },
+  "_source": "https://github.com/taylorhakes/promise-polyfill.git",
+  "_target": "^7.0.0",
+  "_originalSource": "promise-polyfill",
+  "_direct": true
+}
