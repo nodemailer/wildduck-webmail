@@ -11,7 +11,6 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
 const flash = require('connect-flash');
-const compression = require('compression');
 const passport = require('./lib/passport');
 const db = require('./lib/db');
 
@@ -37,7 +36,6 @@ if (config.www.proxy) {
 // Do not expose software used
 app.disable('x-powered-by');
 
-app.use(compression());
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
 app.use(
