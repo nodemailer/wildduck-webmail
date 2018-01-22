@@ -144,6 +144,22 @@ input.lowercase {
     width: 250px;
 }
 
+.sidebar-logo a {
+    display: block;
+    margin-left: -20px;
+    margin-right: -21px;
+}
+
+.sidebar-logo a {
+    text-decoration: none;
+}
+
+.sidebar-logo img {
+    border: 0px;
+    display: block;
+    margin: 0px auto;
+}
+
 .webmail-main {
     flex-grow: 1;
     padding: 0 40px 0 20px;
