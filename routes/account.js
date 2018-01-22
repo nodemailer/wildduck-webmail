@@ -422,7 +422,7 @@ router.post('/check-totp', (req, res) => {
 
         let data = {
             success: true,
-            targetUrl: '/account/'
+            targetUrl: '/webmail/'
         };
 
         if (remember2fa) {
@@ -495,7 +495,7 @@ router.post('/check-u2f', (req, res) => {
         }
 
         req.session.require2fa = false;
-        data.targetUrl = '/account/';
+        data.targetUrl = '/webmail/';
         res.json(data);
     });
 });
