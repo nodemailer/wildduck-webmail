@@ -26,7 +26,7 @@
                     {{#each mailboxes}}
                         <li id="mailbox-list-{{id}}" {{#if selected}} class="active" {{/if}}>
                             <a href="/webmail/{{id}}">
-                                {{#if unseen}}<span class="badge pull-right">{{unseen}}</span>{{/if}}
+                                <span class="badge pull-right unseen-counter-{{id}}" {{#if unseen}}style="display: block;"{{else}}style="display: none;"{{/if}}>{{unseen}}</span>
                                 {{{prefix}}}
                                     {{#if icon}}
                                         <span class="glyphicon glyphicon-{{icon}}" aria-hidden="true"></span>

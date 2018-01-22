@@ -86,3 +86,34 @@
 <p>
     &nbsp;
 </p>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var stream = new EventSource('/api/events');
+    stream.onmessage = function(e) {
+        var data, row, star, redrawTimer;
+        try {
+            data = JSON.parse(e.data);
+        } catch (E) {
+            return;
+        }
+        switch (data.command) {
+            case 'COUNTERS': {
+                if (data.mailbox) {
+                    row = document.querySelector('.unseen-counter-' + data.mailbox);
+                    if(row){
+                        if(data.unseen){
+                            row.style.display = 'block';
+                            row.textContent = data.unseen;
+                        }else {
+                            row.style.display = 'none';
+                            row.textContent = 0;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+    };
+});
+</script>

@@ -291,4 +291,8 @@ router.post('/list', (req, res) => {
     });
 });
 
+router.get('/events', (req, res) => {
+    apiClient.updates.stream(req, res, req.user.id);
+});
+
 module.exports = router;

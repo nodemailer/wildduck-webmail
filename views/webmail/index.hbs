@@ -312,6 +312,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var messagerowSource = document.getElementById('messagerow-template').innerHTML;
     var messagerowTemplate = Handlebars.compile(messagerowSource);
 
+    // function to redraw email listing
     var redrawList = function(done){
         fetch('/api/list', {
             method: 'post',
@@ -655,6 +656,77 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.querySelector('.bulk-move-confirm').addEventListener('click', moveMessage, false);
     document.querySelector('.bulk-move-confirm').addEventListener('touch', moveMessage, false);
+
+    var stream = new EventSource('/api/events');
+    stream.onmessage = function(e) {
+        var data, row, star, redrawTimer;
+        try {
+            data = JSON.parse(e.data);
+        } catch (E) {
+            return;
+        }
+        switch (data.command) {
+            case 'FETCH': {
+                row = document.querySelector('.messagerow-'+data.mailbox+'-'+data.uid);
+                if(!row){
+                    return;
+                }
+                if (data.flags) {
+                    star = row.querySelector('.message-star');
+
+                    if (data.flags.includes('\\Flagged')) {
+                        star.classList.remove('unflagged');
+                        star.classList.add('flagged');
+                        star.querySelector('.glyphicon').classList.remove('glyphicon-star-empty');
+                        star.querySelector('.glyphicon').classList.add('glyphicon-star');
+                    } else {
+                        star.classList.remove('flagged');
+                        star.classList.add('unflagged');
+                        star.querySelector('.glyphicon').classList.remove('glyphicon-star');
+                        star.querySelector('.glyphicon').classList.add('glyphicon-star-empty');
+                    }
+
+                    if (data.flags.includes('\\Seen')) {
+                        row.classList.remove('message-unseen');
+                        row.classList.add('message-seen');
+                    } else {
+                        row.classList.remove('message-seen');
+                        row.classList.add('message-unseen');
+                    }
+                }
+                break;
+            }
+            case 'EXPUNGE': {
+                row = document.querySelector('.messagerow-'+data.mailbox+'-'+data.uid);
+                if(!row){
+                    return;
+                }
+                if(row.parentNode){
+                    row.parentNode.removeChild(row);
+                    clearTimeout(redrawTimer);
+                    redrawTimer = setTimeout(function(){
+                        clearTimeout(redrawTimer);
+                        redrawList(function(){});
+                    }, 200);
+                }
+            }
+            case 'COUNTERS': {
+                if (data.mailbox) {
+                    row = document.querySelector('.unseen-counter-' + data.mailbox);
+                    if(row){
+                        if(data.unseen){
+                            row.style.display = 'block';
+                            row.textContent = data.unseen;
+                        }else {
+                            row.style.display = 'none';
+                            row.textContent = 0;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+    };
 
     toggleToolbar();
 }, false);
