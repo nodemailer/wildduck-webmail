@@ -18,6 +18,10 @@
     <td class="messagerow-subject">
         <a href="/webmail/{{mailbox}}/message/{{id}}" class="messagerow-link">
             <span class="messagerow-subject-content">
+                {{#if mailboxName}}
+                    <span class="label label-default">{{mailboxName}}</span>
+                {{/if}}
+
                 {{subject}}{{#if intro}} <span class="text-muted" style="font-weight: normal;">– {{intro}}</span>{{/if}}
             </span>
         </a>

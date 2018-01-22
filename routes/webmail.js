@@ -1145,7 +1145,8 @@ function renderMailbox(req, res, next) {
             selectedMailbox = {
                 id: 'search',
                 name: 'Search results',
-                icon: 'search'
+                icon: 'search',
+                showOrigin: true
             };
         }
 
@@ -1226,7 +1227,17 @@ function renderMailbox(req, res, next) {
 
                 messageRowTemplate: templates.messageRowTemplate,
                 messages: result.results.map(message => {
-                    message.fromHtml = tools.getAddressesHTML(message.from, true);
+                    if (selectedMailbox.specialUse !== '\\Sent') {
+                        message.fromHtml = tools.getAddressesHTML(message.from, true);
+                    } else {
+                        message.fromHtml = tools.getAddressesHTML(message.to.concat(message.cc), true);
+                    }
+
+                    if (selectedMailbox.showOrigin) {
+                        let msgMailbox = mailboxes.find(box => box.id === message.mailbox);
+                        message.mailboxName = msgMailbox ? msgMailbox.name : false;
+                    }
+
                     return message;
                 }),
                 csrfToken: req.csrfToken()
@@ -1321,7 +1332,8 @@ function prepareMailboxList(mailboxes, skipStarred) {
                     name: 'Starred',
                     formatted: 'Starred',
                     editable: false,
-                    canMoveTo: false
+                    canMoveTo: false,
+                    showOrigin: true
                 });
                 break;
             }

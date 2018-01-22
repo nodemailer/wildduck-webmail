@@ -65,6 +65,14 @@
 
 <div class="clearfix"></div>
 
+{{#if isTrash}}
+    <div class="alert alert-info" style="padding: 5px 15px;" role="alert">Messages in Trash folder are deleted permanently after 30 days</div>
+{{/if}}
+
+{{#if isJunk}}
+    <div class="alert alert-info" style="padding: 5px 15px;" role="alert">Messages in Junk Mail folder are deleted permanently after 30 days</div>
+{{/if}}
+
 <div class="table-responsive">
     <table class="messagelist">
         <colgroup>
