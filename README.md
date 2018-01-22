@@ -11,7 +11,8 @@ This is an example web service that uses the [Wild Duck API](https://github.com/
 Assuming that you have Wild Duck mail server running
 
 ```
-$ npm install --production
+$ npm install
+$ npm run bowerdeps
 $ node server.js
 ```
 
