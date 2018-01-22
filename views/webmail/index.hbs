@@ -672,7 +672,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.flags) {
                     star = row.querySelector('.message-star');
 
-                    if (data.flags.includes('\\Flagged')) {
+                    if (data.flags.indexOf('\\Flagged')>=0) {
                         star.classList.remove('unflagged');
                         star.classList.add('flagged');
                         star.querySelector('.glyphicon').classList.remove('glyphicon-star-empty');
@@ -684,7 +684,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         star.querySelector('.glyphicon').classList.add('glyphicon-star-empty');
                     }
 
-                    if (data.flags.includes('\\Seen')) {
+                    if (data.flags.indexOf('\\Seen')>=0) {
                         row.classList.remove('message-unseen');
                         row.classList.add('message-seen');
                     } else {

@@ -451,7 +451,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.flags) {
                     star = row.querySelector('.message-star');
 
-                    if (data.flags.includes('\\Flagged')) {
+                    if (data.flags.indexOf('\\Flagged')>=0) {
                         star.classList.remove('unflagged');
                         star.classList.add('flagged');
                         star.querySelector('.glyphicon').classList.remove('glyphicon-star-empty');
