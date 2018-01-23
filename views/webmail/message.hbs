@@ -3,9 +3,20 @@
 <input type="hidden" id="message" value="{{message.id}}" />
 <input type="hidden" id="_csrf" value="{{csrfToken}}">
 
-<h2 class="sub-header">
+<h2 class="sub-header" style="display: flex;">
+    <div style="flex-grow: 1">
+        <table class="limited">
+            <tr class="messagerow-{{message.mailbox}}-{{message.id}}">
+                <td class="message-subject-line">
+                    <a href="#" class="message-star {{#if message.flagged}}flagged{{else}}unflagged{{/if}}" data-mailbox="{{mailbox.id}}" data-message="{{message.id}}"><span class="glyphicon glyphicon-{{#if message.flagged}}star{{else}}star-empty{{/if}}" aria-hidden="true"></span></a>
 
-    <div class="pull-right">
+                    <span>{{message.subject}}</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div>
         <div class="btn-group">
           <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> Details <span class="caret"></span>
@@ -21,18 +32,6 @@
             {{/if}}
           </ul>
         </div>
-    </div>
-
-    <div style="margin-right: 220px;">
-        <table class="limited">
-            <tr class="messagerow-{{message.mailbox}}-{{message.id}}">
-                <td class="message-subject-line">
-                    <a href="#" class="message-star {{#if message.flagged}}flagged{{else}}unflagged{{/if}}" data-mailbox="{{mailbox.id}}" data-message="{{message.id}}"><span class="glyphicon glyphicon-{{#if message.flagged}}star{{else}}star-empty{{/if}}" aria-hidden="true"></span></a>
-
-                    <span>{{message.subject}}</span>
-                </td>
-            </tr>
-        </table>
     </div>
 </h2>
 

@@ -1,6 +1,18 @@
-<h2 class="sub-header">
+<h2 class="sub-header" style="display: flex;">
+    <div style="flex-grow: 1">
+        <table class="limited">
+            <tr class="messagerow-{{message.mailbox}}-{{messageData.id}}">
+                <td class="message-subject-line">
+                    <span>{{messageData.subject}}</span>
+                </td>
+            </tr>
+        </table>
+    </div>
 
-<span class="glyphicon glyphicon-comment" aria-hidden="true"></span> {{messageData.subject}} – timeline</h2>
+    <div>
+        <a href="/webmail/{{mailbox.id}}/message/{{messageData.id}}" class="btn btn-default"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span></a>
+    </div>
+</h2>
 
 <p>
     Below are displayed timeline events related to the selected message. This includes receive info, forwarding and autoreplies
