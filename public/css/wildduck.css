@@ -349,4 +349,8 @@ table.limited {
     .messagerow-info {
         display: none;
     }
+
+    .toolbar-main button {
+        margin-bottom: 10px;
+    }
 }
