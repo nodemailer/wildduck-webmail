@@ -22,6 +22,14 @@ router.get('/send', (req, res) => {
         action: Joi.string()
             .valid('reply', 'replyAll', 'forward', 'send')
             .default('send'),
+        to: Joi.string()
+            .trim()
+            .max(255)
+            .empty(''),
+        subject: Joi.string()
+            .trim()
+            .max(255)
+            .empty(''),
         refMailbox: Joi.string()
             .hex()
             .length(24)
@@ -102,7 +110,7 @@ router.get('/send', (req, res) => {
                     return;
                 }
 
-                if (messageData.meta && messageData.meta.reference) {
+                if (messageData && messageData.meta && messageData.meta.reference) {
                     // override reference info
                     action = messageData.meta.reference.action;
                     refMailbox = messageData.meta.reference.mailbox;
@@ -207,9 +215,15 @@ router.get('/send', (req, res) => {
                     }
 
                     html = html.concat(messageData.html || []);
+                } else {
+                    to = [].concat(result.value.to || []);
+                    subject = result.value.subject;
                 }
 
                 let renderAddress = addr => {
+                    if (typeof addr === 'string') {
+                        return addr;
+                    }
                     if (addr.name && addr.name !== addr.address) {
                         return '"' + addr.name.replace(/"\\/g, '') + '" <' + addr.address + '>';
                     }
