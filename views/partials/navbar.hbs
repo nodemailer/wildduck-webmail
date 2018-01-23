@@ -7,11 +7,9 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            {{#if user}}
-                <a class="navbar-brand" href="/webmail"><span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> {{serviceName}}</a>
-            {{else}}
-                <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> {{serviceName}}</a>
-            {{/if}}
+            <a class="navbar-brand" href="{{#if user}}/webmail{{else}}/{{/if}}">
+              <img alt="{{serviceName}}" src="/favicon-32x32.png" width="20" height="20">
+            </a>
         </div>
 
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
