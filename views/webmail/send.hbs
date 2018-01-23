@@ -1,19 +1,29 @@
 
 
 <form method="post" class="form-horizontal" action="/webmail/send">
-    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+    <input type="hidden" id="_csrf" name="_csrf" value="{{csrfToken}}">
     <input type="hidden" name="action" value="{{values.action}}">
     <input type="hidden" name="refMailbox" value="{{values.refMailbox}}">
     <input type="hidden" name="refMessage" value="{{values.refMessage}}">
-    <input type="hidden" name="draftMailbox" value="{{values.draftMailbox}}">
-    <input type="hidden" name="draftMessage" value="{{values.draftMessage}}">
+    <input type="hidden" id="mailbox" name="draftMailbox" value="{{values.draftMailbox}}">
+    <input type="hidden" id="message" name="draftMessage" value="{{values.draftMessage}}">
     <input type="hidden" name="draft" value="{{values.draft}}">
 
-    <div class="form-group">
-        <div class="col-sm-offset-1 col-sm-11" style="margin-top: 20px;">
-            <button class="btn btn-primary btn-xs" type="submit"><span class="glyphicon glyphicon-send" aria-hidden="true"></span> Send message</button>
+    <div class="toolbar-container">
+        <div class="toolbar-main">
+            <fieldset id="action-toolbar">
+                <div class="form-group">
+                    <div class="col-sm-offset-1 col-sm-11" style="margin-top: 20px;">
+                        <button class="btn btn-primary btn-xs" type="button" data-toggle="modal" data-target="#sendModal"><span class="glyphicon glyphicon-send" aria-hidden="true"></span> Send message</button>
 
-            <a {{#if messageRef}} href="/webmail/{{mailboxRef}}/message/{{messageRef}}" {{else}} href="/webmail" {{/if}} class="btn btn-danger btn-xs" type="submit"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Discard Draft</a>
+                        <button class="btn btn-default btn-xs" type="submit" name="userAction" value="save"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span> Save draft</button>
+
+                        {{#if values.draft}}
+                            <button class="btn btn-default btn-xs" type="button" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Discard Draft</button>
+                        {{/if}}
+                    </div>
+                </div>
+            </fieldset>
         </div>
     </div>
 
@@ -70,6 +80,44 @@
             {{/if}}
         </div>
     </div>
+
+    <!-- Modal -->
+    <div class="modal" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="deleteModalLabel">Delete draft</h4>
+          </div>
+          <div class="modal-body">
+            Are you sure you want to permanently delete this draft?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">No, cancel</button>
+            <button type="button" class="btn btn-danger bulk-delete-confirm" data-loading-text="Deleting..." >Yes, delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="sendModal" tabindex="-1" role="dialog" aria-labelledby="sendModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="sendModalLabel">Send message</h4>
+          </div>
+          <div class="modal-body">
+              Are you sure you want to send this message?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">No, cancel</button>
+            <button type="submit" name="userAction" value="send" class="btn btn-primary bulk-send-confirm" data-loading-text="Sending..." >Yes, send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
 </form>
 
 <script type="text/javascript" src="/components/DOMPurify/dist/purify.min.js"></script>
@@ -163,4 +211,132 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 });
+</script>
+
+<script>
+// star toggle
+(function(){
+    var toggleStar = function(e, elm){
+        e.preventDefault();
+        e.stopPropagation();
+
+        if(!elm || elm.dataset.status === 'pending'){
+            return;
+        }
+
+        elm.dataset.status = 'pending';
+        var flagged = elm.classList.contains('flagged');
+
+        var done = function(){
+            elm.dataset.status = 'done';
+        }
+
+        fetch('/api/toggle/flagged', {
+            method: 'post',
+            headers: {
+                Accept: 'application/json, text/plain, */*',
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                _csrf: document.getElementById('_csrf').value,
+                mailbox: elm.dataset.mailbox,
+                message: elm.dataset.message,
+                flagged: !flagged // toggle
+            })
+        })
+        .then(function(res) {
+            return res.json();
+        })
+        .then(function(res) {
+            if(res.error){
+                console.error(res.error);
+                return done();
+            }
+
+            if(flagged){
+                elm.classList.remove('flagged');
+                elm.classList.add('unflagged');
+                elm.querySelector('.glyphicon').classList.remove('glyphicon-star');
+                elm.querySelector('.glyphicon').classList.add('glyphicon-star-empty');
+            }else{
+                elm.classList.remove('unflagged');
+                elm.classList.add('flagged');
+                elm.querySelector('.glyphicon').classList.remove('glyphicon-star-empty');
+                elm.querySelector('.glyphicon').classList.add('glyphicon-star');
+            }
+
+            done();
+        }).catch(function(err){
+            console.error(err);
+            done();
+        });
+
+    };
+
+    var setupToggling = function(elm){
+        elm.addEventListener('click', function(e){
+            toggleStar(e, elm);
+        }, false);
+    }
+
+    var starElms = document.querySelectorAll('.message-star');
+    for(var i=0, len = starElms.length; i<len; i++){
+        setupToggling(starElms[i]);
+    }
+})();
+
+// toolbar buttons
+document.addEventListener('DOMContentLoaded', function() {
+    var mailbox = document.getElementById('mailbox').value;
+    var message = document.getElementById('message').value;
+
+    var pendingDeleted = false;
+    var deleteMessage = function(){
+        if(pendingDeleted){
+            return false;
+        }
+
+        pendingDeleted = true;
+        $('#deleteModal .bulk-delete-confirm').button('loading');
+
+        var done = function(){
+            pendingDeleted = false;
+            $('#deleteModal .bulk-delete-confirm').button('reset');
+            $('#deleteModal').modal('hide');
+        }
+
+        fetch('/api/delete', {
+            method: 'post',
+            headers: {
+                Accept: 'application/json, text/plain, */*',
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                _csrf: document.getElementById('_csrf').value,
+                mailbox: mailbox,
+                message: message
+            })
+        })
+        .then(function(res) {
+            return res.json();
+        })
+        .then(function(res) {
+            if(res.error){
+                console.error(res.error);
+                return done();
+            }
+
+            window.location.href = '/webmail/' + mailbox;
+        }).catch(function(err){
+            console.error(err);
+            done();
+        });
+    };
+
+    document.querySelector('.bulk-delete-confirm').addEventListener('click', deleteMessage, false);
+    document.querySelector('.bulk-delete-confirm').addEventListener('touch', deleteMessage, false);
+}, false);
+
 </script>

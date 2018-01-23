@@ -62,7 +62,7 @@ router.get('/send', (req, res) => {
     let refMessage = result.value.refMessage;
     let draftMailbox = result.value.draftMailbox;
     let draftMessage = result.value.draftMessage;
-    let isDraft = result.value.draft && draftMailbox && draftMessage && true;
+    let isDraft = (result.value.draft && draftMailbox && draftMessage && true) || false;
 
     apiClient.addresses.list(req.user.id, (err, addresses) => {
         if (err) {
@@ -217,14 +217,14 @@ router.get('/send', (req, res) => {
                     values: {
                         refMailbox,
                         refMessage,
-                        draftMailbox: isDraft ? draftMailbox : false,
-                        draftMessage: isDraft ? draftMessage : false,
+                        draftMailbox: isDraft ? draftMailbox : '',
+                        draftMessage: isDraft ? draftMessage : '',
                         action,
                         subject,
                         to: to.map(renderAddress).join(', '),
                         cc: cc.map(renderAddress).join(', '),
                         bcc: bcc.map(renderAddress).join(', '),
-                        draft: isDraft ? 'true' : 'false'
+                        draft: isDraft ? 'yes' : ''
                     },
 
                     messageHtml: JSON.stringify(html).replace(/\//g, '\\u002f'),
@@ -263,7 +263,10 @@ router.post('/send', (req, res) => {
         draft: Joi.boolean()
             .truthy(['Y', 'true', 'yes', 'on', 1])
             .falsy(['N', 'false', 'no', 'off', 0, ''])
-            .default(false)
+            .default(false),
+        userAction: Joi.string()
+            .valid('send', 'save')
+            .default('send')
     });
 
     delete req.body._csrf;
@@ -303,7 +306,6 @@ router.post('/send', (req, res) => {
 
     if (result.error) {
         let errors = {};
-
         if (result.error && result.error.details) {
             result.error.details.forEach(detail => {
                 if (!errors[detail.path]) {
@@ -315,6 +317,8 @@ router.post('/send', (req, res) => {
         return showErrors(errors);
     }
 
+    let userAction = result.value.userAction; // should we send or save draft
+
     let action = result.value.action;
     let refMailbox = result.value.refMailbox;
     let refMessage = result.value.refMessage;
@@ -323,6 +327,8 @@ router.post('/send', (req, res) => {
     let isDraft = result.value.draft && draftMailbox && draftMessage && true;
 
     let messageData = {
+        isDraft: userAction === 'save', // only set to true when saving a draft
+        uploadOnly: userAction !== 'send', // if not sending then just upload the message
         to: result.value.to && addressparser(result.value.to),
         cc: result.value.cc && addressparser(result.value.cc),
         bcc: result.value.bcc && addressparser(result.value.bcc),
@@ -330,7 +336,16 @@ router.post('/send', (req, res) => {
         html: result.value.editordata
     };
 
-    if ((!messageData.to || !messageData.to.length) && (!messageData.cc || !messageData.cc.length) && (!messageData.bcc || !messageData.bcc.length)) {
+    if (isDraft && draftMailbox && draftMessage) {
+        messageData.draft = { mailbox: draftMailbox, id: draftMessage };
+    }
+
+    if (
+        userAction === 'send' &&
+        (!messageData.to || !messageData.to.length) &&
+        (!messageData.cc || !messageData.cc.length) &&
+        (!messageData.bcc || !messageData.bcc.length)
+    ) {
         return showErrors({
             to: 'No recipients defined'
         });
@@ -354,10 +369,17 @@ router.post('/send', (req, res) => {
             return showErrors({}, true);
         }
 
-        req.flash('success', 'Message was queued for delivery');
+        switch (userAction) {
+            case 'send':
+                req.flash('success', 'Message was queued for delivery');
+                break;
+            case 'save':
+                req.flash('success', 'Message draft was stored');
+                return res.redirect('/webmail/');
+        }
 
         let removeDraft = done => {
-            if (!isDraft) {
+            if (!isDraft || 0) {
                 return done();
             }
             apiClient.messages.delete(req.user.id, draftMailbox, draftMessage, done);
