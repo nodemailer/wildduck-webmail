@@ -350,7 +350,7 @@ table.limited {
         display: none;
     }
 
-    .toolbar-main button {
+    .toolbar-main .btn {
         margin-bottom: 10px;
     }
 }
