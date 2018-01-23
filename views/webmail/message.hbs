@@ -36,55 +36,61 @@
     </div>
 </h2>
 
-<div class="pull-right" style="width: 300px;">
-    <form method="get" action="/webmail/search">
-        <div class="input-group">
-          <input type="text" class="form-control input" name="query" placeholder="Search for..." value="{{query}}" required>
-          <span class="input-group-btn">
-            <button class="btn btn-default btn" type="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
-          </span>
-        </div>
-    </form>
-</div>
+<div class="toolbar-container">
+    <div class="toolbar-main">
 
-<fieldset id="action-toolbar">
-    <div class="form-group">
+        <fieldset id="action-toolbar">
+            <div class="form-group">
 
-        <a href="/webmail/send?action=reply&amp;refMailbox={{mailbox.id}}&amp;refMessage={{message.id}}" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-send" aria-hidden="true"></span> Reply</a>
-        <a href="/webmail/send?action=replyAll&amp;refMailbox={{mailbox.id}}&amp;refMessage={{message.id}}" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-send" aria-hidden="true"></span> Reply to all</a>
-        <a href="/webmail/send?action=forward&amp;refMailbox={{mailbox.id}}&amp;refMessage={{message.id}}" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-share" aria-hidden="true"></span> Forward</a>
+                <a href="/webmail/send?action=reply&amp;refMailbox={{mailbox.id}}&amp;refMessage={{message.id}}" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-send" aria-hidden="true"></span> Reply</a>
+                <a href="/webmail/send?action=replyAll&amp;refMailbox={{mailbox.id}}&amp;refMessage={{message.id}}" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-send" aria-hidden="true"></span> Reply to all</a>
+                <a href="/webmail/send?action=forward&amp;refMailbox={{mailbox.id}}&amp;refMessage={{message.id}}" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-share" aria-hidden="true"></span> Forward</a>
 
-        <span style="display: inline-block; width: 10px;"></span>
+                <span style="display: inline-block; width: 10px;"></span>
 
-        <button class="btn btn-default btn-xs bulk-mark-unseen">Mark as Unseen</button>
+                <button class="btn btn-default btn-xs bulk-mark-unseen">Mark as Unseen</button>
 
-        <span style="display: inline-block; width: 10px;"></span>
+                <span style="display: inline-block; width: 10px;"></span>
 
-        <button class="btn btn-default btn-xs bulk-delete" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete</button>
+                <button class="btn btn-default btn-xs bulk-delete" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete</button>
 
-        <div class="btn-group">
-          <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> Move <span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu">
-             {{#each mailboxes}}
-                {{#if canMoveTo}}
-                    <li><a href="#" class="bulk-move" data-mailbox="{{id}}"  data-mailbox-path="{{path}}" data-toggle="modal" data-target="#moveModal">
-                        {{{prefix}}}
-                        {{#if icon}}
-                            <span class="glyphicon glyphicon-{{icon}}" aria-hidden="true"></span>
-                        {{else}}
-                            <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> Move <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu">
+                     {{#each mailboxes}}
+                        {{#if canMoveTo}}
+                            <li><a href="#" class="bulk-move" data-mailbox="{{id}}"  data-mailbox-path="{{path}}" data-toggle="modal" data-target="#moveModal">
+                                {{{prefix}}}
+                                {{#if icon}}
+                                    <span class="glyphicon glyphicon-{{icon}}" aria-hidden="true"></span>
+                                {{else}}
+                                    <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+                                {{/if}}
+                                {{formatted}}
+                                {{{suffix}}}</a></li>
                         {{/if}}
-                        {{formatted}}
-                        {{{suffix}}}</a></li>
-                {{/if}}
-            {{/each}}
-          </ul>
-        </div>
+                    {{/each}}
+                  </ul>
+                </div>
 
+            </div>
+        </fieldset>
     </div>
-</fieldset>
+
+    <div class="toolbar-search">
+        <form method="get" action="/webmail/search">
+            <div class="input-group">
+              <input type="text" class="form-control input" name="query" placeholder="Search for..." value="{{query}}" required>
+              <span class="input-group-btn">
+                <button class="btn btn-default btn" type="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+              </span>
+            </div>
+        </form>
+    </div>
+
+</div>
 
 <div class="clearfix"></div>
 

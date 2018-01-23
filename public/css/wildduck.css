@@ -196,6 +196,7 @@ tr.messagerow:hover td {
 .messagerow-link:hover {
     text-decoration: none;
 }
+
 .messagerow-spacer-col {
     width: 10px;
 }
@@ -295,4 +296,57 @@ table.limited {
     margin: 0 0 10px;
     font-size: inherit;
     border-left: 2px solid #eeeeee;
+}
+
+.toolbar-container {
+    display: flex;
+    flex-wrap: wrap-reverse;
+}
+
+.toolbar-main {
+    flex-grow: 1;
+}
+
+.toolbar-search {
+    flex-grow: 1;
+    margin-bottom: 10px;
+}
+
+@media screen and (max-width: 767px) {
+    .webmail-container {
+        flex-direction: column-reverse;
+    }
+    .sidebar {
+        width: inherit;
+    }
+
+    .messagerow-spacer-col {
+        display: none;
+    }
+    .messagerow-spacer {
+        display: none;
+    }
+
+    .messagerow-checkbox-col {
+        width: 20px;
+    }
+
+    .messagerow-star-col {
+        width: 20px;
+    }
+
+    .messagerow-from-col {
+        width: 100px;
+    }
+
+    .messagerow-date-col {
+        width: 100px;
+    }
+
+    .messagerow-info-col {
+        display: none;
+    }
+    .messagerow-info {
+        display: none;
+    }
 }

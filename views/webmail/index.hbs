@@ -13,55 +13,61 @@
     {{mailbox.name}}
 </h2>
 
-<div class="pull-left" style="margin-left: 10px; width: 20px;">
-    <input type="checkbox" class="toggle-all" />
-</div>
+<div class="toolbar-container">
 
-<div class="pull-right" style="width: 300px;">
-    <form method="get" action="/webmail/search">
-        <div class="input-group">
-          <input type="text" class="form-control input" name="query" placeholder="Search for..." value="{{query}}" required>
-          <span class="input-group-btn">
-            <button class="btn btn-default btn" type="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
-          </span>
-        </div>
-    </form>
-</div>
-
-<fieldset id="action-toolbar" disabled>
-    <div class="form-group">
-
-        <button class="btn btn-default btn-xs bulk-mark-seen">Mark as Seen</button>
-        <button class="btn btn-default btn-xs bulk-mark-unseen">Mark as Unseen</button>
-
-        <span style="display: inline-block; width: 10px;"></span>
-
-        <button class="btn btn-default btn-xs bulk-delete" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete</button>
-
-
-        <div class="btn-group">
-          <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> Move <span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu">
-             {{#each mailboxes}}
-                {{#if canMoveTo}}
-                    <li><a href="#" class="bulk-move" data-mailbox="{{id}}"  data-mailbox-path="{{path}}" data-toggle="modal" data-target="#moveModal">
-                        {{{prefix}}}
-                        {{#if icon}}
-                            <span class="glyphicon glyphicon-{{icon}}" aria-hidden="true"></span>
-                        {{else}}
-                            <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
-                        {{/if}}
-                        {{formatted}}
-                        {{{suffix}}}</a></li>
-                {{/if}}
-            {{/each}}
-          </ul>
-        </div>
-
+    <div style="margin-left: 10px; width: 20px;">
+        <input type="checkbox" class="toggle-all" />
     </div>
-</fieldset>
+
+    <div class="toolbar-main">
+        <fieldset id="action-toolbar" disabled>
+            <div class="form-group">
+
+                <button class="btn btn-default btn-xs bulk-mark-seen">Mark as Seen</button>
+                <button class="btn btn-default btn-xs bulk-mark-unseen">Mark as Unseen</button>
+
+                <span style="display: inline-block; width: 10px;"></span>
+
+                <button class="btn btn-default btn-xs bulk-delete" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete</button>
+
+
+                <div class="btn-group">
+                  <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> Move <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu">
+                     {{#each mailboxes}}
+                        {{#if canMoveTo}}
+                            <li><a href="#" class="bulk-move" data-mailbox="{{id}}"  data-mailbox-path="{{path}}" data-toggle="modal" data-target="#moveModal">
+                                {{{prefix}}}
+                                {{#if icon}}
+                                    <span class="glyphicon glyphicon-{{icon}}" aria-hidden="true"></span>
+                                {{else}}
+                                    <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+                                {{/if}}
+                                {{formatted}}
+                                {{{suffix}}}</a></li>
+                        {{/if}}
+                    {{/each}}
+                  </ul>
+                </div>
+
+            </div>
+        </fieldset>
+    </div>
+
+    <div class="toolbar-search">
+        <form method="get" action="/webmail/search">
+            <div class="input-group">
+              <input type="text" class="form-control input" name="query" placeholder="Search for..." value="{{query}}" required>
+              <span class="input-group-btn">
+                <button class="btn btn-default btn" type="submit"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+              </span>
+            </div>
+        </form>
+    </div>
+
+</div>
 
 <div class="clearfix"></div>
 
