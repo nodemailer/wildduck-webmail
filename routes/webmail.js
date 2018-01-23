@@ -102,6 +102,13 @@ router.get('/send', (req, res) => {
                     return;
                 }
 
+                if (messageData.meta && messageData.meta.reference) {
+                    // override reference info
+                    action = messageData.meta.reference.action;
+                    refMailbox = messageData.meta.reference.mailbox;
+                    refMessage = messageData.meta.reference.id;
+                }
+
                 let to = [];
                 let cc = [];
                 let bcc = [];
@@ -360,6 +367,9 @@ router.post('/send', (req, res) => {
                 id: refMessage,
                 action
             };
+            messageData.meta = {
+                reference: messageData.reference
+            };
             break;
     }
 
@@ -375,7 +385,7 @@ router.post('/send', (req, res) => {
                 break;
             case 'save':
                 req.flash('success', 'Message draft was stored');
-                return res.redirect('/webmail/');
+                return res.redirect('/webmail/' + (response.message ? response.message.mailbox : ''));
         }
 
         let removeDraft = done => {
