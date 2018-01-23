@@ -222,7 +222,7 @@ router.get('/send', (req, res) => {
 
                 let renderAddress = addr => {
                     if (typeof addr === 'string') {
-                        return addr;
+                        return addr.replace(/\bmailto:\/*/g, '');
                     }
                     if (addr.name && addr.name !== addr.address) {
                         return '"' + addr.name.replace(/"\\/g, '') + '" <' + addr.address + '>';
