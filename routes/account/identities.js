@@ -169,7 +169,7 @@ router.post('/edit', (req, res) => {
             .min(1)
             .max(128)
             .lowercase()
-            .regex(/^[a-zA-Z0-9.-\u00FF-\uFFFF]+$/, 'address')
+            .regex(/^[a-zA-Z0-9.\-\u0080-\uFFFF]+$/, 'address')
             .label('Address')
             .required(),
         main: Joi.boolean()
