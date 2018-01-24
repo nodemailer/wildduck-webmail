@@ -154,6 +154,7 @@ router.get('/gpg', (req, res, next) => {
 
             values: userData,
             fingerprint: userData.keyInfo ? formatFingerprint(userData.keyInfo.fingerprint) : false,
+            keyAddress: userData.keyInfo ? userData.keyInfo.address : false,
 
             csrfToken: req.csrfToken()
         });
@@ -587,7 +588,7 @@ router.post('/2fa/verify-totp', (req, res) => {
         return res.json({ error: result.error.message });
     }
 
-    apiClient['2fa'].verifyTotp(req.user.id, result.value.token, req.ip, err => {
+    apiClient['2fa'].verifyTotp(req.user.id, result.value.token, req.session.id, req.ip, err => {
         if (err) {
             return res.json({ error: err.message, code: err.code });
         }
@@ -601,7 +602,7 @@ router.post('/2fa/verify-totp', (req, res) => {
 });
 
 router.post('/2fa/disable-totp', (req, res, next) => {
-    apiClient['2fa'].disable(req.user.id, req.ip, err => {
+    apiClient['2fa'].disable(req.user.id, req.session.id, req.ip, err => {
         if (err) {
             return next(err);
         }
@@ -648,7 +649,7 @@ router.post('/2fa/disable-u2f', (req, res, next) => {
         return next(err);
     }
 
-    apiClient['2fa'].disableU2f(req.user.id, req.ip, (err, data) => {
+    apiClient['2fa'].disableU2f(req.user.id, req.session.id, req.ip, (err, data) => {
         if (err) {
             return next(err);
         }
@@ -666,7 +667,7 @@ router.post('/2fa/enable-u2f/verify', (req, res) => {
         return res.json({ error: err.message });
     }
 
-    let requestData = { ip: req.ip };
+    let requestData = { sess: req.session.id, ip: req.ip };
     Object.keys(req.body || {}).forEach(key => {
         if (['registrationData', 'clientData', 'errorCode'].includes(key)) {
             requestData[key] = req.body[key];

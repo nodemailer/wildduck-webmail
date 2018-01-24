@@ -41,6 +41,7 @@ function startU2f() {
 
             if (res.error) {
                 $(message).text(res.error);
+                document.getElementById('u2f-wait').style.display = 'none';
                 document.getElementById('u2f-fail').style.display = 'block';
                 message.classList.add('text-danger');
                 return;

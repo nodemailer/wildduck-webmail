@@ -583,7 +583,7 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
                 return res.redirect('/webmail');
             }
 
-            if (messageData.draft && selectedMailbox.specialUse !== '\\Trash') {
+            if (messageData.draft && selectedMailbox.specialUse !== '\\Trash' && !messageData.encrypted) {
                 return res.redirect('/webmail/send?draft=true&action=send&draftMailbox=' + mailbox + '&draftMessage=' + result.value.message);
             }
 

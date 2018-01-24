@@ -376,12 +376,12 @@ router.post('/profile', passport.checkLogin, (req, res) => {
 router.post('/start-u2f', (req, res) => {
     if (!config.u2f.enabled) {
         let err = new Error('U2F support is disabled');
-        return res.json({ error: err.message });
+        return res.json({ error: err.message, code: err.code });
     }
 
     apiClient['2fa'].startU2f(req.user.id, req.ip, (err, data) => {
         if (err) {
-            return res.json({ error: err.message });
+            return res.json({ error: err.message, code: err.code });
         }
         res.json(data);
     });
@@ -440,7 +440,7 @@ router.post('/check-totp', (req, res) => {
 router.post('/check-u2f', (req, res) => {
     if (!config.u2f.enabled) {
         let err = new Error('U2F support is disabled');
-        return res.json({ error: err.message });
+        return res.json({ error: err.message, code: err.code });
     }
 
     const authSchema = Joi.object().keys({
@@ -480,7 +480,7 @@ router.post('/check-u2f', (req, res) => {
 
     apiClient['2fa'].checkU2f(req.user.id, requestData, (err, data) => {
         if (err) {
-            return res.json({ error: err.message });
+            return res.json({ error: err.message, code: err.code });
         }
 
         if (!data || !data.success) {
