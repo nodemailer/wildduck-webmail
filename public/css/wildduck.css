@@ -359,3 +359,8 @@ table.limited {
 tr.identity-main td {
     font-weight: bold;
 }
+
+.navbar-nav img.profile-image {
+    display: inline-block;
+    border: 0;
+}

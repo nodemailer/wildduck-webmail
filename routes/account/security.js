@@ -21,23 +21,18 @@ const AUTH_EVENTS = new Map([
     ['authentication', 'Authenticating with password']
 ]);
 
-router.get('/', (req, res, next) => {
-    apiClient.users.get(req.user.id, (err, userData) => {
-        if (err) {
-            return next(err);
-        }
-        res.render('account/security/2fa', {
-            title: 'Security',
-            activeSecurity: true,
-            secMenu2fa: true,
+router.get('/', (req, res) => {
+    res.render('account/security/2fa', {
+        title: 'Security',
+        activeSecurity: true,
+        secMenu2fa: true,
 
-            values: userData,
-            enabled2fa: userData.enabled2fa,
-            enabledTotp: userData.enabled2fa ? userData.enabled2fa.includes('totp') : false,
-            enabledU2f: userData.enabled2fa ? userData.enabled2fa.includes('u2f') : false,
+        values: req.user,
+        enabled2fa: req.user.enabled2fa,
+        enabledTotp: req.user.enabled2fa ? req.user.enabled2fa.includes('totp') : false,
+        enabledU2f: req.user.enabled2fa ? req.user.enabled2fa.includes('u2f') : false,
 
-            csrfToken: req.csrfToken()
-        });
+        csrfToken: req.csrfToken()
     });
 });
 
@@ -142,22 +137,17 @@ router.get('/events', (req, res, next) => {
     });
 });
 
-router.get('/gpg', (req, res, next) => {
-    apiClient.users.get(req.user.id, (err, userData) => {
-        if (err) {
-            return next(err);
-        }
-        res.render('account/security/gpg', {
-            title: 'Security',
-            activeSecurity: true,
-            secMenuGpg: true,
+router.get('/gpg', (req, res) => {
+    res.render('account/security/gpg', {
+        title: 'Security',
+        activeSecurity: true,
+        secMenuGpg: true,
 
-            values: userData,
-            fingerprint: userData.keyInfo ? formatFingerprint(userData.keyInfo.fingerprint) : false,
-            keyAddress: userData.keyInfo ? userData.keyInfo.address : false,
+        values: req.user,
+        fingerprint: req.user.keyInfo ? formatFingerprint(req.user.keyInfo.fingerprint) : false,
+        keyAddress: req.user.keyInfo ? req.user.keyInfo.address : false,
 
-            csrfToken: req.csrfToken()
-        });
+        csrfToken: req.csrfToken()
     });
 });
 
@@ -218,68 +208,56 @@ router.post('/gpg', (req, res) => {
         return showErrors(errors);
     }
 
-    return apiClient.users.get(req.user.id, (err, userData) => {
-        if (err) {
-            req.flash('danger', err.message);
-            return showErrors(false, true);
-        }
+    if (!req.user.address) {
+        return res.redirect('/account/security');
+    }
 
-        if (!userData.address) {
-            return res.redirect('/account/security');
-        }
+    let updatedUserData = {
+        encryptMessages: result.value.encryptMessages,
+        ip: req.ip,
+        sess: req.session.id
+    };
 
-        let updatedUserData = {
-            encryptMessages: result.value.encryptMessages,
-            ip: req.ip,
-            sess: req.session.id
-        };
+    if (result.value.pubKey) {
+        updatedUserData.pubKey = result.value.pubKey;
+    }
 
-        if (result.value.pubKey) {
-            updatedUserData.pubKey = result.value.pubKey;
-        }
-
-        if (result.value.removeKey) {
-            updatedUserData.pubKey = updatedUserData.pubKey || '';
-            if (!updatedUserData.pubKey) {
-                updatedUserData.encryptMessages = false;
-            }
-        }
-
-        if (!userData.keyInfo && !updatedUserData.pubKey && updatedUserData.encryptMessages) {
+    if (result.value.removeKey) {
+        updatedUserData.pubKey = updatedUserData.pubKey || '';
+        if (!updatedUserData.pubKey) {
             updatedUserData.encryptMessages = false;
-            updatedUserData.encryptForwarded = false;
+        }
+    }
+
+    if (!req.user.keyInfo && !updatedUserData.pubKey && updatedUserData.encryptMessages) {
+        updatedUserData.encryptMessages = false;
+        updatedUserData.encryptForwarded = false;
+    }
+
+    apiClient.users.update(req.user.id, updatedUserData, err => {
+        if (err) {
+            if (err.fields) {
+                return showErrors(err.fields);
+            } else {
+                req.flash('danger', err.message);
+                return showErrors({}, true);
+            }
         }
 
-        apiClient.users.update(req.user.id, updatedUserData, err => {
-            if (err) {
-                if (err.fields) {
-                    return showErrors(err.fields);
-                } else {
-                    req.flash('danger', err.message);
-                    return showErrors({}, true);
-                }
-            }
-
-            req.flash('success', 'Updated encryption settings');
-            res.redirect('/account/security/gpg');
-        });
+        req.flash('success', 'Updated encryption settings');
+        res.redirect('/account/security/gpg');
     });
 });
 
-router.get('/password', (req, res, next) => {
-    apiClient.users.get(req.user.id, (err, userData) => {
-        if (err) {
-            return next(err);
-        }
-        res.render('account/security/password', {
-            title: 'Security',
-            activeSecurity: true,
-            secMenuPassword: true,
+router.get('/password', (req, res) => {
+    res.render('account/security/password', {
+        title: 'Security',
+        activeSecurity: true,
+        secMenuPassword: true,
 
-            values: userData,
+        values: req.user,
 
-            csrfToken: req.csrfToken()
-        });
+        csrfToken: req.csrfToken()
     });
 });
 
@@ -490,23 +468,18 @@ router.post('/asps/create', (req, res) => {
     });
 });
 
-router.get('/2fa', (req, res, next) => {
-    apiClient.users.get(req.user.id, (err, userData) => {
-        if (err) {
-            return next(err);
-        }
-        res.render('account/security/2fa', {
-            title: 'Security',
-            activeSecurity: true,
-            secMenu2fa: true,
+router.get('/2fa', (req, res) => {
+    res.render('account/security/2fa', {
+        title: 'Security',
+        activeSecurity: true,
+        secMenu2fa: true,
 
-            values: userData,
-            enabled2fa: userData.enabled2fa,
-            enabledTotp: userData.enabled2fa ? userData.enabled2fa.includes('totp') : false,
-            enabledU2f: userData.enabled2fa ? userData.enabled2fa.includes('u2f') : false,
+        values: req.user,
+        enabled2fa: req.user.enabled2fa,
+        enabledTotp: req.user.enabled2fa ? req.user.enabled2fa.includes('totp') : false,
+        enabledU2f: req.user.enabled2fa ? req.user.enabled2fa.includes('u2f') : false,
 
-            csrfToken: req.csrfToken()
-        });
+        csrfToken: req.csrfToken()
     });
 });
 

@@ -19,29 +19,23 @@ router.use('/identities', passport.checkLogin, require('./account/identities'));
 
 router.use('/security', passport.checkLogin, require('./account/security'));
 
-router.get('/', passport.checkLogin, (req, res, next) => {
-    apiClient.users.get(req.user.id, (err, userData) => {
-        if (err) {
-            return next(err);
-        }
+router.get('/', passport.checkLogin, (req, res) => {
+    res.render('account/index', {
+        activeHome: true,
 
-        res.render('account/index', {
-            activeHome: true,
+        address: req.user.address,
 
-            address: userData.address,
+        quota: humanize.filesize(req.user.limits.quota.allowed),
+        storageUsed: humanize.filesize(req.user.limits.quota.used),
+        storageOverview: Math.round(req.user.limits.quota.used / req.user.limits.quota.allowed * 100),
 
-            quota: humanize.filesize(userData.limits.quota.allowed),
-            storageUsed: humanize.filesize(userData.limits.quota.used),
-            storageOverview: Math.round(userData.limits.quota.used / userData.limits.quota.allowed * 100),
+        recipients: humanize.numberFormat(req.user.limits.recipients.allowed, 0),
+        recipientsSent: humanize.numberFormat(req.user.limits.recipients.used, 0),
+        recipientsOverview: Math.round(req.user.limits.recipients.used / (req.user.limits.recipients.allowed || 1) * 100),
 
-            recipients: humanize.numberFormat(userData.limits.recipients.allowed, 0),
-            recipientsSent: humanize.numberFormat(userData.limits.recipients.used, 0),
-            recipientsOverview: Math.round(userData.limits.recipients.used / (userData.limits.recipients.allowed || 1) * 100),
-
-            forwards: humanize.numberFormat(userData.limits.forwards.allowed, 0),
-            forwardsSent: humanize.numberFormat(userData.limits.forwards.used, 0),
-            forwardsOverview: Math.round(userData.limits.forwards.used / (userData.limits.forwards.allowed || 1) * 100)
-        });
+        forwards: humanize.numberFormat(req.user.limits.forwards.allowed, 0),
+        forwardsSent: humanize.numberFormat(req.user.limits.forwards.used, 0),
+        forwardsOverview: Math.round(req.user.limits.forwards.used / (req.user.limits.forwards.allowed || 1) * 100)
     });
 });
 
@@ -205,23 +199,17 @@ router.post('/create', (req, res, next) => {
     );
 });
 
-router.get('/profile', passport.checkLogin, (req, res, next) => {
-    apiClient.users.get(req.user.id, (err, userData) => {
-        if (err) {
-            return next(err);
-        }
+router.get('/profile', passport.checkLogin, (req, res) => {
+    req.user.targets = []
+        .concat(req.user.targets)
+        .map(target => target.value)
+        .join(', ');
 
-        userData.targets = []
-            .concat(userData.targets)
-            .map(target => target.value)
-            .join(', ');
-
-        res.render('account/profile', {
-            title: 'Account',
-            activeProfile: true,
-            values: userData,
-            csrfToken: req.csrfToken()
-        });
+    res.render('account/profile', {
+        title: 'Account',
+        activeProfile: true,
+        values: req.user,
+        csrfToken: req.csrfToken()
     });
 });
 

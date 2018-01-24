@@ -13,7 +13,6 @@ const RedisStore = require('connect-redis')(session);
 const flash = require('connect-flash');
 const passport = require('./lib/passport');
 const db = require('./lib/db');
-const apiClient = require('./lib/api-client');
 
 const routesIndex = require('./routes/index');
 const routesAccount = require('./routes/account');
@@ -97,6 +96,9 @@ app.use((req, res, next) => {
     // make sure flash messages are available
     res.locals.flash = req.flash.bind(req);
     res.locals.user = req.user;
+    res.locals.inboxId = req.user.inbox.id;
+    res.locals.inboxUnseen = req.user.inbox.unseen;
+
     res.locals.allowJoin = config.service.allowJoin;
     res.locals.u2fEnabled = config.u2f.enabled;
 
@@ -148,24 +150,6 @@ app.use((req, res, next) => {
         });
     }
     next();
-});
-
-// prepare favicon badge
-app.use((req, res, next) => {
-    if (!req.user || !req.session.inbox) {
-        return next();
-    }
-
-    apiClient.mailboxes.get(req.user.id, req.session.inbox, (err, mailboxData) => {
-        if (err || !mailboxData) {
-            return next();
-        }
-
-        res.locals.inboxId = mailboxData.id;
-        res.locals.inboxUnseen = mailboxData.unseen;
-
-        return next();
-    });
 });
 
 // setup main routes
