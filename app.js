@@ -95,9 +95,13 @@ passport.setup(app);
 app.use((req, res, next) => {
     // make sure flash messages are available
     res.locals.flash = req.flash.bind(req);
+
+    // userdata
     res.locals.user = req.user;
-    res.locals.inboxId = req.user.inbox.id;
-    res.locals.inboxUnseen = req.user.inbox.unseen;
+
+    // values needed to show unseen messages counter
+    res.locals.inboxId = req.user ? req.user.inbox.id : false;
+    res.locals.inboxUnseen = req.user ? req.user.inbox.unseen : false;
 
     res.locals.allowJoin = config.service.allowJoin;
     res.locals.u2fEnabled = config.u2f.enabled;
