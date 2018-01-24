@@ -112,6 +112,10 @@ document.addEventListener('DOMContentLoaded', function() {
         switch (data.command) {
             case 'COUNTERS': {
                 if (data.mailbox) {
+                    if(FAVICON && data.mailbox === INBOX_ID){
+                        FAVICON.badge(data.unseen);
+                    }
+
                     row = document.querySelector('.unseen-counter-' + data.mailbox);
                     if(row){
                         if(data.unseen){

@@ -16,9 +16,31 @@
 <script src="/components/event-source-polyfill/src/eventsource.min.js"></script>
 <script src="/components/handlebars/handlebars.min.js"></script>
 
+<script src="/components/favico.js/favico.js"></script>
+
 <script src="/wd.js"></script>
 <script type="text/javascript">
     $(function() {
         $("[rel='tooltip']").tooltip();
     });
 </script>
+
+{{#if inboxId}}
+    <script>
+        var INBOX_ID = '{{inboxId}}';
+        var INBOX_UNSEEN = {{inboxUnseen}};
+        var FAVICON = new Favico({
+            animation:'slide'
+        });
+
+        if(INBOX_UNSEEN){
+            FAVICON.badge(INBOX_UNSEEN);
+        }
+    </script>
+{{else}}
+    <script>
+        var INBOX_ID = -1;
+        var INBOX_UNSEEN = 0;
+        var FAVICON = false;
+    </script>
+{{/if}}

@@ -643,18 +643,32 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
             );
 
             messageData.info = info;
-            res.render('webmail/message', {
-                layout: 'layout-webmail',
-                activeWebmail: true,
-                mailboxes: prepareMailboxList(mailboxes),
-                mailbox: selectedMailbox,
 
-                isTrash: selectedMailbox.specialUse === '\\Trash',
+            // make sure that we get the actual unseen count from the server
+            apiClient.mailboxes.get(req.user.id, selectedMailbox.id, (err, mailbox) => {
+                if (!err && mailbox) {
+                    selectedMailbox.unseen = mailbox.unseen;
+                }
 
-                message: messageData,
-                messageJson: JSON.stringify(messageData).replace(/\//g, '\\u002f'),
+                let data = {
+                    layout: 'layout-webmail',
+                    activeWebmail: true,
+                    mailboxes: prepareMailboxList(mailboxes),
+                    mailbox: selectedMailbox,
 
-                csrfToken: req.csrfToken()
+                    isTrash: selectedMailbox.specialUse === '\\Trash',
+
+                    message: messageData,
+                    messageJson: JSON.stringify(messageData).replace(/\//g, '\\u002f'),
+
+                    csrfToken: req.csrfToken()
+                };
+
+                if (selectedMailbox.path === 'INBOX') {
+                    data.inboxUnseen = selectedMailbox.unseen;
+                }
+
+                res.render('webmail/message', data);
             });
         });
     });

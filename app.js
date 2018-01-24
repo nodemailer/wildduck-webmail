@@ -13,6 +13,7 @@ const RedisStore = require('connect-redis')(session);
 const flash = require('connect-flash');
 const passport = require('./lib/passport');
 const db = require('./lib/db');
+const apiClient = require('./lib/api-client');
 
 const routesIndex = require('./routes/index');
 const routesAccount = require('./routes/account');
@@ -129,6 +130,42 @@ app.use((req, res, next) => {
         });
     }
     next();
+});
+
+// force password change prompt if user password is reset
+app.use((req, res, next) => {
+    if (req.user && req.session.requirePasswordChange && !['/account/logout', '/account/update-password'].includes(req.url.split('?').shift())) {
+        return passport.csrf(req, res, err => {
+            if (err) {
+                return next(err);
+            }
+
+            return res.render('account/update-password', {
+                layout: 'layout-popup',
+                title: 'Change password',
+                csrfToken: req.csrfToken()
+            });
+        });
+    }
+    next();
+});
+
+// prepare favicon badge
+app.use((req, res, next) => {
+    if (!req.user || !req.session.inbox) {
+        return next();
+    }
+
+    apiClient.mailboxes.get(req.user.id, req.session.inbox, (err, mailboxData) => {
+        if (err || !mailboxData) {
+            return next();
+        }
+
+        res.locals.inboxId = mailboxData.id;
+        res.locals.inboxUnseen = mailboxData.unseen;
+
+        return next();
+    });
 });
 
 // setup main routes

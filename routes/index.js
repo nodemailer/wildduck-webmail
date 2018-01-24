@@ -9,11 +9,16 @@ router.get('/', (req, res) => {
     res.render('index', {});
 });
 
-/* GET home page. */
 router.get('/help', (req, res) => {
     res.render('help', {
         activeHelp: true,
         setup: config.setup
+    });
+});
+
+router.get('/tos', (req, res) => {
+    res.render('tos', {
+        activeCreate: true
     });
 });
 

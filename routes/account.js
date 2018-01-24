@@ -10,6 +10,7 @@ const apiClient = require('../lib/api-client');
 const roleBasedAddresses = require('role-based-email-addresses');
 const util = require('util');
 const humanize = require('humanize');
+const tools = require('../lib/tools');
 
 // sub services
 router.use('/filters', passport.checkLogin, require('./account/filters'));
@@ -81,18 +82,12 @@ router.post('/create', (req, res, next) => {
         name: Joi.string()
             .trim()
             .min(3)
-            .max(100)
+            .max(256)
             .label('Your name')
-            .required(),
-        address: Joi.string()
-            .email()
-            .trim()
-            .max(255)
-            .label('Your new address')
             .required(),
         password: Joi.string()
             .min(8)
-            .max(100)
+            .max(256)
             .label('Password')
             .valid(Joi.ref('password2'))
             .options({
@@ -109,17 +104,21 @@ router.post('/create', (req, res, next) => {
             .default('en'),
         password2: Joi.string()
             .min(8)
-            .max(100)
+            .max(256)
             .label('Password confirmation')
             .required(),
         username: Joi.string()
             .trim()
-            .min(3)
+            .min(1)
             .max(128)
             .hostname()
             .lowercase()
             .label('Address')
-            .required()
+            .required(),
+        remember: Joi.boolean()
+            .truthy(['Y', 'true', 'yes', 'on', 1])
+            .falsy(['N', 'false', 'no', 'off', 0, ''])
+            .valid(true)
     };
 
     delete req.body._csrf;
@@ -175,28 +174,18 @@ router.post('/create', (req, res, next) => {
         });
     }
 
-    let addressUser = result.value.address
-        .split('@')
-        .shift()
-        .toLowerCase();
-    if (
-        ['abuse', 'admin', 'administrator', 'hostmaster', 'majordomo', 'postmaster', 'root', 'ssl-admin', 'webmaster'].includes(addressUser) ||
-        roleBasedAddresses.includes(addressUser)
-    ) {
-        return showErrors({
-            address: util.format('"%s" is a reserved username', addressUser)
-        });
-    }
+    let address = tools.normalizeAddress(result.value.username + '@' + config.service.domain);
 
     apiClient.users.create(
         {
             name: result.value.name,
             username: result.value.username,
             password: result.value.password,
-            address: result.value.address,
-            recipients: 500,
-            forwards: 500,
-            quota: 1 * 1024 * 1024 * 1024,
+            address,
+            recipients: config.service.recipients,
+            forwards: config.service.forwards,
+            quota: config.service.quota * 1024 * 1024,
+            sess: req.session.id,
             ip: req.ip
         },
         err => {
@@ -209,7 +198,7 @@ router.post('/create', (req, res, next) => {
                 }
             }
 
-            req.flash('success', 'Account created for ' + result.value.username + ' with address ' + result.value.username + '@' + config.service.domain);
+            req.flash('success', 'Account created for ' + result.value.username + ' with address ' + address);
             res.redirect('/account/login/');
         }
     );
@@ -497,6 +486,100 @@ router.post('/check-u2f', (req, res) => {
         req.session.require2fa = false;
         data.targetUrl = '/webmail/';
         res.json(data);
+    });
+});
+
+router.post('/update-password', (req, res) => {
+    if (!req.session.requirePasswordChange) {
+        // only allow changing password if requirePasswordChange flag is set
+
+        if (req.user) {
+            req.flash('warning', 'Password is already updated');
+            res.redirect('/account/security/password');
+        } else {
+            req.flash('danger', 'Need to be logged in to change password');
+            res.redirect('/account/login');
+        }
+        return;
+    }
+
+    const updateSchema = Joi.object().keys({
+        password: Joi.string()
+            .empty('')
+            .min(8)
+            .max(100)
+            .label('New password')
+            .valid(Joi.ref('password2'))
+            .options({
+                language: {
+                    any: {
+                        allowOnly: '!!Passwords do not match'
+                    }
+                }
+            })
+            .required(),
+        password2: Joi.string()
+            .empty('')
+            .min(8)
+            .max(100)
+            .label('Repeat password')
+            .required()
+    });
+
+    delete req.body._csrf;
+    let result = Joi.validate(req.body, updateSchema, {
+        abortEarly: false,
+        convert: true,
+        allowUnknown: false
+    });
+
+    let showErrors = (errors, disableDefault) => {
+        if (!disableDefault) {
+            req.flash('danger', 'Password update failed');
+        }
+
+        res.render('account/update-password', {
+            layout: 'layout-popup',
+            title: 'Change password',
+
+            values: result.value,
+            errors,
+
+            csrfToken: req.csrfToken()
+        });
+    };
+
+    if (result.error) {
+        let errors = {};
+        if (result.error && result.error.details) {
+            result.error.details.forEach(detail => {
+                let path = detail.path;
+                if (!errors[path]) {
+                    errors[path] = detail.message;
+                }
+            });
+        }
+        return showErrors(errors);
+    }
+
+    delete result.value.password2;
+
+    result.value.ip = req.ip;
+    result.value.sess = req.session.id;
+
+    apiClient.users.update(req.user.id, result.value, err => {
+        if (err) {
+            if (err.fields) {
+                return showErrors(err.fields);
+            } else {
+                req.flash('danger', err.message);
+                return showErrors({}, true);
+            }
+        }
+
+        req.session.requirePasswordChange = false;
+        req.flash('success', 'Account password updated');
+        res.redirect('/webmail');
     });
 });
 
