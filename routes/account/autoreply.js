@@ -22,6 +22,10 @@ router.get('/', (req, res, next) => {
 router.post('/', (req, res) => {
     const updateSchema = Joi.object().keys({
         status: Joi.boolean().required(),
+        name: Joi.string()
+            .empty('')
+            .trim()
+            .max(128),
         subject: Joi.string()
             .empty('')
             .trim()
@@ -70,6 +74,10 @@ router.post('/', (req, res) => {
         }
 
         return showErrors(errors);
+    }
+
+    if (!result.value.name && 'name' in req.body) {
+        result.value.name = '';
     }
 
     if (!result.value.subject && 'subject' in req.body) {
