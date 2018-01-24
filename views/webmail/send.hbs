@@ -27,6 +27,22 @@
         </div>
     </div>
 
+    <div id="from-field" class="form-group{{#if errors.from}} has-error{{/if}}" {{#unless fromAddress}}style="display:none"{{/unless}}>
+        <label for="inputFrom" class="col-sm-1 control-label">From</label>
+        <div class="col-sm-11">
+            <select class="form-control" name="from" id="inputFrom">
+                {{#each addresses}}
+                    <option value="{{id}}" {{#if selected}}selected{{/if}}>
+                        {{#if name}}{{name}} – {{/if}} {{address}}
+                    </option>
+                {{/each}}
+            </select>
+            {{#if errors.from}}
+                <span class="help-block">{{errors.from}}</span>
+            {{/if}}
+        </div>
+    </div>
+
     <div class="form-group{{#if errors.to}} has-error{{/if}}">
         <label for="inputTo" class="col-sm-1 control-label">To</label>
         <div class="col-sm-11">
@@ -58,6 +74,7 @@
     </div>
 
     <div class="text-right" style="margin-top: -10px; margin-bottom: 10px;">
+        <a href="#" id="link-add-from" {{#if fromAddress}}style="display:none"{{/if}}>From</a>
         <a href="#" id="link-add-cc" {{#if values.cc}}style="display:none"{{/if}}>Cc</a>
         <a href="#" id="link-add-bcc" {{#if values.bcc}}style="display:none"{{/if}}>Bcc</a>
     </div>
@@ -159,8 +176,15 @@
             height: 300
         });
 
+        var linkAddFrom = document.getElementById('link-add-from');
         var linkAddCc = document.getElementById('link-add-cc');
         var linkAddBcc = document.getElementById('link-add-bcc');
+
+        var showFrom = function(){
+            document.getElementById('from-field').style.display = 'block';
+            linkAddFrom.style.display = 'none';
+            document.getElementById('inputFrom').focus();
+        };
 
         var showCc = function(){
             document.getElementById('cc-field').style.display = 'block';
@@ -174,6 +198,8 @@
             document.getElementById('inputBcc').focus();
         };
 
+        linkAddFrom.addEventListener('click', showFrom, false);
+        linkAddFrom.addEventListener('touch', showFrom, false);
         linkAddCc.addEventListener('click', showCc, false);
         linkAddCc.addEventListener('touch', showCc, false);
         linkAddBcc.addEventListener('click', showBcc, false);

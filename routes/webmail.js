@@ -72,185 +72,198 @@ router.get('/send', (req, res) => {
     let draftMessage = result.value.draftMessage;
     let isDraft = (result.value.draft && draftMailbox && draftMessage && true) || false;
 
-    apiClient.addresses.list(req.user.id, (err, addresses) => {
+    apiClient.users.get(req.user.id, (err, userData) => {
         if (err) {
             req.flash('danger', err.message);
             return res.redirect('/webmail');
         }
 
-        let addressList = new Set();
-        addresses.forEach(addr => {
-            let address = addr.address.substr(0, addr.address.lastIndexOf('@')).replace(/\./g, '') + addr.address.substr(addr.address.lastIndexOf('@'));
-            addressList.add(address.replace(/\+[^@]*@/, '@'));
-        });
-
-        apiClient.mailboxes.list(req.user.id, true, (err, mailboxes) => {
+        apiClient.addresses.list(req.user.id, (err, addresses) => {
             if (err) {
                 req.flash('danger', err.message);
-                res.redirect('/webmail');
-                return;
+                return res.redirect('/webmail');
             }
 
-            let getMessageData = done => {
-                if (isDraft) {
-                    return apiClient.messages.get(req.user.id, draftMailbox, draftMessage, done);
-                }
+            let addressList = new Set();
+            addresses.forEach(addr => {
+                let address = addr.address.substr(0, addr.address.lastIndexOf('@')).replace(/\./g, '') + addr.address.substr(addr.address.lastIndexOf('@'));
+                addressList.add(address.replace(/\+[^@]*@/, '@'));
+            });
 
-                if (refMailbox && refMessage) {
-                    return apiClient.messages.get(req.user.id, refMailbox, refMessage, done);
-                }
-
-                return done();
-            };
-
-            getMessageData((err, messageData) => {
+            apiClient.mailboxes.list(req.user.id, true, (err, mailboxes) => {
                 if (err) {
                     req.flash('danger', err.message);
                     res.redirect('/webmail');
                     return;
                 }
 
-                if (messageData && messageData.meta && messageData.meta.reference) {
-                    // override reference info
-                    action = messageData.meta.reference.action;
-                    refMailbox = messageData.meta.reference.mailbox;
-                    refMessage = messageData.meta.reference.id;
-                }
-
-                let to = [];
-                let cc = [];
-                let bcc = [];
-
-                let subject = '';
-                let html = [];
-                let keepHtmlAsIs = false;
-
-                if (isDraft && messageData) {
-                    action = result.value.draftAction || action;
-                    to = [].concat(messageData.to || []);
-                    cc = [].concat(messageData.cc || []);
-                    bcc = [].concat(messageData.bcc || []);
-                    subject = messageData.subject;
-                    keepHtmlAsIs = true;
-                    html = html.concat(messageData.html || []);
-                } else if (messageData) {
-                    switch (action) {
-                        case 'reply':
-                        case 'replyAll':
-                            {
-                                let fromAddress = messageData.from ||
-                                    messageData.sender || {
-                                        name: '< >'
-                                    };
-
-                                let toAddresses = fromAddress.address ? [fromAddress] : [];
-                                let ccAddresses = [];
-
-                                if (action === 'replyAll') {
-                                    toAddresses = toAddresses.concat(messageData.to || []);
-                                    ccAddresses = ccAddresses.concat(messageData.cc || []);
-                                }
-
-                                let seenList = new Set();
-                                let filterNonSelf = addr => {
-                                    if (!addr.address) {
-                                        return false;
-                                    }
-
-                                    let address = tools.normalizeAddress(addr.address).replace(/\+[^@]*@/, '@');
-                                    address = address.substr(0, address.lastIndexOf('@')).replace(/\./g, '') + address.substr(address.lastIndexOf('@'));
-
-                                    if (!addressList.has(address) && !seenList.has(address)) {
-                                        if (!addr.name || addr.name.indexOf('@') >= 0) {
-                                            addr.name = addr.address;
-                                        }
-                                        seenList.add(address);
-                                        return true;
-                                    }
-                                    return false;
-                                };
-
-                                to = toAddresses.filter(filterNonSelf);
-                                cc = ccAddresses.filter(filterNonSelf);
-
-                                subject = 'Re: ' + messageData.subject;
-                                html.push(util.format('On {&DATE %s&}, %s wrote:<br/><br/>\n', messageData.date, tools.getAddressesHTML(fromAddress)));
-                            }
-                            break;
-                        case 'forward':
-                            subject = 'Fwd: ' + messageData.subject;
-
-                            html.push('Begin forwarded message:<br/><br/>');
-
-                            html.push('<table>');
-
-                            html.push(
-                                util.format(
-                                    '<tr><th>From</th><td>%s</td></tr>',
-                                    tools.getAddressesHTML(
-                                        messageData.from ||
-                                            messageData.sender || {
-                                                name: '< >'
-                                            }
-                                    )
-                                )
-                            );
-
-                            if (messageData.subject) {
-                                html.push(util.format('<tr><th>Subject</th><td>%s</td></tr>', he.encode(messageData.subject)));
-                            }
-
-                            html.push(util.format('<tr><th>Date</th><td>{&DATE %s&}</td></tr>', messageData.date));
-
-                            if (messageData.to) {
-                                html.push(util.format('<tr><th>To</th><td>%s</td></tr>', tools.getAddressesHTML(messageData.to)));
-                            }
-
-                            if (messageData.cc) {
-                                html.push(util.format('<tr><th>Cc</th><td>%s</td></tr>', tools.getAddressesHTML(messageData.cc)));
-                            }
-
-                            html.push('</table><br/>');
-                            break;
+                let getMessageData = done => {
+                    if (isDraft) {
+                        return apiClient.messages.get(req.user.id, draftMailbox, draftMessage, done);
                     }
 
-                    html = html.concat(messageData.html || []);
-                } else {
-                    to = [].concat(result.value.to || []);
-                    subject = result.value.subject;
-                }
+                    if (refMailbox && refMessage) {
+                        return apiClient.messages.get(req.user.id, refMailbox, refMessage, done);
+                    }
 
-                let renderAddress = addr => {
-                    if (typeof addr === 'string') {
-                        return addr.replace(/\bmailto:\/*/g, '');
-                    }
-                    if (addr.name && addr.name !== addr.address) {
-                        return '"' + addr.name.replace(/"\\/g, '') + '" <' + addr.address + '>';
-                    }
-                    return addr.address;
+                    return done();
                 };
 
-                res.render('webmail/send', {
-                    layout: 'layout-webmail',
-                    activeWebmail: true,
-                    mailboxes: prepareMailboxList(mailboxes),
+                getMessageData((err, messageData) => {
+                    if (err) {
+                        req.flash('danger', err.message);
+                        res.redirect('/webmail');
+                        return;
+                    }
 
-                    values: {
-                        refMailbox,
-                        refMessage,
-                        draftMailbox: isDraft ? draftMailbox : '',
-                        draftMessage: isDraft ? draftMessage : '',
-                        action,
-                        subject,
-                        to: to.map(renderAddress).join(', '),
-                        cc: cc.map(renderAddress).join(', '),
-                        bcc: bcc.map(renderAddress).join(', '),
-                        draft: isDraft ? 'yes' : ''
-                    },
+                    if (messageData && messageData.meta && messageData.meta.reference) {
+                        // override reference info
+                        action = messageData.meta.reference.action;
+                        refMailbox = messageData.meta.reference.mailbox;
+                        refMessage = messageData.meta.reference.id;
+                    }
 
-                    messageHtml: JSON.stringify(html).replace(/\//g, '\\u002f'),
-                    keepHtmlAsIs,
-                    csrfToken: req.csrfToken()
+                    let to = [];
+                    let cc = [];
+                    let bcc = [];
+
+                    let subject = '';
+                    let html = [];
+                    let keepHtmlAsIs = false;
+
+                    if (isDraft && messageData) {
+                        action = result.value.draftAction || action;
+                        to = [].concat(messageData.to || []);
+                        cc = [].concat(messageData.cc || []);
+                        bcc = [].concat(messageData.bcc || []);
+                        subject = messageData.subject;
+                        keepHtmlAsIs = true;
+                        html = html.concat(messageData.html || []);
+                    } else if (messageData) {
+                        switch (action) {
+                            case 'reply':
+                            case 'replyAll':
+                                {
+                                    let fromAddress = messageData.from ||
+                                        messageData.sender || {
+                                            name: '< >'
+                                        };
+
+                                    let toAddresses = fromAddress.address ? [fromAddress] : [];
+                                    let ccAddresses = [];
+
+                                    if (action === 'replyAll') {
+                                        toAddresses = toAddresses.concat(messageData.to || []);
+                                        ccAddresses = ccAddresses.concat(messageData.cc || []);
+                                    }
+
+                                    let seenList = new Set();
+                                    let filterNonSelf = addr => {
+                                        if (!addr.address) {
+                                            return false;
+                                        }
+
+                                        let address = tools.normalizeAddress(addr.address).replace(/\+[^@]*@/, '@');
+                                        address = address.substr(0, address.lastIndexOf('@')).replace(/\./g, '') + address.substr(address.lastIndexOf('@'));
+
+                                        if (!addressList.has(address) && !seenList.has(address)) {
+                                            if (!addr.name || addr.name.indexOf('@') >= 0) {
+                                                addr.name = addr.address;
+                                            }
+                                            seenList.add(address);
+                                            return true;
+                                        }
+                                        return false;
+                                    };
+
+                                    to = toAddresses.filter(filterNonSelf);
+                                    cc = ccAddresses.filter(filterNonSelf);
+
+                                    subject = 'Re: ' + messageData.subject;
+                                    html.push(util.format('On {&DATE %s&}, %s wrote:<br/><br/>\n', messageData.date, tools.getAddressesHTML(fromAddress)));
+                                }
+                                break;
+                            case 'forward':
+                                subject = 'Fwd: ' + messageData.subject;
+
+                                html.push('Begin forwarded message:<br/><br/>');
+
+                                html.push('<table>');
+
+                                html.push(
+                                    util.format(
+                                        '<tr><th>From</th><td>%s</td></tr>',
+                                        tools.getAddressesHTML(
+                                            messageData.from ||
+                                                messageData.sender || {
+                                                    name: '< >'
+                                                }
+                                        )
+                                    )
+                                );
+
+                                if (messageData.subject) {
+                                    html.push(util.format('<tr><th>Subject</th><td>%s</td></tr>', he.encode(messageData.subject)));
+                                }
+
+                                html.push(util.format('<tr><th>Date</th><td>{&DATE %s&}</td></tr>', messageData.date));
+
+                                if (messageData.to) {
+                                    html.push(util.format('<tr><th>To</th><td>%s</td></tr>', tools.getAddressesHTML(messageData.to)));
+                                }
+
+                                if (messageData.cc) {
+                                    html.push(util.format('<tr><th>Cc</th><td>%s</td></tr>', tools.getAddressesHTML(messageData.cc)));
+                                }
+
+                                html.push('</table><br/>');
+                                break;
+                        }
+
+                        html = html.concat(messageData.html || []);
+                    } else {
+                        to = [].concat(result.value.to || []);
+                        subject = result.value.subject;
+                    }
+
+                    let renderAddress = addr => {
+                        if (typeof addr === 'string') {
+                            return addr.replace(/\bmailto:\/*/g, '');
+                        }
+                        if (addr.name && addr.name !== addr.address) {
+                            return '"' + addr.name.replace(/"\\/g, '') + '" <' + addr.address + '>';
+                        }
+                        return addr.address;
+                    };
+
+                    res.render('webmail/send', {
+                        layout: 'layout-webmail',
+                        activeWebmail: true,
+                        mailboxes: prepareMailboxList(mailboxes),
+
+                        addresses: addresses.map(address => {
+                            address.name = address.name || userData.name;
+                            address.selected = address.main;
+                            return address;
+                        }),
+
+                        values: {
+                            refMailbox,
+                            refMessage,
+                            draftMailbox: isDraft ? draftMailbox : '',
+                            draftMessage: isDraft ? draftMessage : '',
+                            action,
+                            subject,
+                            to: to.map(renderAddress).join(', '),
+                            cc: cc.map(renderAddress).join(', '),
+                            bcc: bcc.map(renderAddress).join(', '),
+                            draft: isDraft ? 'yes' : ''
+                        },
+
+                        messageHtml: JSON.stringify(html).replace(/\//g, '\\u002f'),
+                        keepHtmlAsIs,
+                        csrfToken: req.csrfToken()
+                    });
                 });
             });
         });
@@ -298,122 +311,159 @@ router.post('/send', (req, res) => {
         allowUnknown: true
     });
 
-    let showErrors = (errors, disableDefault) => {
-        if (!disableDefault) {
-            req.flash('danger', 'Failed sending email');
+    apiClient.users.get(req.user.id, (err, userData) => {
+        if (err) {
+            req.flash('danger', err.message);
+            return res.redirect('/webmail');
         }
 
-        apiClient.mailboxes.list(req.user.id, true, (err, mailboxes) => {
+        apiClient.addresses.list(req.user.id, (err, addresses) => {
             if (err) {
                 req.flash('danger', err.message);
                 return res.redirect('/webmail');
             }
 
-            res.render('webmail/send', {
-                layout: 'layout-webmail',
-                activeWebmail: true,
-                mailboxes: prepareMailboxList(mailboxes),
-
-                values: result.value,
-                errors,
-
-                messageHtml: JSON.stringify([].concat(result.value.editordata || [])).replace(/\//g, '\\u002f'),
-                keepHtmlAsIs: true,
-
-                csrfToken: req.csrfToken()
-            });
-        });
-    };
-
-    if (result.error) {
-        let errors = {};
-        if (result.error && result.error.details) {
-            result.error.details.forEach(detail => {
-                if (!errors[detail.path]) {
-                    errors[detail.path] = detail.message;
-                }
-            });
-        }
-
-        return showErrors(errors);
-    }
-
-    let userAction = result.value.userAction; // should we send or save draft
-
-    let action = result.value.action;
-    let refMailbox = result.value.refMailbox;
-    let refMessage = result.value.refMessage;
-    let draftMailbox = result.value.draftMailbox;
-    let draftMessage = result.value.draftMessage;
-    let isDraft = result.value.draft && draftMailbox && draftMessage && true;
-
-    let messageData = {
-        isDraft: userAction === 'save', // only set to true when saving a draft
-        uploadOnly: userAction !== 'send', // if not sending then just upload the message
-        to: result.value.to && addressparser(result.value.to),
-        cc: result.value.cc && addressparser(result.value.cc),
-        bcc: result.value.bcc && addressparser(result.value.bcc),
-        subject: result.value.subject,
-        html: result.value.editordata
-    };
-
-    if (isDraft && draftMailbox && draftMessage) {
-        messageData.draft = { mailbox: draftMailbox, id: draftMessage };
-    }
-
-    if (
-        userAction === 'send' &&
-        (!messageData.to || !messageData.to.length) &&
-        (!messageData.cc || !messageData.cc.length) &&
-        (!messageData.bcc || !messageData.bcc.length)
-    ) {
-        return showErrors({
-            to: 'No recipients defined'
-        });
-    }
-
-    switch (action) {
-        case 'reply':
-        case 'replyAll':
-        case 'forward':
-            messageData.reference = {
-                mailbox: refMailbox,
-                id: refMessage,
-                action
-            };
-            messageData.meta = {
-                reference: messageData.reference
-            };
-            break;
-    }
-
-    apiClient.messages.submit(req.user.id, messageData, (err, response) => {
-        if (err) {
-            req.flash('danger', err.message);
-            return showErrors({}, true);
-        }
-
-        switch (userAction) {
-            case 'send':
-                req.flash('success', 'Message was queued for delivery');
-                break;
-            case 'save':
-                req.flash('success', 'Message draft was stored');
-                return res.redirect('/webmail/' + (response.message ? response.message.mailbox : ''));
-        }
-
-        let removeDraft = done => {
-            if (!isDraft || 0) {
-                return done();
+            let fromAddress = false;
+            if (result.value.from) {
+                addresses.map(address => {
+                    if (result.value.from === address.id) {
+                        fromAddress = {
+                            name: address.name || userData.name,
+                            address: address.address
+                        };
+                    }
+                });
             }
-            apiClient.messages.delete(req.user.id, draftMailbox, draftMessage, done);
-        };
 
-        if (response.message) {
-            return removeDraft(() => res.redirect('/webmail/' + response.message.mailbox + '/audit/' + response.message.id));
-        }
+            let showErrors = (errors, disableDefault) => {
+                if (!disableDefault) {
+                    req.flash('danger', 'Failed sending email');
+                }
 
-        return res.redirect('/webmail/');
+                apiClient.mailboxes.list(req.user.id, true, (err, mailboxes) => {
+                    if (err) {
+                        req.flash('danger', err.message);
+                        return res.redirect('/webmail');
+                    }
+
+                    res.render('webmail/send', {
+                        layout: 'layout-webmail',
+                        activeWebmail: true,
+                        mailboxes: prepareMailboxList(mailboxes),
+
+                        fromAddress,
+                        addresses: addresses.map(address => {
+                            address.name = address.name || userData.name;
+                            address.selected = result.value.from === address.id;
+                            return address;
+                        }),
+
+                        values: result.value,
+                        errors,
+
+                        messageHtml: JSON.stringify([].concat(result.value.editordata || [])).replace(/\//g, '\\u002f'),
+                        keepHtmlAsIs: true,
+
+                        csrfToken: req.csrfToken()
+                    });
+                });
+            };
+
+            if (result.error) {
+                let errors = {};
+                if (result.error && result.error.details) {
+                    result.error.details.forEach(detail => {
+                        if (!errors[detail.path]) {
+                            errors[detail.path] = detail.message;
+                        }
+                    });
+                }
+
+                return showErrors(errors);
+            }
+
+            let userAction = result.value.userAction; // should we send or save draft
+
+            let action = result.value.action;
+            let refMailbox = result.value.refMailbox;
+            let refMessage = result.value.refMessage;
+            let draftMailbox = result.value.draftMailbox;
+            let draftMessage = result.value.draftMessage;
+            let isDraft = result.value.draft && draftMailbox && draftMessage && true;
+
+            let messageData = {
+                isDraft: userAction === 'save', // only set to true when saving a draft
+                uploadOnly: userAction !== 'send', // if not sending then just upload the message
+                to: result.value.to && addressparser(result.value.to),
+                cc: result.value.cc && addressparser(result.value.cc),
+                bcc: result.value.bcc && addressparser(result.value.bcc),
+                subject: result.value.subject,
+                html: result.value.editordata
+            };
+
+            if (fromAddress) {
+                messageData.from = fromAddress;
+            }
+
+            if (isDraft && draftMailbox && draftMessage) {
+                messageData.draft = { mailbox: draftMailbox, id: draftMessage };
+            }
+
+            if (
+                userAction === 'send' &&
+                (!messageData.to || !messageData.to.length) &&
+                (!messageData.cc || !messageData.cc.length) &&
+                (!messageData.bcc || !messageData.bcc.length)
+            ) {
+                return showErrors({
+                    to: 'No recipients defined'
+                });
+            }
+
+            switch (action) {
+                case 'reply':
+                case 'replyAll':
+                case 'forward':
+                    messageData.reference = {
+                        mailbox: refMailbox,
+                        id: refMessage,
+                        action
+                    };
+                    messageData.meta = {
+                        reference: messageData.reference
+                    };
+                    break;
+            }
+
+            apiClient.messages.submit(req.user.id, messageData, (err, response) => {
+                if (err) {
+                    req.flash('danger', err.message);
+                    return showErrors({}, true);
+                }
+
+                switch (userAction) {
+                    case 'send':
+                        req.flash('success', 'Message was queued for delivery');
+                        break;
+                    case 'save':
+                        req.flash('success', 'Message draft was stored');
+                        return res.redirect('/webmail/' + (response.message ? response.message.mailbox : ''));
+                }
+
+                let removeDraft = done => {
+                    if (!isDraft || 0) {
+                        return done();
+                    }
+                    apiClient.messages.delete(req.user.id, draftMailbox, draftMessage, done);
+                };
+
+                if (response.message) {
+                    return removeDraft(() => res.redirect('/webmail/' + response.message.mailbox + '/audit/' + response.message.id));
+                }
+
+                return res.redirect('/webmail/');
+            });
+        });
     });
 });
 

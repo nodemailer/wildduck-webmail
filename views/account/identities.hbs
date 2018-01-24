@@ -33,7 +33,7 @@
                 </thead>
                 <tbody>
                     {{#each identities}}
-                        <tr>
+                        <tr class="{{#if main}}identity-main{{/if}}">
                             <th>
                                 {{index}}
                             </th>
@@ -48,7 +48,7 @@
 
                             <td>
                                 {{#if main}}
-                                    <strong>{{address}} (default)</strong>
+                                    {{address}} <span>(default)</span>
                                 {{else}}
                                     {{address}}
                                 {{/if}}

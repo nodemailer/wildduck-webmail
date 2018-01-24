@@ -355,3 +355,7 @@ table.limited {
         margin-right: 5px;
     }
 }
+
+tr.identity-main td {
+    font-weight: bold;
+}
