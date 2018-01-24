@@ -26,6 +26,7 @@
     "summernote": "*",
     "event-source-polyfill": "*",
     "underscore": "*",
-    "promise-polyfill": "^7.0.0"
+    "promise-polyfill": "^7.0.0",
+    "favico.js": "^0.3.10"
   }
 }
