@@ -1,0 +1,29 @@
+<div class="row">
+    <div class="col-md-12">
+        <h1><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Edit address</h1>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-md-6">
+        <form method="post" action="/account/identities/edit">
+            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+            <input type="hidden" name="id" value="{{values.id}}">
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Identity information</h3>
+                </div>
+                <div class="panel-body">
+
+                    {{> identity}}
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Edit address</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

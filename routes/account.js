@@ -15,6 +15,7 @@ const tools = require('../lib/tools');
 // sub services
 router.use('/filters', passport.checkLogin, require('./account/filters'));
 router.use('/autoreply', passport.checkLogin, require('./account/autoreply'));
+router.use('/identities', passport.checkLogin, require('./account/identities'));
 
 router.use('/security', passport.checkLogin, require('./account/security'));
 

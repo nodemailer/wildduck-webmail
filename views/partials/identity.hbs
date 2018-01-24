@@ -1,0 +1,33 @@
+<div class="form-group{{#if errors.name}} has-error{{/if}}">
+    <label for="name">Name</label>
+    <input type="text" class="form-control" name="name" id="name" placeholder="eg &quot;John Smith&quot; or &quot;Accounting Department&quot;" value="{{#if values.name}}{{values.name}}{{/if}}" >
+    {{#if errors.name}}
+        <span class="help-block">{{errors.name}}</span>
+    {{else}}
+        <span class="help-block">This name is used as the sender name when using this identity. Keep blank to default to your account name</span>
+    {{/if}}
+</div>
+
+<div class="form-group{{#if errors.address}} has-error{{/if}}">
+    <label for="name">Alias address</label>
+    <div class="input-group">
+        <input type="text" class="form-control" name="address" id="address" placeholder="eg. &quot;username&quot; or &quot;user.name&quot; or &quot;андрис&quot;" value="{{values.address}}" required>
+        <div class="input-group-addon">@{{serviceDomain}}</div>
+    </div>
+
+    {{#if errors.address}}
+        <span class="help-block">{{errors.address}}</span>
+    {{else}}
+        <span class="help-block">Unicode characters are allowed in alias addresses.<span>
+    {{/if}}
+</div>
+
+{{#unless isMain}}
+    <div class="form-group">
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" name="main" {{#if values.main}}checked{{/if}}> Set as default
+            </label>
+        </div>
+    </div>
+{{/unless}}

@@ -62,20 +62,22 @@ const filterBaseSchema = {
         .optional()
         .label('Do not mark as spam'),
 
-    action_targets: Joi.array().items(
-        Joi.string()
-            .email()
-            .trim()
-            .empty(''),
-        Joi.string()
-            .trim()
-            .uri({
-                scheme: [/smtps?/, /https?/],
-                allowRelative: false,
-                relativeOnly: false
-            })
-            .empty('')
-    )
+    action_targets: Joi.array()
+        .items(
+            Joi.string()
+                .email()
+                .trim()
+                .empty(''),
+            Joi.string()
+                .trim()
+                .uri({
+                    scheme: [/smtps?/, /https?/],
+                    allowRelative: false,
+                    relativeOnly: false
+                })
+                .empty('')
+        )
+        .empty('')
 };
 
 router.get('/', (req, res, next) => {
@@ -112,7 +114,7 @@ router.get('/create', (req, res, next) => {
     });
 });
 
-router.get('/edit', (req, res, next) => {
+router.get('/edit', (req, res) => {
     const updateSchema = Joi.object().keys({
         id: Joi.string()
             .trim()
@@ -139,11 +141,13 @@ router.get('/edit', (req, res, next) => {
 
     apiClient.mailboxes.list(req.user.id, false, (err, mailboxes) => {
         if (err) {
-            return next(err);
+            req.flash('danger', err.message);
+            return res.redirect('/account/filters');
         }
         apiClient.filters.get(req.user.id, result.value.id, (err, filter) => {
             if (err) {
-                return next(err);
+                req.flash('danger', err.message);
+                return res.redirect('/account/filters');
             }
 
             prepareFilter(filter);
