@@ -12,7 +12,16 @@
     <label for="name">Alias address</label>
     <div class="input-group">
         <input type="text" class="form-control" name="address" id="address" placeholder="eg. &quot;username&quot; or &quot;user.name&quot; or &quot;андрис&quot;" value="{{values.address}}" required>
-        <div class="input-group-addon">@{{serviceDomain}}</div>
+        <span class="input-group-btn">
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                @<span class="selected-domain" style="text-transform: lowercase;">{{values.domain}}</span><span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-right">
+                  {{#each domains}}
+                    <li><a href="#" class="change-domain-link" data-domain="{{this}}">{{this}}</a></li>
+                  {{/each}}
+              </ul>
+         </span>
     </div>
 
     {{#if errors.address}}
@@ -31,3 +40,29 @@
         </div>
     </div>
 {{/unless}}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    var domainElement = document.getElementById('domain');
+
+    var updateDomain = function(e,elm){
+        e.preventDefault();
+        var domain = elm.dataset.domain;
+        if(domain){
+            domainElement.value = domain;
+            document.querySelector('.selected-domain').textContent = domain;
+        }
+    };
+
+    var setupDomainButton = function(elm){
+        elm.addEventListener('click', function(e){updateDomain(e,elm)}, false);
+        elm.addEventListener('touch', function(e){updateDomain(e,elm)}, false);
+    }
+
+    var domainLinks = document.querySelectorAll('.change-domain-link');
+    for(var i=0, len = domainLinks.length; i<len; i++){
+        setupDomainButton(domainLinks[i]);
+    }
+}, false);
+</script>

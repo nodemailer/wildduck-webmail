@@ -11,6 +11,8 @@ title="wildduck-www"
     forwards=2000
     identities=10
     allowJoin=true
+    # allowed domains for new addresses
+    domains=["localhost"]
 
 [api]
     url="http://127.0.0.1:8080"

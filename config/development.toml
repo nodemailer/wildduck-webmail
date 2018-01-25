@@ -5,6 +5,8 @@ name="Wild Duck Mail Temporary"
     domain="local.tahvel.info"
     # default quotas for new users
     quota=102400
+    # allowed domains for new addresses
+    domains=["local.tahvel.info", "example.com"]
 
 [www]
     proxy=true

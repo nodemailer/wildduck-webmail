@@ -37,9 +37,15 @@ router.get('/create', (req, res) => {
             return res.redirect('/account/identities');
         }
 
+        let domain = config.service.domains.includes(config.service.domain) ? config.service.domain : config.service.domains[0];
+
         res.render('account/identities/create', {
             title: 'Add address',
             activeIdentities: true,
+            domains: config.service.domains,
+            values: {
+                domain
+            },
             csrfToken: req.csrfToken()
         });
     });
@@ -59,6 +65,11 @@ router.post('/create', (req, res) => {
             .lowercase()
             .regex(/^[a-zA-Z0-9.\-\u0080-\uFFFF]+$/, 'address')
             .label('Address')
+            .required(),
+        domain: Joi.string()
+            .trim()
+            .valid(config.service.domains)
+            .label('Domain')
             .required(),
         main: Joi.boolean()
             .truthy(['Y', 'true', 'yes', 'on', 1])
@@ -82,6 +93,7 @@ router.post('/create', (req, res) => {
             title: 'Add address',
             activeIdentities: true,
 
+            domains: config.service.domains,
             values: result.value,
             errors,
 
@@ -118,7 +130,7 @@ router.post('/create', (req, res) => {
             req.user.id,
             {
                 name: result.value.name,
-                address: result.value.address + '@' + config.service.domain,
+                address: result.value.address + '@' + result.value.domain,
                 main: result.value.main
             },
             (err, data) => {
@@ -163,11 +175,14 @@ router.get('/edit', (req, res) => {
             req.flash('danger', err.message);
             return res.redirect('/account/identities');
         }
+        address.domain = address.address.substr(address.address.indexOf('@') + 1);
         address.address = address.address.substr(0, address.address.indexOf('@'));
+
         res.render('account/identities/edit', {
             title: 'Edit address',
             activeIdentities: true,
 
+            domains: config.service.domains,
             values: address,
             isMain: address.main,
 
@@ -197,6 +212,11 @@ router.post('/edit', (req, res) => {
             .regex(/^[a-zA-Z0-9.\-\u0080-\uFFFF]+$/, 'address')
             .label('Address')
             .required(),
+        domain: Joi.string()
+            .trim()
+            .valid(config.service.domains)
+            .label('Domain')
+            .required(),
         main: Joi.boolean()
             .truthy(['Y', 'true', 'yes', 'on', 1])
             .falsy(['N', 'false', 'no', 'off', 0, ''])
@@ -224,6 +244,7 @@ router.post('/edit', (req, res) => {
                 title: 'Edit address',
                 activeIdentities: true,
 
+                domains: config.service.domains,
                 values: result.value,
                 isMain: address.main,
 
@@ -250,7 +271,7 @@ router.post('/edit', (req, res) => {
 
     let updateData = {
         name: result.value.name,
-        address: result.value.address + '@' + config.service.domain
+        address: result.value.address + '@' + result.value.domain
     };
 
     if (result.value.main) {

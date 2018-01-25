@@ -9,12 +9,13 @@
 
         <form method="post" action="/account/create">
             <input type="hidden" name="_csrf" value="{{csrfToken}}">
+            <input type="hidden" id="domain" name="domain" value="{{values.domain}}">
 
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">Account information</h3>
-                    </div>
-                    <div class="panel-body">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Account information</h3>
+                </div>
+                <div class="panel-body">
 
                     <p>
                         Enter your account details. Account username is allowed to include latin characters only. Activated accounts can add extra identity addresses that may contain unicode characters as well.
@@ -35,7 +36,17 @@
                                 <label for="name">Your new address</label>
                                 <div class="input-group">
                                     <input type="text" class="form-control" name="username" id="username" placeholder="eg. &quot;username&quot; or &quot;user.name&quot;" value="{{values.username}}" pattern="^[A-Za-z0-9][A-Za-z\-\.0-9]*$" required>
-                                    <div class="input-group-addon">@{{serviceDomain}}</div>
+
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            @<span class="selected-domain" style="text-transform: lowercase;">{{values.domain}}</span><span class="caret"></span>
+                                          </button>
+                                          <ul class="dropdown-menu dropdown-menu-right">
+                                              {{#each domains}}
+                                                <li><a href="#" class="change-domain-link" data-domain="{{this}}">{{this}}</a></li>
+                                              {{/each}}
+                                          </ul>
+                                     </span>
                                 </div>
 
                                 {{#if errors.username}}
@@ -82,3 +93,29 @@
 
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    var domainElement = document.getElementById('domain');
+
+    var updateDomain = function(e,elm){
+        e.preventDefault();
+        var domain = elm.dataset.domain;
+        if(domain){
+            domainElement.value = domain;
+            document.querySelector('.selected-domain').textContent = domain;
+        }
+    };
+
+    var setupDomainButton = function(elm){
+        elm.addEventListener('click', function(e){updateDomain(e,elm)}, false);
+        elm.addEventListener('touch', function(e){updateDomain(e,elm)}, false);
+    }
+
+    var domainLinks = document.querySelectorAll('.change-domain-link');
+    for(var i=0, len = domainLinks.length; i<len; i++){
+        setupDomainButton(domainLinks[i]);
+    }
+}, false);
+</script>

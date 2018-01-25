@@ -9,6 +9,7 @@
     <div class="col-md-12">
         <form method="post" action="/account/identities/create">
             <input type="hidden" name="_csrf" value="{{csrfToken}}">
+            <input type="hidden" id="domain" name="domain" value="{{values.domain}}">
 
             <div class="panel panel-default">
                 <div class="panel-heading">

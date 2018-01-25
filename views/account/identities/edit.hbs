@@ -10,6 +10,7 @@
         <form method="post" action="/account/identities/edit">
             <input type="hidden" name="_csrf" value="{{csrfToken}}">
             <input type="hidden" name="id" value="{{values.id}}">
+            <input type="hidden" id="domain" name="domain" value="{{values.domain}}">
 
             <div class="panel panel-default">
                 <div class="panel-heading">

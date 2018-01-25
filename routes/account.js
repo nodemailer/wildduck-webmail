@@ -60,9 +60,16 @@ router.get('/create', (req, res, next) => {
         err.status = 404;
         return next(err);
     }
+
+    let domain = config.service.domains.includes(config.service.domain) ? config.service.domain : config.service.domains[0];
+
     res.render('account/create', {
         title: 'Create new account',
         activeCreate: true,
+        domains: config.service.domains,
+        values: {
+            domain
+        },
         csrfToken: req.csrfToken()
     });
 });
@@ -79,6 +86,11 @@ router.post('/create', (req, res, next) => {
             .min(3)
             .max(256)
             .label('Your name')
+            .required(),
+        domain: Joi.string()
+            .trim()
+            .valid(config.service.domains)
+            .label('Domain')
             .required(),
         password: Joi.string()
             .min(8)
@@ -139,6 +151,7 @@ router.post('/create', (req, res, next) => {
         }
         res.render('account/create', {
             title: 'Create new account',
+            domains: config.service.domains,
             values: result.value,
             errors,
             activeCreate: true,
@@ -169,7 +182,7 @@ router.post('/create', (req, res, next) => {
         });
     }
 
-    let address = tools.normalizeAddress(result.value.username + '@' + config.service.domain);
+    let address = tools.normalizeAddress(result.value.username + '@' + result.value.domain);
 
     apiClient.users.create(
         {
