@@ -26,11 +26,6 @@
                             <span class="glyphicon glyphicon-filter" aria-hidden="true"></span> Filters
                         </a>
                     </li>
-                    <li {{#if activeIdentities}} class="active" {{/if}}>
-                        <a href="/account/identities">
-                            <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Identities
-                        </a>
-                    </li>
                     <li {{#if activeAutoreply}} class="active" {{/if}}>
                         <a href="/account/autoreply">
                             <span class="glyphicon glyphicon-calendar" aria-hidden="true"></span> Autoreply
@@ -50,6 +45,7 @@
                             {{else}}
                                 {{user.username}}
                             {{/if}}
+
                           <span class="caret"></span></a>
                       <ul class="dropdown-menu">
                           <li {{#if activeHome}} class="active" {{/if}}>
@@ -60,6 +56,11 @@
                           <li {{#if activeProfile}} class="active" {{/if}}>
                               <a href="/account/profile">
                                   <span class="glyphicon glyphicon-user" aria-hidden="true"></span> Account
+                              </a>
+                          </li>
+                          <li {{#if activeIdentities}} class="active" {{/if}}>
+                              <a href="/account/identities">
+                                  <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Identities
                               </a>
                           </li>
                           <li {{#if activeSecurity}} class="active" {{/if}}>
