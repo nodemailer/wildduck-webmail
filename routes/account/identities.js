@@ -5,6 +5,8 @@ const express = require('express');
 const router = new express.Router();
 const apiClient = require('../../lib/api-client');
 const Joi = require('joi');
+const roleBasedAddresses = require('role-based-email-addresses');
+const util = require('util');
 
 router.get('/', (req, res, next) => {
     apiClient.addresses.list(req.user.id, (err, identities) => {
@@ -113,6 +115,15 @@ router.post('/create', (req, res) => {
         }
 
         return showErrors(errors);
+    }
+
+    if (
+        ['abuse', 'admin', 'administrator', 'hostmaster', 'majordomo', 'postmaster', 'root', 'ssl-admin', 'webmaster'].includes(result.value.address) ||
+        roleBasedAddresses.includes(result.value.address)
+    ) {
+        return showErrors({
+            address: util.format('"%s" is a reserved username', result.value.address)
+        });
     }
 
     apiClient.addresses.list(req.user.id, (err, identities) => {
@@ -230,16 +241,17 @@ router.post('/edit', (req, res) => {
         allowUnknown: false
     });
 
-    let showErrors = (errors, disableDefault) => {
-        if (!disableDefault) {
-            req.flash('danger', 'Failed to update identity');
+    apiClient.addresses.get(req.user.id, result.value.id, (err, address) => {
+        if (err) {
+            req.flash('danger', err.message);
+            return res.redirect('/account/identities');
         }
 
-        apiClient.addresses.get(req.user.id, result.value.id, (err, address) => {
-            if (err) {
-                req.flash('danger', err.message);
-                return res.redirect('/account/identities');
+        let showErrors = (errors, disableDefault) => {
+            if (!disableDefault) {
+                req.flash('danger', 'Failed to update identity');
             }
+
             res.render('account/identities/edit', {
                 title: 'Edit address',
                 activeIdentities: true,
@@ -252,40 +264,52 @@ router.post('/edit', (req, res) => {
 
                 csrfToken: req.csrfToken()
             });
+        };
+
+        if (result.error) {
+            let errors = {};
+            if (result.error && result.error.details) {
+                result.error.details.forEach(detail => {
+                    let path = detail.path;
+                    if (!errors[path]) {
+                        errors[path] = detail.message;
+                    }
+                });
+            }
+
+            return showErrors(errors);
+        }
+
+        // allow keeping existing priority usernames, disallow adding additional
+        if (address.address.substr(0, address.address.indexOf('@')) !== result.value.address) {
+            if (
+                ['abuse', 'admin', 'administrator', 'hostmaster', 'majordomo', 'postmaster', 'root', 'ssl-admin', 'webmaster'].includes(result.value.address) ||
+                roleBasedAddresses.includes(result.value.address)
+            ) {
+                return showErrors({
+                    address: util.format('"%s" is a reserved username', result.value.address)
+                });
+            }
+        }
+
+        let updateData = {
+            name: result.value.name,
+            address: result.value.address + '@' + result.value.domain
+        };
+
+        if (result.value.main) {
+            // do not send by default, only if it is true
+            updateData.main = result.value.main;
+        }
+
+        apiClient.addresses.update(req.user.id, result.value.id, updateData, err => {
+            if (err) {
+                req.flash('danger', err.message);
+                return showErrors(false, true);
+            }
+            req.flash('success', 'Identity was updated');
+            return res.redirect('/account/identities?updated=' + encodeURIComponent(result.value.id));
         });
-    };
-
-    if (result.error) {
-        let errors = {};
-        if (result.error && result.error.details) {
-            result.error.details.forEach(detail => {
-                let path = detail.path;
-                if (!errors[path]) {
-                    errors[path] = detail.message;
-                }
-            });
-        }
-
-        return showErrors(errors);
-    }
-
-    let updateData = {
-        name: result.value.name,
-        address: result.value.address + '@' + result.value.domain
-    };
-
-    if (result.value.main) {
-        // do not send by default, only if it is true
-        updateData.main = result.value.main;
-    }
-
-    apiClient.addresses.update(req.user.id, result.value.id, updateData, err => {
-        if (err) {
-            req.flash('danger', err.message);
-            return showErrors(false, true);
-        }
-        req.flash('success', 'Identity was updated');
-        return res.redirect('/account/identities?updated=' + encodeURIComponent(result.value.id));
     });
 });
 
