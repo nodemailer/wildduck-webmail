@@ -31,9 +31,9 @@
                         <tr>
                             <td>
                                 {{#if enabled2fa}}
-                                    Two factor authentication is <span class="label label-success"><span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span> ENABLED</span>
+                                    Two factor authentication is <span class="label label-success"><span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span> Enabled</span>
                                 {{else}}
-                                    Two factor authentication is <span class="label label-default"><span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span> DISABLED</span>
+                                    Two factor authentication is <span class="label label-default"><span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span> Disabled</span>
                                 {{/if}}
                             </td>
                             <td class="text-right">
@@ -52,18 +52,18 @@
                         <tr>
                             <td>
                                 {{#if enabledU2f}}
-                                    U2F security key is <span class="label label-success"><span class="glyphicon glyphicon-flash" aria-hidden="true"></span> REGISTERED</span>
+                                    U2F security key is <span class="label label-success"><span class="glyphicon glyphicon-flash" aria-hidden="true"></span> Enabled</span>
                                 {{else}}
-                                    U2F security key is <span class="label label-default"><span class="glyphicon glyphicon-flash" aria-hidden="true"></span> NOT REGISTERED</span>
+                                    U2F security key is <span class="label label-default"><span class="glyphicon glyphicon-flash" aria-hidden="true"></span> Disabled</span>
                                 {{/if}}
                             </td>
                             <td class="text-right">
                                 {{#if enabledU2f}}
-                                    <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#revokeModal"><span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span> Revoke</button>
+                                    <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#revokeModal"><span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span> Disable</button>
                                 {{else}}
                                     <form method="post" id="enable-u2f" action="/account/security/2fa/enable-u2f">
                                         <input type="hidden" name="_csrf" value="{{csrfToken}}">
-                                        <button type="submit" class="btn btn-success btn-xs"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Add key</button>
+                                        <button type="submit" class="btn btn-success btn-xs"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Enable</button>
                                     </form>
                                 {{/if}}
                             </td>
