@@ -378,6 +378,6 @@ tr.identity-main td {
     justify-content: center;
     margin: 0px auto;
     width: 100%;
-    z-index: 10000;
+    z-index: 1025;
     margin-top: -25px;
 }
