@@ -1,67 +1,80 @@
 <div class="row">
     <div class="col-md-12">
-        <h1><span class="glyphicon glyphicon-user" aria-hidden="true"></span> Account</h1>
+        <h1><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Account</h1>
     </div>
 </div>
 
 <div class="row">
     <div class="col-md-12">
-        <form method="post" action="/account/profile">
-            <input type="hidden" name="_csrf" value="{{csrfToken}}">
 
-            <fieldset>
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">General</h3>
-                    </div>
-                    <div class="panel-body">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            {{> accountmenu}}
+        </ul>
 
-                        <div class="form-group">
-                            <label class="control-label">Username</label>
-                            <div class="input-group">
-                                <p class="form-control-static">{{values.username}}</p>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="overview">
+
+                <p>&nbsp;</p>
+
+
+                <form method="post" action="/account/profile">
+                    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+
+                    <fieldset>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">General</h3>
+                            </div>
+                            <div class="panel-body">
+
+                                <div class="form-group">
+                                    <label class="control-label">Username</label>
+                                    <div class="input-group">
+                                        <p class="form-control-static">{{values.username}}</p>
+                                    </div>
+                                </div>
+
+                                <div class="form-group{{#if errors.name}} has-error{{/if}}">
+                                    <label for="name">Your name</label>
+                                    <input type="text" class="form-control" name="name" id="name" placeholder="eg. &quot;Jaan Tamm&quot;" value="{{values.name}}">
+                                    {{#if errors.name}}
+                                        <span class="help-block">{{errors.name}}</span>
+                                    {{/if}}
+                                </div>
+
                             </div>
                         </div>
 
-                        <div class="form-group{{#if errors.name}} has-error{{/if}}">
-                            <label for="name">Your name</label>
-                            <input type="text" class="form-control" name="name" id="name" placeholder="eg. &quot;Jaan Tamm&quot;" value="{{values.name}}">
-                            {{#if errors.name}}
-                                <span class="help-block">{{errors.name}}</span>
-                            {{/if}}
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">Message forwarding</h3>
+                            </div>
+                            <div class="panel-body">
+
+                                <p>
+                                    Leave the following fields blank if you do not wish to forward all incoming emails
+                                </p>
+
+                                <div class="form-group{{#if errors.targets}} has-error{{/if}}">
+                                    <label for="targets">Forward incoming messages to:</label>
+                                    <input type="text" class="form-control" name="targets" id="targets" placeholder="user@example.com" value="{{values.targets}}">
+                                    {{#if errors.targets}}
+                                        <span class="help-block">{{errors.targets}}</span>
+                                    {{/if}}
+                                    <span class="help-block">Use comma separated list of addresses for multiple recipients</span>
+                                </div>
+                            </div>
                         </div>
 
+                    </fieldset>
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Update</button>
                     </div>
-                </div>
 
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">Message forwarding</h3>
-                    </div>
-                    <div class="panel-body">
-
-                        <p>
-                            Leave the following fields blank if you do not wish to forward all incoming emails
-                        </p>
-
-                        <div class="form-group{{#if errors.targets}} has-error{{/if}}">
-                            <label for="targets">Forward incoming messages to:</label>
-                            <input type="text" class="form-control" name="targets" id="targets" placeholder="user@example.com" value="{{values.targets}}">
-                            {{#if errors.targets}}
-                                <span class="help-block">{{errors.targets}}</span>
-                            {{/if}}
-                            <span class="help-block">Use comma separated list of addresses for multiple recipients</span>
-                        </div>
-                    </div>
-                </div>
-
-            </fieldset>
-
-            <div class="form-group">
-                <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Update</button>
+                </form>
             </div>
-
-        </form>
-
+        </div>
     </div>
 </div>

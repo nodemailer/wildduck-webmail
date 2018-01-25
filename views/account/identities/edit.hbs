@@ -1,35 +1,46 @@
 <div class="row">
     <div class="col-md-12">
-        <h1><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Edit address</h1>
+        <h1><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Account</h1>
     </div>
 </div>
 
-
 <div class="row">
     <div class="col-md-12">
-        <form method="post" action="/account/identities/edit">
-            <input type="hidden" name="_csrf" value="{{csrfToken}}">
-            <input type="hidden" name="id" value="{{values.id}}">
-            <input type="hidden" id="domain" name="domain" value="{{values.domain}}">
 
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Identity information</h3>
-                </div>
-                <div class="panel-body">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            {{> accountmenu}}
+        </ul>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            {{> identity}}
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="overview">
+
+                <p>&nbsp;</p>
+                <form method="post" action="/account/identities/edit">
+                    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                    <input type="hidden" name="id" value="{{values.id}}">
+                    <input type="hidden" id="domain" name="domain" value="{{values.domain}}">
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">Identity information</h3>
+                        </div>
+                        <div class="panel-body">
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{> identity}}
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Edit address</button>
+                                <a href="/account/identities" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span> Cancel</a>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Edit address</button>
-                        <a href="/account/identities" class="btn btn-warning"><span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span> Cancel</a>
-                    </div>
-                </div>
+                </form>
             </div>
-        </form>
+        </div>
     </div>
 </div>

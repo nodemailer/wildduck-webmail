@@ -1,81 +1,93 @@
 <div class="row">
     <div class="col-md-12">
-        <h1><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Identities</h1>
+        <h1><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Account</h1>
     </div>
 </div>
 
 <div class="row">
     <div class="col-md-12">
 
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">Manage identities</h3></div>
-            <div class="panel-body">
-                <p>Here you can add and modify alias addresses for your account. Aliases act just like your main address. You can not send out emails from identities that you do not own.</p>
-            </div>
-            <table class="table table-responsive">
-                <thead>
-                    <th>
-                        &nbsp;
-                    </th>
-                    <th>
-                        Identity name
-                    </th>
-                    <th>
-                        Alias Address
-                    </th>
-                    <th>
-                        Created
-                    </th>
-                    <th>
-                        &nbsp;
-                    </th>
-                </thead>
-                <tbody>
-                    {{#each identities}}
-                        <tr class="{{#if main}}identity-main{{/if}}">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            {{> accountmenu}}
+        </ul>
+
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="overview">
+
+                <p>&nbsp;</p>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Manage identities</h3></div>
+                    <div class="panel-body">
+                        <p>Here you can add and modify alias addresses for your account. Aliases act just like your main address. You can not send out emails from identities that you do not own.</p>
+                    </div>
+                    <table class="table table-responsive">
+                        <thead>
                             <th>
-                                {{index}}
+                                &nbsp;
                             </th>
+                            <th>
+                                Identity name
+                            </th>
+                            <th>
+                                Alias Address
+                            </th>
+                            <th>
+                                Created
+                            </th>
+                            <th>
+                                &nbsp;
+                            </th>
+                        </thead>
+                        <tbody>
+                            {{#each identities}}
+                                <tr class="{{#if main}}identity-main{{/if}}">
+                                    <th>
+                                        {{index}}
+                                    </th>
 
-                            <td>
-                                {{#if name}}
-                                    {{name}}
-                                {{else}}
-                                    <em>–</em>
-                                {{/if}}
-                            </td>
+                                    <td>
+                                        {{#if name}}
+                                            {{name}}
+                                        {{else}}
+                                            <em>–</em>
+                                        {{/if}}
+                                    </td>
 
-                            <td>
-                                {{#if main}}
-                                    {{address}} <span>(default)</span>
-                                {{else}}
-                                    {{address}}
-                                {{/if}}
-                            </td>
+                                    <td>
+                                        {{#if main}}
+                                            {{address}} <span>(default)</span>
+                                        {{else}}
+                                            {{address}}
+                                        {{/if}}
+                                    </td>
 
-                            <td class="datestring" title="{{created}}">
-                                {{created}}
-                            </td>
+                                    <td class="datestring" title="{{created}}">
+                                        {{created}}
+                                    </td>
 
-                            <td class="text-right">
-                                <a href="/account/identities/edit?id={{id}}" class="btn btn-info btn-xs"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit</a>
-                                <button class="btn btn-danger btn-xs" data-address="{{address}}" {{#if main}}disabled{{else}}data-identity="{{id}}" data-toggle="modal" data-target="#deleteModal"{{/if}}><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete</button>
-                            </td>
-                        </tr>
-                    {{/each}}
-                </tbody>
-            </table>
+                                    <td class="text-right">
+                                        <a href="/account/identities/edit?id={{id}}" class="btn btn-info btn-xs"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> Edit</a>
+                                        <button class="btn btn-danger btn-xs" data-address="{{address}}" {{#if main}}disabled{{else}}data-identity="{{id}}" data-toggle="modal" data-target="#deleteModal"{{/if}}><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete</button>
+                                    </td>
+                                </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
 
-            <div class="panel-body">
-                <div class="form-group">
-                    {{#if canCreate}}
-                        <a href="/account/identities/create" class="btn btn-success"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Add new address</a>
-                    {{else}}
-                        <p class="text-muted">
-                            Maximum amount of identities created
-                        </p>
-                    {{/if}}
+                    <div class="panel-body">
+                        <div class="form-group">
+                            {{#if canCreate}}
+                                <a href="/account/identities/create" class="btn btn-success"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Add new address</a>
+                            {{else}}
+                                <p class="text-muted">
+                                    Maximum amount of identities created
+                                </p>
+                            {{/if}}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

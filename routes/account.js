@@ -21,7 +21,8 @@ router.use('/security', passport.checkLogin, require('./account/security'));
 
 router.get('/', passport.checkLogin, (req, res) => {
     res.render('account/index', {
-        activeHome: true,
+        activeSecurity: true,
+        accMenuOverview: true,
 
         address: req.user.address,
 
@@ -220,7 +221,9 @@ router.get('/profile', passport.checkLogin, (req, res) => {
 
     res.render('account/profile', {
         title: 'Account',
-        activeProfile: true,
+        activeSecurity: true,
+        accMenuProfile: true,
+
         values: req.user,
         csrfToken: req.csrfToken()
     });
@@ -316,7 +319,9 @@ router.post('/profile', passport.checkLogin, (req, res) => {
 
         res.render('account/profile', {
             title: 'Account',
-            activeProfile: true,
+            activeSecurity: true,
+            accMenuProfile: true,
+
             values: result.value,
             errors,
 
