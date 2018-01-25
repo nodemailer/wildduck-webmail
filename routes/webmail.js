@@ -110,11 +110,30 @@ router.get('/send', (req, res) => {
                     return;
                 }
 
-                if (messageData && messageData.meta && messageData.meta.reference) {
-                    // override reference info
-                    action = messageData.meta.reference.action;
-                    refMailbox = messageData.meta.reference.mailbox;
-                    refMessage = messageData.meta.reference.id;
+                if (messageData && messageData.meta) {
+                    if (messageData.meta.reference) {
+                        // override reference info
+                        action = messageData.meta.reference.action;
+                        refMailbox = messageData.meta.reference.mailbox;
+                        refMessage = messageData.meta.reference.id;
+                    }
+                }
+
+                let deliveredTo;
+                let hasFromAddress = false;
+                if (!isDraft && messageData && messageData.envelope && messageData.envelope.rcpt.length) {
+                    deliveredTo = messageData.envelope.rcpt[0].formatted;
+                    // see if the same address is available as an identity
+                    addresses.forEach(address => {
+                        if (address.main) {
+                            // we only care if a non-main address was used
+                            return;
+                        }
+                        if (deliveredTo === tools.normalizeAddress(address.address, false, { removeLabel: true, removeDots: true })) {
+                            hasFromAddress = address;
+                            address.selected = true;
+                        }
+                    });
                 }
 
                 let to = [];
@@ -235,7 +254,12 @@ router.get('/send', (req, res) => {
                     activeWebmail: true,
                     mailboxes: prepareMailboxList(mailboxes),
 
+                    // something other than main address might have been the recipient (if this is a reply)
+                    fromAddress: hasFromAddress,
                     addresses: addresses.map(address => {
+                        if (hasFromAddress) {
+                            return address;
+                        }
                         address.name = address.name || req.user.name;
                         address.selected = address.main;
                         return address;
