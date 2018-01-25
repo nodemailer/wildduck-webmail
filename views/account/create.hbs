@@ -5,7 +5,7 @@
 </div>
 
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-12">
 
         <form method="post" action="/account/create">
             <input type="hidden" name="_csrf" value="{{csrfToken}}">
@@ -17,52 +17,58 @@
                     <div class="panel-body">
 
                     <p>
-                        Enter your account details. Account username (and first e-mail address) can only use latin characters. Activated accounts can add extra identity addresses that may contain unicode characters.
+                        Enter your account details. Account username is allowed to include latin characters only. Activated accounts can add extra identity addresses that may contain unicode characters as well.
                     </p>
 
-                    <div class="form-group{{#if errors.name}} has-error{{/if}}">
-                        <label for="name">Your name</label>
-                        <input type="text" class="form-control" name="name" id="name" placeholder="eg. &quot;Jaan Tamm&quot;" value="{{values.name}}" required>
-                        {{#if errors.name}}
-                            <span class="help-block">{{errors.name}}</span>
-                        {{/if}}
-                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
 
-                    <div class="form-group{{#if errors.username}} has-error{{/if}}">
-                        <label for="name">Your new address</label>
-                        <div class="input-group">
-                            <input type="text" class="form-control" name="username" id="username" placeholder="eg. &quot;username&quot; or &quot;user.name&quot;" value="{{values.username}}" pattern="^[A-Za-z0-9][A-Za-z\-\.0-9]*$" required>
-                            <div class="input-group-addon">@{{serviceDomain}}</div>
-                        </div>
-
-                        {{#if errors.username}}
-                            <span class="help-block">{{errors.username}}</span>
-                        {{else}}
-                            <span class="help-block">Latin letters and numbers only. Dots and dashes are allowed as separators.<span>
-                        {{/if}}
-                    </div>
-
-                    <div class="form-group{{#if errors.password}} has-error{{/if}}">
-                        <label for="password">Your password</label>
-                        <input type="password" class="form-control" name="password" id="password" placeholder="eg. &quot;supersecret&quot;" required>
-                        {{#if errors.password}}
-                            <span class="help-block">{{errors.password}}</span>
-                        {{/if}}
-                    </div>
-
-                    <div class="form-group{{#if errors.password}} has-error{{/if}}">
-                        <label for="password2">Repeat password</label>
-                        <input type="password" class="form-control" name="password2" id="password2" placeholder="repeat password" required>
-                    </div>
-
-                    <div class="form-group{{#if errors.remember}} has-error{{/if}}">
-                        <div class="checkbox">
-                            <label>
-                                <input type="checkbox" name="remember" required> Agree to <a href="/tos" target="_blank">terms of service</a>
-                                {{#if errors.remember}}
-                                    <span class="help-block">{{errors.remember}}</span>
+                            <div class="form-group{{#if errors.name}} has-error{{/if}}">
+                                <label for="name">Your name</label>
+                                <input type="text" class="form-control" name="name" id="name" placeholder="eg. &quot;Jaan Tamm&quot;" value="{{values.name}}" required>
+                                {{#if errors.name}}
+                                    <span class="help-block">{{errors.name}}</span>
                                 {{/if}}
-                            </label>
+                            </div>
+
+                            <div class="form-group{{#if errors.username}} has-error{{/if}}">
+                                <label for="name">Your new address</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="username" id="username" placeholder="eg. &quot;username&quot; or &quot;user.name&quot;" value="{{values.username}}" pattern="^[A-Za-z0-9][A-Za-z\-\.0-9]*$" required>
+                                    <div class="input-group-addon">@{{serviceDomain}}</div>
+                                </div>
+
+                                {{#if errors.username}}
+                                    <span class="help-block">{{errors.username}}</span>
+                                {{else}}
+                                    <span class="help-block">Latin letters and numbers only. Dots and dashes are allowed as separators.<span>
+                                {{/if}}
+                            </div>
+
+                            <div class="form-group{{#if errors.password}} has-error{{/if}}">
+                                <label for="password">Your password</label>
+                                <input type="password" class="form-control" name="password" id="password" placeholder="eg. &quot;supersecret&quot;" required>
+                                {{#if errors.password}}
+                                    <span class="help-block">{{errors.password}}</span>
+                                {{/if}}
+                            </div>
+
+                            <div class="form-group{{#if errors.password}} has-error{{/if}}">
+                                <label for="password2">Repeat password</label>
+                                <input type="password" class="form-control" name="password2" id="password2" placeholder="repeat password" required>
+                            </div>
+
+                            <div class="form-group{{#if errors.remember}} has-error{{/if}}">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" name="remember" required> Agree to <a href="/tos" target="_blank">terms of service</a>
+                                        {{#if errors.remember}}
+                                            <span class="help-block">{{errors.remember}}</span>
+                                        {{/if}}
+                                    </label>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
 

@@ -9,6 +9,10 @@
 
     {{>navbar}}
 
+    <div class="flash-messages">
+        {{flash_messages}}
+    </div>
+
     <div class="webmail-container">
         <div class="sidebar-container">
             <div class="sidebar">
@@ -43,12 +47,8 @@
                 </ul>
             </div>
         </div>
+
         <div class="webmail-main">
-
-            <div style="margin-top: 5px;">
-                {{flash_messages}}
-            </div>
-
             {{{body}}}
 
         </div>

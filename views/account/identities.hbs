@@ -69,7 +69,13 @@
 
             <div class="panel-body">
                 <div class="form-group">
-                    <a href="/account/identities/create" class="btn btn-success"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Add new address</a>
+                    {{#if canCreate}}
+                        <a href="/account/identities/create" class="btn btn-success"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span> Add new address</a>
+                    {{else}}
+                        <p class="text-muted">
+                            Maximum amount of identities created
+                        </p>
+                    {{/if}}
                 </div>
             </div>
         </div>

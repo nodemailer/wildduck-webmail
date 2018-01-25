@@ -44,3 +44,18 @@
         var FAVICON = false;
     </script>
 {{/if}}
+
+
+<script>
+window.setTimeout(function(){
+    var alerts = document.querySelectorAll('.flash-messages');
+    var elm;
+    for(var i=0, len = alerts.length; i<len; i++){
+        elm = alerts[i];
+        if(elm.parentNode){
+            elm.parentNode.removeChild(elm);
+        }
+    }
+}, 10 * 1000);
+
+</script>

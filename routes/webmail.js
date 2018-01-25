@@ -110,6 +110,13 @@ router.get('/send', (req, res) => {
                     return;
                 }
 
+                let hasFromAddress = false;
+
+                let deliveredTo;
+                if (!isDraft && messageData && messageData.envelope && messageData.envelope.rcpt.length) {
+                    deliveredTo = messageData.envelope.rcpt[0].formatted;
+                }
+
                 if (messageData && messageData.meta) {
                     if (messageData.meta.reference) {
                         // override reference info
@@ -117,12 +124,22 @@ router.get('/send', (req, res) => {
                         refMailbox = messageData.meta.reference.mailbox;
                         refMessage = messageData.meta.reference.id;
                     }
+                    if (messageData.meta.hasFromAddress) {
+                        // override sender address
+                        addresses.forEach(address => {
+                            if (address.main) {
+                                // we only care if a non-main address was used
+                                return;
+                            }
+                            if (messageData.meta.hasFromAddress === address.id) {
+                                hasFromAddress = address;
+                                address.selected = true;
+                            }
+                        });
+                    }
                 }
 
-                let deliveredTo;
-                let hasFromAddress = false;
-                if (!isDraft && messageData && messageData.envelope && messageData.envelope.rcpt.length) {
-                    deliveredTo = messageData.envelope.rcpt[0].formatted;
+                if (!hasFromAddress && deliveredTo) {
                     // see if the same address is available as an identity
                     addresses.forEach(address => {
                         if (address.main) {
@@ -441,7 +458,8 @@ router.post('/send', (req, res) => {
                     action
                 };
                 messageData.meta = {
-                    reference: messageData.reference
+                    reference: messageData.reference,
+                    hasFromAddress: result.value.from
                 };
                 break;
         }

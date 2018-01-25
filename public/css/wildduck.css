@@ -364,3 +364,20 @@ tr.identity-main td {
     display: inline-block;
     border: 0;
 }
+
+.alert {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    display: inline-block;
+    margin: 0px auto;
+}
+
+.flash-messages {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    margin: 0px auto;
+    width: 100%;
+    z-index: 10000;
+    margin-top: -25px;
+}

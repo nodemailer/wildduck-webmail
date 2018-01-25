@@ -15,6 +15,7 @@ router.get('/', (req, res, next) => {
         res.render('account/identities', {
             title: 'Identities',
             activeIdentities: true,
+            canCreate: identities.length < config.service.identities,
             identities: identities.map((identity, i) => {
                 identity.index = i + 1;
                 return identity;
@@ -25,10 +26,22 @@ router.get('/', (req, res, next) => {
 });
 
 router.get('/create', (req, res) => {
-    res.render('account/identities/create', {
-        title: 'Add address',
-        activeIdentities: true,
-        csrfToken: req.csrfToken()
+    apiClient.addresses.list(req.user.id, (err, identities) => {
+        if (err) {
+            req.flash('danger', err.message);
+            return res.redirect('/account/identities');
+        }
+
+        if (identities && identities.length >= config.service.identities) {
+            req.flash('danger', 'Maximum amount of identities created');
+            return res.redirect('/account/identities');
+        }
+
+        res.render('account/identities/create', {
+            title: 'Add address',
+            activeIdentities: true,
+            csrfToken: req.csrfToken()
+        });
     });
 });
 
@@ -90,22 +103,34 @@ router.post('/create', (req, res) => {
         return showErrors(errors);
     }
 
-    apiClient.addresses.create(
-        req.user.id,
-        {
-            name: result.value.name,
-            address: result.value.address + '@' + config.service.domain,
-            main: result.value.main
-        },
-        (err, data) => {
-            if (err) {
-                req.flash('danger', err.message);
-                return showErrors(false, true);
-            }
-            req.flash('success', 'Address was created');
-            return res.redirect('/account/identities?created=' + encodeURIComponent(data.id));
+    apiClient.addresses.list(req.user.id, (err, identities) => {
+        if (err) {
+            req.flash('danger', err.message);
+            return res.redirect('/account/identities');
         }
-    );
+
+        if (identities && identities.length >= config.service.identities) {
+            req.flash('danger', 'Maximum amount of identities created');
+            return res.redirect('/account/identities');
+        }
+
+        apiClient.addresses.create(
+            req.user.id,
+            {
+                name: result.value.name,
+                address: result.value.address + '@' + config.service.domain,
+                main: result.value.main
+            },
+            (err, data) => {
+                if (err) {
+                    req.flash('danger', err.message);
+                    return showErrors(false, true);
+                }
+                req.flash('success', 'Address was created');
+                return res.redirect('/account/identities?created=' + encodeURIComponent(data.id));
+            }
+        );
+    });
 });
 
 router.get('/edit', (req, res) => {

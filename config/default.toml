@@ -9,6 +9,7 @@ title="wildduck-www"
     quota=1024
     recipients=2000
     forwards=2000
+    identities=10
     allowJoin=true
 
 [api]
