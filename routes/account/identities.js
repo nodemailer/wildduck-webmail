@@ -16,7 +16,7 @@ router.get('/', (req, res, next) => {
 
         res.render('account/identities', {
             title: 'Identities',
-            activeSecurity: true,
+            activeHome: true,
             accMenuIdentities: true,
 
             canCreate: identities.length < config.service.identities,
@@ -45,7 +45,7 @@ router.get('/create', (req, res) => {
 
         res.render('account/identities/create', {
             title: 'Add address',
-            activeSecurity: true,
+            activeHome: true,
             accMenuIdentities: true,
 
             domains: config.service.domains,
@@ -97,7 +97,7 @@ router.post('/create', (req, res) => {
 
         res.render('account/identities/create', {
             title: 'Add address',
-            activeSecurity: true,
+            activeHome: true,
             accMenuIdentities: true,
 
             domains: config.service.domains,
@@ -196,7 +196,7 @@ router.get('/edit', (req, res) => {
 
         res.render('account/identities/edit', {
             title: 'Edit address',
-            activeSecurity: true,
+            activeHome: true,
             accMenuIdentities: true,
 
             domains: config.service.domains,
@@ -260,7 +260,7 @@ router.post('/edit', (req, res) => {
 
             res.render('account/identities/edit', {
                 title: 'Edit address',
-                activeSecurity: true,
+                activeHome: true,
                 accMenuIdentities: true,
 
                 domains: config.service.domains,
