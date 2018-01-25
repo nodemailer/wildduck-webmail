@@ -22,60 +22,54 @@
                         <h3 class="panel-title">Two factor authentication</h3>
                     </div>
                     <div class="panel-body">
-
                         <p>
-                            If two factor authentication is enabled, then external applications can not access IMAP, POP3 ja SMTP using the account password and <a href="/account/security/asps">application specific passwords</a> must be generated for these applications.
+                            If two factor authentication is enabled, then external applications can not access IMAP, POP3 ja SMTP using the account password. <a href="/account/security/asps">Application specific passwords</a> must be generated instead for these applications.
                         </p>
+                    </div>
 
-                        <table class="table">
-                            <tr>
-                                <td>
-                                    {{#if enabled2fa}}
-                                        Two factor authentication is <span class="label label-success"><span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span> ENABLED</span>
-                                    {{else}}
-                                        Two factor authentication is <span class="label label-default"><span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span> DISABLED</span>
-                                    {{/if}}
-                                </td>
-                                <td class="text-right">
-                                    {{#if enabled2fa}}
-                                        <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span> Disable</button>
-                                    {{else}}
-                                        <form method="post" id="enable-2fa" action="/account/security/2fa/enable-totp">
-                                            <input type="hidden" name="_csrf" value="{{csrfToken}}">
-                                            <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-plus-sign-sign" aria-hidden="true"></span> Enable</button>
-                                        </form>
-                                    {{/if}}
-                                </td>
-                            </tr>
-                        </table>
+                    <table class="table table-responsive">
+                        <tr>
+                            <td>
+                                {{#if enabled2fa}}
+                                    Two factor authentication is <span class="label label-success"><span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span> ENABLED</span>
+                                {{else}}
+                                    Two factor authentication is <span class="label label-default"><span class="glyphicon glyphicon-qrcode" aria-hidden="true"></span> DISABLED</span>
+                                {{/if}}
+                            </td>
+                            <td class="text-right">
+                                {{#if enabled2fa}}
+                                    <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span> Disable</button>
+                                {{else}}
+                                    <form method="post" id="enable-2fa" action="/account/security/2fa/enable-totp">
+                                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                                        <button type="submit" class="btn btn-success btn-xs"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Enable</button>
+                                    </form>
+                                {{/if}}
+                            </td>
+                        </tr>
 
                         {{#if enabled2fa}}
-                            <h4>
-                                Additional two factor options
-                            </h4>
-                            <table class="table">
-                                <tr>
-                                    <td>
-                                        {{#if enabledU2f}}
-                                            U2F security key is <span class="label label-success"><span class="glyphicon glyphicon-flash" aria-hidden="true"></span> REGISTERED</span>
-                                        {{else}}
-                                            U2F security key is <span class="label label-default"><span class="glyphicon glyphicon-flash" aria-hidden="true"></span> NOT REGISTERED</span>
-                                        {{/if}}
-                                    </td>
-                                    <td class="text-right">
-                                        {{#if enabledU2f}}
-                                            <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#revokeModal"><span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span> Revoke</button>
-                                        {{else}}
-                                            <form method="post" id="enable-u2f" action="/account/security/2fa/enable-u2f">
-                                                <input type="hidden" name="_csrf" value="{{csrfToken}}">
-                                                <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-plus-sign-sign" aria-hidden="true"></span> Add key</button>
-                                            </form>
-                                        {{/if}}
-                                    </td>
-                                </tr>
-                            </table>
+                        <tr>
+                            <td>
+                                {{#if enabledU2f}}
+                                    U2F security key is <span class="label label-success"><span class="glyphicon glyphicon-flash" aria-hidden="true"></span> REGISTERED</span>
+                                {{else}}
+                                    U2F security key is <span class="label label-default"><span class="glyphicon glyphicon-flash" aria-hidden="true"></span> NOT REGISTERED</span>
+                                {{/if}}
+                            </td>
+                            <td class="text-right">
+                                {{#if enabledU2f}}
+                                    <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#revokeModal"><span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span> Revoke</button>
+                                {{else}}
+                                    <form method="post" id="enable-u2f" action="/account/security/2fa/enable-u2f">
+                                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                                        <button type="submit" class="btn btn-success btn-xs"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Add key</button>
+                                    </form>
+                                {{/if}}
+                            </td>
+                        </tr>
                         {{/if}}
-                    </div>
+                    </table>
                 </div>
             </div>
         </div>

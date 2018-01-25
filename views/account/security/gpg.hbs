@@ -29,7 +29,7 @@
                             <div class="panel-body">
 
                                 <p>
-                                    Wild Duck is able to encrypt all cleartext messages that are sent to your address with your public key before storing these to disk.
+                                    If encryption is enabled then {{serviceName}} encrypts all incoming cleartext messages using your public key before storing these to disk. Be aware though that {{serviceName}} does not have your private key and thus can not recover any messages in case the key is lost.
                                 </p>
 
                                 <div class="form-group{{#if errors.encryptMessages}} has-error{{/if}}">
@@ -49,7 +49,9 @@
                                         <label>Current key:</label>
                                         <div class="form-control-static">
                                             <div class="pull-right">
-                                                <input type="checkbox" name="removeKey" value="yes"/> Remove current key
+                                                <label>
+                                                    <input type="checkbox" name="removeKey" value="yes"/> Remove current key
+                                                </label>
                                             </div>
                                             <div>
                                                 <code class="response">{{fingerprint}}</code> {{#if keyAddress}}(<em>{{keyAddress}}</em>){{/if}}
@@ -68,7 +70,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Update GPG Key</button>
+                                    <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Update encryption settings</button>
                                 </div>
 
                             </div>
