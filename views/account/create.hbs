@@ -7,7 +7,7 @@
 <div class="row">
     <div class="col-md-12">
 
-        <form method="post" action="/account/create">
+        <form method="post" id="create-form" action="/account/create">
             <input type="hidden" name="_csrf" value="{{csrfToken}}">
             <input type="hidden" id="domain" name="domain" value="{{values.domain}}">
 
@@ -84,7 +84,16 @@
                     </div>
 
                     <div class="form-group">
-                        <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>Create new account</button>
+                        {{#if recaptcha}}
+                            <button
+                                class="g-recaptcha btn btn-success"
+                                data-sitekey="{{recaptcha}}"
+                                data-callback="onCreateSubmit">
+                                <span class="glyphicon glyphicon-user" aria-hidden="true"></span>Create new accoun
+                            </button>
+                        {{else}}
+                            <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-user" aria-hidden="true"></span>Create new account</button>
+                        {{/if}}
                     </div>
                 </div>
             </div>
@@ -93,6 +102,16 @@
 
     </div>
 </div>
+
+{{#if recaptcha}}
+    <script src='https://www.google.com/recaptcha/api.js'></script>
+
+    <script>
+    function onCreateSubmit(token) {
+        document.getElementById("create-form").submit();
+    }
+    </script>
+{{/if}}
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

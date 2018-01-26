@@ -99,6 +99,11 @@ app.use((req, res, next) => {
     // userdata
     res.locals.user = req.user;
 
+    // recaptcha
+    if (config.recaptcha.enabled) {
+        res.locals.recaptcha = config.recaptcha.siteKey;
+    }
+
     // values needed to show unseen messages counter
     res.locals.inboxId = req.user ? req.user.inbox.id : false;
     res.locals.inboxUnseen = req.user ? req.user.inbox.unseen : false;

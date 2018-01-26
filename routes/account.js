@@ -11,6 +11,22 @@ const roleBasedAddresses = require('role-based-email-addresses');
 const util = require('util');
 const humanize = require('humanize');
 const tools = require('../lib/tools');
+const Recaptcha = require('express-recaptcha');
+let recaptcha;
+
+if (config.recaptcha.enabled) {
+    recaptcha = new Recaptcha(config.recaptcha.siteKey, config.recaptcha.secretKey);
+}
+
+const recaptchaVerify = function(req, res, next) {
+    if (!config.recaptcha.enabled) {
+        req.recaptcha = {
+            error: false
+        };
+        return next();
+    }
+    recaptcha.middleware.verify(...arguments);
+};
 
 // sub services
 router.use('/filters', passport.checkLogin, require('./account/filters'));
@@ -76,7 +92,7 @@ router.get('/create', (req, res, next) => {
     });
 });
 
-router.post('/create', (req, res, next) => {
+router.post('/create', recaptchaVerify, (req, res, next) => {
     if (!config.service.allowJoin) {
         let err = new Error('User registration is disabled');
         err.status = 404;
@@ -85,7 +101,7 @@ router.post('/create', (req, res, next) => {
     const createSchema = {
         name: Joi.string()
             .trim()
-            .min(3)
+            .min(1)
             .max(256)
             .label('Your name')
             .required(),
@@ -127,7 +143,8 @@ router.post('/create', (req, res, next) => {
         remember: Joi.boolean()
             .truthy(['Y', 'true', 'yes', 'on', 1])
             .falsy(['N', 'false', 'no', 'off', 0, ''])
-            .valid(true)
+            .valid(true),
+        'g-recaptcha-response': Joi.string().strip()
     };
 
     delete req.body._csrf;
@@ -171,7 +188,6 @@ router.post('/create', (req, res, next) => {
                 }
             });
         }
-
         return showErrors(errors);
     }
 

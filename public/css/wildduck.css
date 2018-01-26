@@ -381,3 +381,7 @@ tr.identity-main td {
     z-index: 999;
     margin-top: -5px;
 }
+
+.grecaptcha-badge {
+    z-index: 999;
+}

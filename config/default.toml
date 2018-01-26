@@ -36,6 +36,11 @@ title="wildduck-www"
     secure=false
     listSize=20
 
+[recaptcha]
+    enabled=false
+    siteKey=""
+    secretKey=""
+
 [totp]
     # Issuer name for TOTP, defaults to config.name
     issuer=false
