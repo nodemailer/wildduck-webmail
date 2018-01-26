@@ -39,7 +39,7 @@ title="wildduck-www"
 [totp]
     # Issuer name for TOTP, defaults to config.name
     issuer=false
-    # changing secret invalidates all existing 2fa sessions
+    # once setup do not change as it would invalidate all existing 2fa sessions
     secret="a secret cat"
 
 [u2f]

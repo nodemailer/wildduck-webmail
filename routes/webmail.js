@@ -1339,7 +1339,7 @@ function renderMailbox(req, res, next) {
                 return next(err);
             }
 
-            res.render('webmail/index', {
+            let pageData = {
                 layout: 'layout-webmail',
                 activeWebmail: true,
                 mailboxes,
@@ -1379,7 +1379,15 @@ function renderMailbox(req, res, next) {
                     return message;
                 }),
                 csrfToken: req.csrfToken()
-            });
+            };
+
+            if (req.session.successlog) {
+                // inject login success token to the page, it would be used to add it to local storage
+                pageData.successlog = JSON.stringify(req.session.successlog).replace(/\//g, '\\u002f');
+                req.session.successlog = false;
+            }
+
+            res.render('webmail/index', pageData);
         });
     });
 }

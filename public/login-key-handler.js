@@ -64,7 +64,7 @@ window.loginKeyHandler = {
         return false;
     },
 
-    set: function(username, value, scope) {
+    set: function(username, value, scope, expireDays) {
         scope = (scope || '').toString() || 'default';
         username = (username || '')
             .toString()
@@ -73,7 +73,8 @@ window.loginKeyHandler = {
 
         var min = 0x01000000;
         var max = 0xffffffff;
-        var expireDays = 30;
+
+        expireDays = expireDays || 30;
 
         var data = this.loadData(scope);
         if (!data || !data.keys || !username) {

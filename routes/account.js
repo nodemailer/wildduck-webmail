@@ -1,7 +1,7 @@
 'use strict';
 
 const config = require('wild-config');
-const crypto = require('crypto');
+const tokens = require('../lib/tokens');
 const express = require('express');
 const router = new express.Router();
 const passport = require('../lib/passport');
@@ -425,9 +425,16 @@ router.post('/check-totp', (req, res) => {
         if (remember2fa) {
             data.remember2fa = {
                 username: req.session.username,
-                value: generate2faRemeberToken(req.user.id)
+                value: tokens.generateToken(req.user.id, tokens.TOKEN_2FA),
+                days: tokens.DAYS_2FA
             };
         }
+
+        data.successlog = {
+            username: req.session.username,
+            value: tokens.generateToken(req.user.id, tokens.TOKEN_RECOVERY),
+            days: tokens.DAYS_RECOVERY
+        };
 
         req.session.require2fa = false;
         res.json(data);
@@ -487,9 +494,16 @@ router.post('/check-u2f', (req, res) => {
         if (remember2fa) {
             data.remember2fa = {
                 username: req.session.username,
-                value: generate2faRemeberToken(req.user.id)
+                value: tokens.generateToken(req.user.id, tokens.TOKEN_2FA),
+                days: tokens.DAYS_2FA
             };
         }
+
+        data.successlog = {
+            username: req.session.username,
+            value: tokens.generateToken(req.user.id, tokens.TOKEN_RECOVERY),
+            days: tokens.DAYS_RECOVERY
+        };
 
         req.session.require2fa = false;
         data.targetUrl = '/webmail/';
@@ -572,6 +586,9 @@ router.post('/update-password', (req, res) => {
 
     delete result.value.password2;
 
+    // disable 2fa when password reset is used
+    result.value.disable2fa = true;
+
     result.value.ip = req.ip;
     result.value.sess = req.session.id;
 
@@ -590,17 +607,5 @@ router.post('/update-password', (req, res) => {
         res.redirect('/webmail');
     });
 });
-
-function generate2faRemeberToken(user) {
-    let parts = [Date.now().toString(16), crypto.randomBytes(6).toString('hex')];
-
-    let valueStr = parts.join('::');
-    let hash = crypto
-        .createHmac('sha256', config.totp.secret + ':' + user)
-        .update(valueStr)
-        .digest('hex');
-
-    return valueStr + '::' + hash;
-}
 
 module.exports = router;

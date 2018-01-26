@@ -45,6 +45,16 @@
     </script>
 {{/if}}
 
+{{#if successlog}}
+<script src="/login-key-handler.js"></script>
+<script>
+    $(function() {
+        // store token about successful auth in this browser
+        var successlog = {{{successlog}}};
+        loginKeyHandler.set(successlog.username, successlog.value, 'recovery', successlog.days);
+    });
+</script>
+{{/if}}
 
 <script>
 window.setTimeout(function(){

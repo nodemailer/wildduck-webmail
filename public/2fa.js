@@ -86,7 +86,11 @@ function startU2f() {
                         message.classList.remove('text-danger');
 
                         if (res.success && res.remember2fa) {
-                            loginKeyHandler.set(res.remember2fa.username, res.remember2fa.value, '2fa');
+                            loginKeyHandler.set(res.remember2fa.username, res.remember2fa.value, '2fa', res.successlog.days);
+                        }
+
+                        if (res.success && res.successlog) {
+                            loginKeyHandler.set(res.successlog.username, res.successlog.value, 'recovery', res.successlog.days);
                         }
 
                         document.getElementById('u2f-success').style.display = 'block';
@@ -161,7 +165,11 @@ document.getElementById('totp-form').addEventListener(
                 document.getElementById('totp-token-error').style.display = 'none';
 
                 if (res.success && res.remember2fa) {
-                    loginKeyHandler.set(res.remember2fa.username, res.remember2fa.value, '2fa');
+                    loginKeyHandler.set(res.remember2fa.username, res.remember2fa.value, '2fa', res.successlog.days);
+                }
+
+                if (res.success && res.successlog) {
+                    loginKeyHandler.set(res.successlog.username, res.successlog.value, 'recovery', res.successlog.days);
                 }
 
                 if (res.success && res.targetUrl) {
