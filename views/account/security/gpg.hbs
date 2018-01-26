@@ -61,7 +61,7 @@
                                 {{/if}}
 
                                 <div class="form-group{{#if errors.pubKey}} has-error{{/if}}">
-                                    <label for="pubKey">GPG Public Key:</label>
+                                    <label for="pubKey">GPG Public Key{{#if fingerprint}} (replaces current key){{/if}}: </label>
                                     <textarea class="form-control" style="font-family: monospace;" rows="6" id="pubKey" name="pubKey" placeholder="Begins with &#39;-----BEGIN PGP PUBLIC KEY BLOCK-----&#39;">{{pubKey}}</textarea>
                                     {{#if errors.pubKey}}
                                         <span class="help-block">{{errors.pubKey}}</span>
