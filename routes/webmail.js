@@ -922,7 +922,7 @@ router.get('/:mailbox/audit/:message', (req, res, next) => {
                     events: events.map(event => {
                         switch (event.action) {
                             case 'STORE':
-                                event.actionDescription = 'Message received';
+                                event.actionDescription = 'Message stored to mailbox';
                                 event.actionLabel = 'success';
                                 break;
                             case 'FORWARD':

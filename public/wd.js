@@ -32,12 +32,12 @@ function updateFixedDatestrings() {
         if (elm.title && elm.title.length === 24) {
             elm.textContent = moment(elm.title).format('YYYY-MM-DD HH:mm');
             elm.textContent = moment(elm.title).calendar(null, {
-                lastDay: 'YYYY/MM/DD HH:mm',
+                lastDay: 'D. MMM',
                 sameDay: 'HH:mm',
-                nextDay: 'YYYY/MM/DD HH:mm',
-                lastWeek: 'YYYY/MM/DD HH:mm',
-                nextWeek: 'YYYY/MM/DD HH:mm',
-                sameElse: 'YYYY/MM/DD HH:mm'
+                nextDay: 'D. MMM',
+                lastWeek: 'D. MMM',
+                nextWeek: 'D. MMM',
+                sameElse: 'DD.MM.YY'
             });
         }
     }
