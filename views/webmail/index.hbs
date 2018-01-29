@@ -310,6 +310,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // function to redraw email listing
     var redrawList = function(done){
+        var checkedMessages = {};
+        getChecked().forEach(function(checked){
+            checkedMessages[checked.message] = true;
+        });
+
         fetch('/api/list', {
             method: 'post',
             headers: {
@@ -343,6 +348,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // reset page load handlers
             checkboxes = document.querySelectorAll('.message-checkbox');
             for(var i=0, len = checkboxes.length; i<len; i++){
+                if(checkedMessages[checkboxes[i].dataset.message]){
+                    checkboxes[i].checked = true;
+                }
                 checkboxes[i].addEventListener('click', toggleToolbar, false);
                 checkboxes[i].addEventListener('change', toggleToolbar, false);
             }
@@ -653,6 +661,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelector('.bulk-move-confirm').addEventListener('click', moveMessage, false);
     document.querySelector('.bulk-move-confirm').addEventListener('touch', moveMessage, false);
 
+    let checkNewMessages = document.getElementById('page').value === '1' && document.getElementById('mailbox').value;
+
     var stream = new EventSource('/api/events');
     stream.onmessage = function(e) {
         var data, row, star, redrawTimer;
@@ -661,7 +671,18 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (E) {
             return;
         }
+
         switch (data.command) {
+            case 'EXISTS':
+                if(checkNewMessages === data.mailbox){
+                    clearTimeout(redrawTimer);
+                    redrawTimer = setTimeout(function(){
+                        clearTimeout(redrawTimer);
+                        redrawList(function(){});
+                    }, 200);
+                }
+                break;
+
             case 'FETCH': {
                 row = document.querySelector('.messagerow-'+data.mailbox+'-'+data.uid);
                 if(!row){
