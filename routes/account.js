@@ -14,6 +14,14 @@ const tools = require('../lib/tools');
 const Recaptcha = require('express-recaptcha');
 let recaptcha;
 
+let spamLevels = [
+    { value: 0, description: 'Mark everything as spam' },
+    { value: 25, description: 'Paranoid' },
+    { value: 50, description: 'Normal' },
+    { value: 75, description: 'Assume mostly ham' },
+    { value: 100, description: 'Accept everything' }
+];
+
 if (config.recaptcha.enabled) {
     recaptcha = new Recaptcha(config.recaptcha.siteKey, config.recaptcha.secretKey);
 }
@@ -236,10 +244,18 @@ router.get('/profile', passport.checkLogin, (req, res) => {
         .map(target => target.value)
         .join(', ');
 
+    let defaultSpamLevel = typeof req.user.spamLevel === 'number' ? req.user.spamLevel : 50;
+
     res.render('account/profile', {
         title: 'Account',
         activeHome: true,
         accMenuProfile: true,
+
+        spamLevels: spamLevels.map(level => ({
+            value: level.value,
+            description: level.description,
+            selected: defaultSpamLevel === level.value
+        })),
 
         values: req.user,
         csrfToken: req.csrfToken()
@@ -277,6 +293,11 @@ router.post('/profile', passport.checkLogin, (req, res) => {
                 .truthy(['Y', 'true', 'yes', 'on', 1])
                 .falsy(['N', 'false', 'no', 'off', 0, ''])
                 .default(false),
+
+            spamLevel: Joi.number()
+                .empty('')
+                .min(0)
+                .max(100),
 
             existingPassword: Joi.string()
                 .empty('')
@@ -338,6 +359,12 @@ router.post('/profile', passport.checkLogin, (req, res) => {
             title: 'Account',
             activeHome: true,
             accMenuProfile: true,
+
+            spamLevels: spamLevels.map(level => ({
+                value: level.value,
+                description: level.description,
+                selected: result.value.spamLevel === level.value
+            })),
 
             values: result.value,
             errors,

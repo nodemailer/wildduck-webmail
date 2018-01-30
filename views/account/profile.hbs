@@ -43,6 +43,24 @@
                                     {{/if}}
                                 </div>
 
+                                <div class="form-group{{#if errors.spamLevel}} has-error{{/if}}">
+                                    <label for="name">Spam detection level</label>
+                                    <select class="form-control" name="spamLevel">
+                                        <option value="">
+                                            -- Select --
+                                        </option>
+                                        {{#each spamLevels}}
+                                            <option value="{{value}}" {{#if selected}}selected{{/if}}>
+                                                {{description}}
+                                            </option>
+                                        {{/each}}
+                                    </select>
+
+                                    {{#if errors.spamLevel}}
+                                        <span class="help-block">{{errors.spamLevel}}</span>
+                                    {{/if}}
+                                </div>
+
                             </div>
                         </div>
 
