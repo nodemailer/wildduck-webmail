@@ -429,6 +429,15 @@ router.post('/send', (req, res) => {
             html: result.value.editordata
         };
 
+        if (req.files && req.files.length) {
+            messageData.attachments = req.files.map(attachment => ({
+                filename: attachment.originalname,
+                contentType: attachment.mimetype,
+                content: attachment.buffer.toString('base64'),
+                encoding: 'base64'
+            }));
+        }
+
         if (fromAddress) {
             messageData.from = fromAddress;
         }

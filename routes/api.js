@@ -295,4 +295,21 @@ router.get('/events', (req, res) => {
     apiClient.updates.stream(req, res, req.user.id);
 });
 
+router.post('/upload', (req, res) =>
+    res.json({
+        file: req.file,
+        initialPreview: ["<img src='/images/desert.jpg' class='file-preview-image' alt='Desert' title='Desert'>"],
+        initialPreviewConfig: [
+            {
+                caption: 'desert.jpg',
+                url: '/api/deleteUpload',
+                key: Date.now(),
+                extra: {
+                    id: 102
+                }
+            }
+        ]
+    })
+);
+
 module.exports = router;

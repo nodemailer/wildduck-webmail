@@ -1,6 +1,6 @@
 
 
-<form method="post" class="form-horizontal" action="/webmail/send">
+<form method="post" id="send-form" class="form-horizontal" action="/webmail/send" enctype="multipart/form-data">
     <input type="hidden" id="_csrf" name="_csrf" value="{{csrfToken}}">
     <input type="hidden" name="action" value="{{values.action}}">
     <input type="hidden" name="refMailbox" value="{{values.refMailbox}}">
@@ -95,6 +95,18 @@
             {{#if errors.editordata}}
                 <span class="help-block">{{errors.editordata}}</span>
             {{/if}}
+        </div>
+    </div>
+
+    <div id="attachment-field" class="form-group{{#if errors.attachment}} has-error{{/if}}">
+        <div class="col-sm-12">
+
+
+        <label for="inputAttachment">Attachments</label>
+        <input id="input-attachment" name="attachment" class="form-control file" type="file" multiple>
+        {{#if errors.attachment}}
+            <span class="help-block">{{errors.attachment}}</span>
+        {{/if}}
         </div>
     </div>
 

@@ -13,11 +13,14 @@ const RedisStore = require('connect-redis')(session);
 const flash = require('connect-flash');
 const passport = require('./lib/passport');
 const db = require('./lib/db');
+const multer = require('multer');
 
 const routesIndex = require('./routes/index');
 const routesAccount = require('./routes/account');
 const routesWebmail = require('./routes/webmail');
 const routesApi = require('./routes/api');
+
+const uploader = multer({ storage: multer.memoryStorage() });
 
 const app = express();
 
@@ -162,10 +165,23 @@ app.use((req, res, next) => {
 });
 
 // setup main routes
-app.use('/', passport.csrf, routesIndex);
 app.use('/account', passport.csrf, routesAccount);
-app.use('/webmail', passport.csrf, passport.checkLogin, routesWebmail);
+
+app.use(
+    '/webmail',
+    (req, res, next) => {
+        if (req.url === '/send' && req.method === 'POST') {
+            return uploader.array('attachment')(req, res, next);
+        }
+        next();
+    },
+    passport.csrf,
+    passport.checkLogin,
+    routesWebmail
+);
+
 app.use('/api', passport.csrf, passport.checkLogin, routesApi);
+app.use('/', passport.csrf, routesIndex);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

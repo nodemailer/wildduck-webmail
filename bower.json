@@ -1,32 +1,23 @@
 {
-  "name": "wildduck-webmail",
-  "description": "Webmail for WildDuck",
-  "main": "index.js",
-  "authors": [
-    "Andris Reinman"
-  ],
-  "license": "EUPL-1.1",
-  "homepage": "https://wildduck.email",
-  "private": true,
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "public/components/",
-    "test",
-    "tests"
-  ],
-  "dependencies": {
-    "DOMPurify": "dompurify#^1.0.2",
-    "jquery": "*",
-    "fetch": "*",
-    "moment": "*",
-    "handlebars": "*",
-    "bootstrap-daterangepicker": "*",
-    "summernote": "*",
-    "event-source-polyfill": "*",
-    "underscore": "*",
-    "promise-polyfill": "^7.0.0",
-    "favico.js": "^0.3.10"
-  }
+    "name": "wildduck-webmail",
+    "description": "Webmail for WildDuck",
+    "main": "index.js",
+    "authors": ["Andris Reinman"],
+    "license": "EUPL-1.1",
+    "homepage": "https://wildduck.email",
+    "private": true,
+    "ignore": ["**/.*", "node_modules", "bower_components", "public/components/", "test", "tests"],
+    "dependencies": {
+        "DOMPurify": "dompurify#^1.0.2",
+        "jquery": "*",
+        "fetch": "*",
+        "moment": "*",
+        "handlebars": "*",
+        "bootstrap-daterangepicker": "*",
+        "summernote": "*",
+        "event-source-polyfill": "*",
+        "underscore": "*",
+        "promise-polyfill": "^7.0.0",
+        "favico.js": "^0.3.10"
+    }
 }
