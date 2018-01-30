@@ -116,8 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         FAVICON.badge(data.unseen);
                     }
 
-                    row = document.querySelector('.unseen-counter-' + data.mailbox);
-                    if(row){
+                    [].slice.call(document.querySelectorAll('.unseen-counter-' + data.mailbox)).forEach(function(row){
                         if(data.unseen){
                             row.style.display = 'block';
                             row.textContent = data.unseen;
@@ -125,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             row.style.display = 'none';
                             row.textContent = 0;
                         }
-                    }
+                    });
                 }
                 break;
             }
