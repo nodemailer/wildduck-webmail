@@ -2,15 +2,15 @@
 
 **What is this?**
 
-This is an example web service that uses the [Wild Duck API](https://github.com/nodemailer/wildduck/wiki/API-Docs) to manage user settings and preview messages.
+This is the default web service for [WildDuck email server](https://wildduck.email). The web service uses the [Wild Duck API](https://github.com/nodemailer/wildduck/wiki/API-Docs) to manage user settings and preview messages.
 
 ## Live demo
 
-There's a live demo up at https://wildduck.email
+There's a live demo up at https://wildduck.email – you can register a free @wildduck.email email address and try it out as a real email account.
 
 ## Usage
 
-Assuming that you have Wild Duck mail server running
+Assuming that you have [WildDuck email server](https://wildduck.email) already running (check out [quick setup](https://github.com/nodemailer/wildduck/tree/master/setup)):
 
 ```
 $ npm install
