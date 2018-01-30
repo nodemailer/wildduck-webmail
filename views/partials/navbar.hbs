@@ -19,6 +19,7 @@
                     <li {{#if activeWebmail}} class="active" {{/if}}>
                         <a href="/webmail/">
                             <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> Webmail
+                            <span class="badge pull-right unseen-counter-{{inboxId}}" {{#if inboxUnseen}}style="display: block;"{{else}}style="display: none;"{{/if}}>{{inboxUnseen}}</span>
                         </a>
                     </li>
                     <li {{#if activeFilters}} class="active" {{/if}}>
