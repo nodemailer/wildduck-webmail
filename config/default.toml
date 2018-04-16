@@ -11,6 +11,7 @@ title="wildduck-www"
     forwards=2000
     identities=10
     allowJoin=true
+    enableSpecial=false # if true the allow creating addresses with special usernames
     # allowed domains for new addresses
     domains=["localhost"]
 

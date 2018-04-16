@@ -123,8 +123,9 @@ router.post('/create', (req, res) => {
     }
 
     if (
-        ['abuse', 'admin', 'administrator', 'hostmaster', 'majordomo', 'postmaster', 'root', 'ssl-admin', 'webmaster'].includes(result.value.address) ||
-        roleBasedAddresses.includes(result.value.address)
+        !config.service.enableSpecial &&
+        (['abuse', 'admin', 'administrator', 'hostmaster', 'majordomo', 'postmaster', 'root', 'ssl-admin', 'webmaster'].includes(result.value.address) ||
+            roleBasedAddresses.includes(result.value.address))
     ) {
         return showErrors({
             address: util.format('"%s" is a reserved username', result.value.address)

@@ -200,8 +200,9 @@ router.post('/create', recaptchaVerify, (req, res, next) => {
     }
 
     if (
-        ['abuse', 'admin', 'administrator', 'hostmaster', 'majordomo', 'postmaster', 'root', 'ssl-admin', 'webmaster'].includes(result.value.username) ||
-        roleBasedAddresses.includes(result.value.username)
+        !config.service.enableSpecial &&
+        (['abuse', 'admin', 'administrator', 'hostmaster', 'majordomo', 'postmaster', 'root', 'ssl-admin', 'webmaster'].includes(result.value.username) ||
+            roleBasedAddresses.includes(result.value.username))
     ) {
         return showErrors({
             username: util.format('"%s" is a reserved username', result.value.username)
