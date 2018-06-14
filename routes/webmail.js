@@ -744,6 +744,7 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
                     mailbox: selectedMailbox,
 
                     isTrash: selectedMailbox.specialUse === '\\Trash',
+                    skipTrash: ['\\Trash', '\\Junk'].includes(selectedMailbox.specialUse),
 
                     message: messageData,
                     messageJson: JSON.stringify(messageData).replace(/\//g, '\\u002f'),
@@ -1059,6 +1060,8 @@ router.get('/:mailbox/settings', (req, res, next) => {
             isSent: selectedMailbox.specialUse === '\\Sent',
             isJunk: selectedMailbox.specialUse === '\\Junk',
 
+            skipTrash: ['\\Trash', '\\Junk'].includes(selectedMailbox.specialUse),
+
             csrfToken: req.csrfToken()
         });
     });
@@ -1130,6 +1133,8 @@ router.post('/:mailbox/settings', (req, res) => {
                 isTrash: selectedMailbox.specialUse === '\\Trash',
                 isSent: selectedMailbox.specialUse === '\\Sent',
                 isJunk: selectedMailbox.specialUse === '\\Junk',
+
+                skipTrash: ['\\Trash', '\\Junk'].includes(selectedMailbox.specialUse),
 
                 csrfToken: req.csrfToken()
             });
@@ -1371,6 +1376,8 @@ function renderMailbox(req, res, next) {
                 isTrash: selectedMailbox.specialUse === '\\Trash',
                 isSent: selectedMailbox.specialUse === '\\Sent',
                 isJunk: selectedMailbox.specialUse === '\\Junk',
+
+                skipTrash: ['\\Trash', '\\Junk'].includes(selectedMailbox.specialUse),
 
                 messageRowTemplate: templates.messageRowTemplate,
                 messages: result.results.map(message => {

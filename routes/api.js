@@ -182,7 +182,7 @@ router.post('/delete', (req, res) => {
             });
         }
 
-        if (mailbox.specialUse === '\\Trash' || !trash) {
+        if (mailbox.specialUse === '\\Trash' || mailbox.specialUse === '\\Junk' || !trash) {
             // delete permanently
 
             let messages = result.value.message

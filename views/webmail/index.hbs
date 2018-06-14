@@ -120,7 +120,7 @@
         <h4 class="modal-title" id="deleteModalLabel">Delete messages</h4>
       </div>
       <div class="modal-body">
-        {{#if isTrash}}
+        {{#if skipTrash}}
             Are you sure you want to permanently delete selected messages?
         {{else}}
             Are you sure you want to move selected messages to Trash folder?
@@ -248,6 +248,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var isSent = mailboxType === '\\Sent';
     var isTrash= mailboxType === '\\Trash';
     var isJunk = mailboxType === '\\Junk';
+    var skipTrash: ['\\Trash', '\\Junk'].includes(mailboxType);
 
     var getChecked = function(){
         var result = [];
