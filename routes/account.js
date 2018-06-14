@@ -11,7 +11,7 @@ const roleBasedAddresses = require('role-based-email-addresses');
 const util = require('util');
 const humanize = require('humanize');
 const tools = require('../lib/tools');
-const Recaptcha = require('express-recaptcha');
+const Recaptcha = require('express-recaptcha').Recaptcha;
 let recaptcha;
 
 let spamLevels = [
