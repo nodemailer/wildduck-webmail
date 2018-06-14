@@ -248,7 +248,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var isSent = mailboxType === '\\Sent';
     var isTrash= mailboxType === '\\Trash';
     var isJunk = mailboxType === '\\Junk';
-    var skipTrash: ['\\Trash', '\\Junk'].includes(mailboxType);
+    var skipTrash = ['\\Trash', '\\Junk'].includes(mailboxType);
 
     var getChecked = function(){
         var result = [];
