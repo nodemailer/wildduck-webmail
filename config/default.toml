@@ -51,6 +51,8 @@ title="wildduck-www"
 [u2f]
     # set to false if not using HTTPS
     enabled=true
+    # must be https url or use default
+    #appId="https://127.0.0.1:8080"
 
 [log]
     level="silly"
