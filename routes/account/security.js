@@ -44,11 +44,6 @@ router.get('/events', (req, res, next) => {
             .hex()
             .length(24)
             .label('Password ID'),
-        sess: Joi.string()
-            .empty('')
-            .trim()
-            .max(255)
-            .label('Session ID'),
         next: Joi.string()
             .max(100)
             .empty(''),
@@ -86,11 +81,7 @@ router.get('/events', (req, res, next) => {
             });
         }
 
-        apiClient.authlog.list(
-            req.user.id,
-            { next: result.value.next, previous: result.value.previous, page: result.value.page || 1, sess: result.value.sess },
-            done
-        );
+        apiClient.authlog.list(req.user.id, { next: result.value.next, previous: result.value.previous, page: result.value.page || 1 }, done);
     };
 
     getEvents((err, log) => {
@@ -128,6 +119,7 @@ router.get('/events', (req, res, next) => {
                     entry.result = 'Failed';
                     break;
             }
+
             entry.sessStr = entry.sess ? (entry.sess || '').toString() : false;
             if (entry.sessStr && entry.sessStr.length > 12) {
                 entry.sessStr = entry.sessStr.substr(0, 12) + '…';

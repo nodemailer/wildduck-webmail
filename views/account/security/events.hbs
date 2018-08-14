@@ -49,12 +49,17 @@
                                         {{protocol}}
                                     </td>
                                     <td>
-                                        {{action}}
+
+
                                         {{#if asp}}
                                             <div class="pull-right">
                                                 <strong>{{asp.name}}</strong>
                                             </div>
                                         {{/if}}
+
+                                        {{action}}
+
+                                        ({{events}})
                                     </td>
                                     <td>
                                         {{#if label}}
@@ -68,7 +73,7 @@
                                     </td>
                                     <td>
                                         {{#if sess}}
-                                            <a href="/account/security/events?sess={{sess}}">{{sessStr}}</a>
+                                            <em>{{sessStr}}</em>
                                         {{else}}
                                             –
                                         {{/if}}
