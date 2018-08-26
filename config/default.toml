@@ -10,6 +10,7 @@ title="wildduck-www"
     recipients=2000
     forwards=2000
     identities=10
+    allowIdentityEdit=true
     allowJoin=true
     enableSpecial=false # if true the allow creating addresses with special usernames
     # allowed domains for new addresses
@@ -33,7 +34,6 @@ title="wildduck-www"
     postsize="5MB"
     log="dev"
     secret="a cat"
-    baseurl="http://localhost" # link used in emails etc
     secure=false
     listSize=20
 
