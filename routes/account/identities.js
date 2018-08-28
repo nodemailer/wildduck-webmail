@@ -20,6 +20,7 @@ router.get('/', (req, res, next) => {
             accMenuIdentities: true,
 
             canCreate: identities.length < config.service.identities,
+            canEdit: config.service.allowIdentityEdit,
             identities: identities.map((identity, i) => {
                 identity.index = i + 1;
                 return identity;
@@ -163,6 +164,11 @@ router.post('/create', (req, res) => {
 });
 
 router.get('/edit', (req, res) => {
+    if (!config.service.allowIdentityEdit) {
+        req.flash('danger', 'You\'re not allowed to edit an identity');
+        return res.redirect('/account/identities');
+    }
+
     const updateSchema = Joi.object().keys({
         id: Joi.string()
             .trim()
@@ -210,6 +216,11 @@ router.get('/edit', (req, res) => {
 });
 
 router.post('/edit', (req, res) => {
+    if (!config.service.allowIdentityEdit) {
+        req.flash('danger', 'You\'re not allowed to edit an identity');
+        return res.redirect('/account/identities');
+    }
+
     const createSchema = {
         id: Joi.string()
             .trim()
