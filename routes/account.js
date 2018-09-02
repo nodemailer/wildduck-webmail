@@ -327,9 +327,13 @@ router.post('/profile', passport.checkLogin, (req, res) => {
         .and('password', 'existingPassword', 'password2');
 
     delete req.body._csrf;
-    if (req.body.targets) {
+
+    if (typeof req.body.targets === 'string' && req.body.targets) {
         req.body.targets = req.body.targets.split(',');
+    } else {
+        req.body.targets = [];
     }
+
     let result = Joi.validate(req.body, updateSchema, {
         abortEarly: false,
         convert: true,
