@@ -38,8 +38,8 @@ router.post('/toggle/flagged', (req, res) => {
     apiClient.messages.update(
         req.user.id,
         result.value.mailbox,
-        result.value.message,
         {
+            message: result.value.message,
             flagged: result.value.flagged
         },
         (err, response) => {
@@ -83,8 +83,8 @@ router.post('/toggle/seen', (req, res) => {
     apiClient.messages.update(
         req.user.id,
         result.value.mailbox,
-        result.value.message,
         {
+            message: result.value.message,
             seen: result.value.seen
         },
         (err, response) => {
@@ -130,8 +130,8 @@ router.post('/move', (req, res) => {
     apiClient.messages.update(
         req.user.id,
         result.value.mailbox,
-        result.value.message,
         {
+            message: result.value.message,
             moveTo: result.value.target
         },
         (err, response) => {
@@ -216,8 +216,8 @@ router.post('/delete', (req, res) => {
             apiClient.messages.update(
                 req.user.id,
                 result.value.mailbox,
-                result.value.message,
                 {
+                    message: result.value.message,
                     moveTo: trash.id
                 },
                 (err, response) => {
