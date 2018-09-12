@@ -53,15 +53,15 @@ router.get('/', passport.checkLogin, (req, res) => {
 
         quota: humanize.filesize(req.user.limits.quota.allowed),
         storageUsed: humanize.filesize(req.user.limits.quota.used),
-        storageOverview: Math.round(req.user.limits.quota.used / req.user.limits.quota.allowed * 100),
+        storageOverview: Math.round((req.user.limits.quota.used / req.user.limits.quota.allowed) * 100),
 
         recipients: humanize.numberFormat(req.user.limits.recipients.allowed, 0),
         recipientsSent: humanize.numberFormat(req.user.limits.recipients.used, 0),
-        recipientsOverview: Math.round(req.user.limits.recipients.used / (req.user.limits.recipients.allowed || 1) * 100),
+        recipientsOverview: Math.round((req.user.limits.recipients.used / (req.user.limits.recipients.allowed || 1)) * 100),
 
         forwards: humanize.numberFormat(req.user.limits.forwards.allowed, 0),
         forwardsSent: humanize.numberFormat(req.user.limits.forwards.used, 0),
-        forwardsOverview: Math.round(req.user.limits.forwards.used / (req.user.limits.forwards.allowed || 1) * 100)
+        forwardsOverview: Math.round((req.user.limits.forwards.used / (req.user.limits.forwards.allowed || 1)) * 100)
     });
 });
 
@@ -216,6 +216,7 @@ router.post('/create', recaptchaVerify, (req, res, next) => {
             name: result.value.name,
             username: result.value.username,
             password: result.value.password,
+            allowUnsafe: false,
             address,
             recipients: config.service.recipients,
             forwards: config.service.forwards,
@@ -403,6 +404,7 @@ router.post('/profile', passport.checkLogin, (req, res) => {
     result.value.sess = req.session.id;
     result.value.ip = req.ip;
 
+    result.value.allowUnsafe = false;
     apiClient.users.update(req.user.id, result.value, err => {
         if (err) {
             if (err.fields) {
