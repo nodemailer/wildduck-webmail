@@ -226,6 +226,7 @@ router.post('/gpg', (req, res) => {
         updatedUserData.encryptForwarded = false;
     }
 
+    updatedUserData.allowUnsafe = false;
     apiClient.users.update(req.user.id, updatedUserData, err => {
         if (err) {
             if (err.fields) {
@@ -332,6 +333,7 @@ router.post('/password', (req, res) => {
     result.value.ip = req.ip;
     result.value.sess = req.session.id;
 
+    result.value.allowUnsafe = false;
     apiClient.users.update(req.user.id, result.value, err => {
         if (err) {
             if (err.fields) {
