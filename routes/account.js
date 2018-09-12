@@ -397,6 +397,7 @@ router.post('/profile', passport.checkLogin, (req, res) => {
     }
 
     delete result.value.password2;
+
     result.value.name = result.value.name || '';
     result.value.targets = result.value.targets || '';
     result.value.pubKey = result.value.pubKey || '';
@@ -639,9 +640,10 @@ router.post('/update-password', (req, res) => {
     // disable 2fa when password reset is used
     result.value.disable2fa = true;
 
-    result.value.ip = req.ip;
     result.value.sess = req.session.id;
+    result.value.ip = req.ip;
 
+    result.value.allowUnsafe = false;
     apiClient.users.update(req.user.id, result.value, err => {
         if (err) {
             if (err.fields) {
