@@ -90,6 +90,7 @@ router.get('/', (req, res, next) => {
         if (err) {
             return next(err);
         }
+        console.log(filters);
         res.render('account/filters', {
             title: 'Filters',
             activeFilters: true,
@@ -386,7 +387,7 @@ function prepareFilter(filter) {
     filter.query = filter.query || {};
     filter.action = filter.action || {};
 
-    ['from', 'to', 'subject', 'text'].forEach(key => {
+    ['from', 'to', 'subject', 'text', 'listId'].forEach(key => {
         if (key in filter.query) {
             filter['query_' + key] = filter.query[key];
         }
@@ -441,9 +442,9 @@ function getFilterObject(data) {
     };
 
     // exact values
-    ['name', 'query_from', 'query_to', 'query_subject', 'query_text', 'action_mailbox', 'action_targets'].forEach(key => {
+    ['name', 'query_from', 'query_to', 'query_subject', 'query_listId', 'query_text', 'action_mailbox', 'action_targets'].forEach(key => {
         let parts = key.split('_');
-        let keyName = parts.pop();
+        let keyName = parts.pop().replace(/[A-Z]+/g, c => '-' + c.toLowerCase());
         let keyPrefix = parts[0] || false;
         let obj = keyPrefix ? filter[keyPrefix] : filter;
 
