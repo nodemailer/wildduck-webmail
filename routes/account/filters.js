@@ -90,7 +90,6 @@ router.get('/', (req, res, next) => {
         if (err) {
             return next(err);
         }
-        console.log(filters);
         res.render('account/filters', {
             title: 'Filters',
             activeFilters: true,
@@ -444,7 +443,7 @@ function getFilterObject(data) {
     // exact values
     ['name', 'query_from', 'query_to', 'query_subject', 'query_listId', 'query_text', 'action_mailbox', 'action_targets'].forEach(key => {
         let parts = key.split('_');
-        let keyName = parts.pop().replace(/[A-Z]+/g, c => '-' + c.toLowerCase());
+        let keyName = parts.pop();
         let keyPrefix = parts[0] || false;
         let obj = keyPrefix ? filter[keyPrefix] : filter;
 
