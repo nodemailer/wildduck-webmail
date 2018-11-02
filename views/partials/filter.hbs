@@ -37,6 +37,14 @@
                     {{/if}}
                 </div>
 
+                <div class="form-group{{#if errors.query_listId}} has-error{{/if}}">
+                    <label for="query_listId">List-ID</label>
+                    <input type="text" class="form-control input-sm" name="query_listId" id="query_listId" value="{{values.query_listId}}">
+                    {{#if errors.query_listId}}
+                        <span class="help-block">{{errors.query_listId}}</span>
+                    {{/if}}
+                </div>
+
                 <div class="form-group{{#if errors.query_ha}} has-error{{/if}}">
                     <label>Attachments</label>
                     <div>

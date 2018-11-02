@@ -32,6 +32,11 @@ const filterBaseSchema = {
         .trim()
         .max(100)
         .label('Includes'),
+    query_listId: Joi.string()
+        .empty('')
+        .trim()
+        .max(100)
+        .label('List-ID'),
     query_haYes: Joi.boolean()
         .optional()
         .label('Has attachments'),
