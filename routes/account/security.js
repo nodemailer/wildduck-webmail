@@ -492,7 +492,7 @@ router.post('/2fa/enable-totp', (req, res, next) => {
     });
 
     let showErrors = errors => {
-        apiClient['2fa'].setupTotp(req.user.id, config.totp.issuer || config.name, false, req.ip, (err, data) => {
+        apiClient['2fa'].setupTotp(req.user.id, config.totp.issuer || config.name, req.ip, (err, data) => {
             if (err) {
                 return next(err);
             }
@@ -522,7 +522,7 @@ router.post('/2fa/enable-totp', (req, res, next) => {
         return showErrors(errors);
     }
 
-    apiClient['2fa'].setupTotp(req.user.id, config.totp.issuer || config.name, true, req.ip, (err, data) => {
+    apiClient['2fa'].setupTotp(req.user.id, config.totp.issuer || config.name, req.ip, (err, data) => {
         if (err) {
             return next(err);
         }
