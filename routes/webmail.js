@@ -743,7 +743,8 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
                     securityInfo.push({
                         key: 'Security',
                         value: (sender || 'Sender') + ' did not encrypt this message',
-                        icon: 'exclamation-sign'
+                        icon: 'exclamation-sign',
+                        textClass: 'text-danger'
                     });
                 }
             }

@@ -119,7 +119,7 @@
         title="Delivery details"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></a>
     <div id="extraDetailsContent" style="display: none">
         {{#each ../message.securityInfo}}
-        <div>
+        <div {{#if textClass}} class="{{textClass}}" {{/if}}>
             <strong>{{key}}:</strong>
             {{#if icon}}
             <span class="glyphicon glyphicon-{{icon}}" aria-hidden="true"></span>
