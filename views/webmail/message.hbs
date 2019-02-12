@@ -124,8 +124,21 @@
 {{/if}}
 {{#if message.securityInfo}}
 <div>
-    <a id="extraDetails" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Message details"
-        data-content="And here's some amazing content. It's very engaging. Right?">Show details</a>
+    <div id="extraDetailsContent" syle="display: none">
+        {{#each message.securityInfo}}
+        <div>
+            <strong>{{key}}:</strong>
+            {{#if icon}}
+            <span class="glyphicon glyphicon-{{icon}}" aria-hidden="true"></span>
+            {{/if}}
+            <span {{#if isDate}} class="datestring" title="{{value}}" {{/if}}>
+                {{#if isHtml}}{{{value}}}{{else}}{{value}}{{/if}}
+            </span>
+        </div>
+        {{/each}}
+    </div>
+    <a id="extraDetails" tabindex="0" role="button" data-toggle="popover" data-trigger="focus"
+        title="Delivery details">[delivery details]</a>
 </div>
 {{/if}}
 
@@ -229,7 +242,10 @@
             });
         }
 
-        $('#extraDetails').popover({})
+        $('#extraDetails').popover({
+            content: document.getElementById('extraDetailsContent').innerHTML,
+            html: true
+        })
     }, false);
 </script>
 
