@@ -123,10 +123,9 @@
 </div>
 {{/if}}
 {{#if message.securityInfo}}
-<div class="text-muted">
-    <strong>Details:</strong>
-    <a tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Message details"
-        data-content="And here's some amazing content. It's very engaging. Right?">reveal</a>
+<div>
+    <a id="extraDetails" tabindex="0" role="button" data-toggle="popover" data-trigger="focus" title="Message details"
+        data-content="And here's some amazing content. It's very engaging. Right?">Show details</a>
 </div>
 {{/if}}
 
@@ -229,6 +228,8 @@
                 iframe.contentWindow.resizeIframe(iframe);
             });
         }
+
+        $('#extraDetails').popover({})
     }, false);
 </script>
 
