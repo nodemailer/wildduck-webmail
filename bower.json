@@ -10,7 +10,7 @@
     "dependencies": {
         "DOMPurify": "dompurify#^1.0.2",
         "jquery": "*",
-        "fetch": "*",
+        "fetch": "2.0.4",
         "moment": "*",
         "handlebars": "*",
         "bootstrap-daterangepicker": "*",

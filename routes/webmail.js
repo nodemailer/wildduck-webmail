@@ -719,11 +719,41 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
                 });
             }
 
+            if (messageData.verificationResults) {
+                if (messageData.verificationResults.spf) {
+                    info.push({
+                        key: 'Mailed by',
+                        value: messageData.verificationResults.spf
+                    });
+                }
+                if (messageData.verificationResults.dkim) {
+                    info.push({
+                        key: 'Signed by',
+                        value: messageData.verificationResults.dkim
+                    });
+                }
+                if (messageData.verificationResults.tls) {
+                    info.push({
+                        key: 'Security',
+                        value: 'Standard encryption (TLS)'
+                    });
+                } else {
+                    let sender = messageData.verificationResults.spf || messageData.verificationResults.dkim;
+                    info.push({
+                        key: 'Security',
+                        value: (sender || 'Sender') + ' did not encrypt this message',
+                        icon: 'exclamation-sign'
+                    });
+                }
+            }
+
             info.push({
                 key: 'Time',
                 isDate: true,
                 value: messageData.date
             });
+
+            console.log(info);
 
             messageData.html = (messageData.html || []).map(html =>
                 html.replace(/attachment:(ATT\d+)/g, (str, aid) => '/webmail/' + mailbox + '/attachment/' + messageData.id + '/' + aid)
