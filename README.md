@@ -38,6 +38,18 @@ After you have started the server, head to http://localhost:3000/
 
 ![](https://raw.githubusercontent.com/nodemailer/wildduck-webmail/master/public/demo/img05.png)
 
+### Message verification
+
+Message verification displays information about DKIM signature, SPF domain and TLS status in the last hop of transit.
+
+**Everything is OK:**
+
+![](https://cldup.com/GhuFvNx5Js.png)
+
+**Sender did not use TLS**
+
+![](https://cldup.com/pUgzVxpMFW.png)
+
 ## License
 
 [European Union Public License 1.1](http://ec.europa.eu/idabc/eupl.html) or later.
