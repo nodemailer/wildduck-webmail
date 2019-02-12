@@ -112,6 +112,29 @@
     <span {{#if isDate}} class="datestring" title="{{value}}" {{/if}}>
         {{#if isHtml}}{{{value}}}{{else}}{{value}}{{/if}}
     </span>
+
+    {{#if @first}}
+    {{#if ../message.securityInfo}}
+    <div>
+        <div id="extraDetailsContent" style="display: none">
+            {{#each ../message.securityInfo}}
+            <div>
+                <strong>{{key}}:</strong>
+                {{#if icon}}
+                <span class="glyphicon glyphicon-{{icon}}" aria-hidden="true"></span>
+                {{/if}}
+                <span {{#if isDate}} class="datestring" title="{{value}}" {{/if}}>
+                    {{#if isHtml}}{{{value}}}{{else}}{{value}}{{/if}}
+                </span>
+            </div>
+            {{/each}}
+        </div>
+        <a id="extraDetails" tabindex="0" role="button" data-toggle="popover" data-trigger="focus"
+            title="Delivery details"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></a>
+    </div>
+    {{/if}}
+    {{/if}}
+
 </div>
 {{/each}}
 {{#if expires}}
@@ -120,25 +143,6 @@
     <span class="datestring" title="{{expires}}">
         {{expires}}
     </span>
-</div>
-{{/if}}
-{{#if message.securityInfo}}
-<div>
-    <div id="extraDetailsContent" syle="display: none">
-        {{#each message.securityInfo}}
-        <div>
-            <strong>{{key}}:</strong>
-            {{#if icon}}
-            <span class="glyphicon glyphicon-{{icon}}" aria-hidden="true"></span>
-            {{/if}}
-            <span {{#if isDate}} class="datestring" title="{{value}}" {{/if}}>
-                {{#if isHtml}}{{{value}}}{{else}}{{value}}{{/if}}
-            </span>
-        </div>
-        {{/each}}
-    </div>
-    <a id="extraDetails" tabindex="0" role="button" data-toggle="popover" data-trigger="focus"
-        title="Delivery details"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span></a>
 </div>
 {{/if}}
 
