@@ -675,6 +675,7 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
             }
 
             let info = [];
+            let securityInfo = [];
 
             info.push({
                 key: 'From',
@@ -721,25 +722,25 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
 
             if (messageData.verificationResults) {
                 if (messageData.verificationResults.spf) {
-                    info.push({
+                    securityInfo.push({
                         key: 'Mailed by',
                         value: messageData.verificationResults.spf
                     });
                 }
                 if (messageData.verificationResults.dkim) {
-                    info.push({
+                    securityInfo.push({
                         key: 'Signed by',
                         value: messageData.verificationResults.dkim
                     });
                 }
                 if (messageData.verificationResults.tls) {
-                    info.push({
+                    securityInfo.push({
                         key: 'Security',
                         value: 'Standard encryption (TLS)'
                     });
                 } else {
                     let sender = messageData.verificationResults.spf || messageData.verificationResults.dkim;
-                    info.push({
+                    securityInfo.push({
                         key: 'Security',
                         value: (sender || 'Sender') + ' did not encrypt this message',
                         icon: 'exclamation-sign'
@@ -753,13 +754,12 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
                 value: messageData.date
             });
 
-            console.log(info);
-
             messageData.html = (messageData.html || []).map(html =>
                 html.replace(/attachment:(ATT\d+)/g, (str, aid) => '/webmail/' + mailbox + '/attachment/' + messageData.id + '/' + aid)
             );
 
             messageData.info = info;
+            messageData.securityInfo = securityInfo;
 
             // make sure that we get the actual unseen count from the server
             apiClient.mailboxes.get(req.user.id, selectedMailbox.id, (err, mailbox) => {
