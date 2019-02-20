@@ -736,13 +736,27 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
                         key: 'Mailed by',
                         value: messageData.verificationResults.spf
                     });
+                } else {
+                    securityInfo.push({
+                        key: 'Mailed by',
+                        value: 'sending host was not verified',
+                        textClass: 'text-muted'
+                    });
                 }
+
                 if (messageData.verificationResults.dkim) {
                     securityInfo.push({
                         key: 'Signed by',
                         value: messageData.verificationResults.dkim
                     });
+                } else {
+                    securityInfo.push({
+                        key: 'Signed by',
+                        value: 'message was not signed',
+                        textClass: 'text-muted'
+                    });
                 }
+
                 if (messageData.verificationResults.tls) {
                     securityInfo.push({
                         key: 'Security',
