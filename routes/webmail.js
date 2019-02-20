@@ -688,6 +688,16 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
                 )
             });
 
+            securityInfo.push({
+                key: 'From',
+                value: (messageData.from || messageData.sender || {}).address || '<>'
+            });
+
+            securityInfo.push({
+                key: 'Return Path',
+                value: (messageData.envelope && messageData.envelope.from) || '<>'
+            });
+
             if (messageData.to) {
                 info.push({
                     key: 'To',
