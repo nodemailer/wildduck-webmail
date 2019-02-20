@@ -688,16 +688,6 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
                 )
             });
 
-            securityInfo.push({
-                key: 'From',
-                value: (messageData.from || messageData.sender || {}).address || '<>'
-            });
-
-            securityInfo.push({
-                key: 'Return Path',
-                value: (messageData.envelope && messageData.envelope.from) || '<>'
-            });
-
             if (messageData.to) {
                 info.push({
                     key: 'To',
@@ -731,6 +721,21 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
             }
 
             if (messageData.verificationResults) {
+                let fromAddress = (messageData.from || messageData.sender || {}).address || '<>';
+                let returnPathAddress = (messageData.envelope && messageData.envelope.from) || '<>';
+
+                securityInfo.push({
+                    key: 'From',
+                    value: fromAddress
+                });
+
+                if (fromAddress !== returnPathAddress) {
+                    securityInfo.push({
+                        key: 'Return Path',
+                        value: returnPathAddress
+                    });
+                }
+
                 if (messageData.verificationResults.spf) {
                     securityInfo.push({
                         key: 'Mailed by',
