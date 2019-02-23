@@ -283,11 +283,6 @@
                 iframe.contentWindow.resizeIframe(iframe);
             });
         }
-
-        $('#extraDetails').popover({
-            content: document.getElementById('extraDetailsContent').innerHTML,
-            html: true
-        })
     }, false);
 </script>
 
@@ -625,6 +620,11 @@
                 }
             }
         };
+
+        $('#extraDetails').popover({
+            content: document.getElementById('extraDetailsContent').innerHTML,
+            html: true
+        })
     }, false);
 
 </script>
