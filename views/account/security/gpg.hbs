@@ -29,48 +29,63 @@
                             <div class="panel-body">
 
                                 <p>
-                                    If encryption is enabled then {{serviceName}} encrypts all incoming cleartext messages using your public key before storing these to disk. Be aware though that {{serviceName}} does not have your private key and thus can not recover any messages in case the key is lost.
+                                    If encryption is enabled then all cleartext messages that are archived to this
+                                    account are encrypted using provided public key. Private key is not known to the
+                                    service so if they key is lost then messages can not be recovered. {{serviceName}}
+                                    is able to display encrypted messages if <a
+                                        href="https://www.mailvelope.com/">Mailvelope browser extension</a> is
+                                    installed, otherwise you would have to download the messages and open these in a
+                                    GPG-compatible email client.
                                 </p>
 
                                 <div class="form-group{{#if errors.encryptMessages}} has-error{{/if}}">
                                     <label class="radio-inline">
-                                      <input type="radio" name="encryptMessages" id="encryptMessagesNo" value="false" {{#unless values.encryptMessages}}checked{{/unless}}> Disable encryption
+                                        <input type="radio" name="encryptMessages" id="encryptMessagesNo" value="false"
+                                            {{#unless values.encryptMessages}}checked{{/unless}}> Disable encryption
                                     </label>
                                     <label class="radio-inline">
-                                      <input type="radio" name="encryptMessages" id="encryptMessagesYes" value="true" {{#if values.encryptMessages}}checked{{/if}}> Enable encryption
+                                        <input type="radio" name="encryptMessages" id="encryptMessagesYes" value="true"
+                                            {{#if values.encryptMessages}}checked{{/if}}> Enable encryption
                                     </label>
                                     {{#if errors.encryptMessages}}
-                                        <span class="help-block">{{errors.encryptMessages}}</span>
+                                    <span class="help-block">{{errors.encryptMessages}}</span>
                                     {{/if}}
                                 </div>
 
                                 {{#if fingerprint}}
-                                    <div class="form-group">
-                                        <label>Current key:</label>
-                                        <div class="form-control-static">
-                                            <div class="pull-right">
-                                                <label>
-                                                    <input type="checkbox" name="removeKey" value="yes"/> Remove current key
-                                                </label>
-                                            </div>
-                                            <div>
-                                                <code class="response">{{fingerprint}}</code> {{#if keyAddress}}(<em>{{keyAddress}}</em>){{/if}}
-                                            </div>
+                                <div class="form-group">
+                                    <label>Current key:</label>
+                                    <div class="form-control-static">
+                                        <div class="pull-right">
+                                            <label>
+                                                <input type="checkbox" name="removeKey" value="yes" /> Remove current
+                                                key
+                                            </label>
+                                        </div>
+                                        <div>
+                                            <code class="response">{{fingerprint}}</code>
+                                            {{#if keyAddress}}(<em>{{keyAddress}}</em>){{/if}}
                                         </div>
                                     </div>
+                                </div>
                                 {{/if}}
 
                                 <div class="form-group{{#if errors.pubKey}} has-error{{/if}}">
-                                    <label for="pubKey">GPG Public Key{{#if fingerprint}} (replaces current key){{/if}}: </label>
-                                    <textarea class="form-control" style="font-family: monospace;" rows="6" id="pubKey" name="pubKey" placeholder="Begins with &#39;-----BEGIN PGP PUBLIC KEY BLOCK-----&#39;">{{pubKey}}</textarea>
+                                    <label for="pubKey">GPG Public Key{{#if fingerprint}} (replaces current key){{/if}}:
+                                    </label>
+                                    <textarea class="form-control" style="font-family: monospace;" rows="6" id="pubKey"
+                                        name="pubKey"
+                                        placeholder="Begins with &#39;-----BEGIN PGP PUBLIC KEY BLOCK-----&#39;">{{pubKey}}</textarea>
                                     {{#if errors.pubKey}}
-                                        <span class="help-block">{{errors.pubKey}}</span>
+                                    <span class="help-block">{{errors.pubKey}}</span>
                                     {{/if}}
-                                    <span class="help-block">Leave empty if you do not want to replace the current key</span>
+                                    <span class="help-block">Leave empty if you do not want to replace the current
+                                        key</span>
                                 </div>
 
                                 <div class="form-group">
-                                    <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Update encryption settings</button>
+                                    <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-lock"
+                                            aria-hidden="true"></span> Update encryption settings</button>
                                 </div>
 
                             </div>

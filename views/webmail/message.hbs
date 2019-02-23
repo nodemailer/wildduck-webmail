@@ -147,13 +147,97 @@
 <div style="margin-bottom: 5px;"></div>
 
 {{#if message.encrypted}}
-<div class="alert alert-warning" role="alert">
+<div id="encrypted-warning" class="alert alert-warning" role="alert">
     <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
-    This message is encrypted and can not be properly displayed. Download the original message <a
-        href="/webmail/{{mailbox.id}}/raw/{{message.id}}.eml" role="button" download="{{message.id}}.eml"
-        class="alert-link">from here </a> to open it in an e-mail client that is able to read encrypted messages.
+    This message is encrypted and can not be displayed. Download the original message <a
+        href="/webmail/{{mailbox.id}}/raw/{{message.id}}.eml" download="{{message.id}}.eml" class="alert-link">from here
+    </a> to open it in an e-mail client that is able to read encrypted messages.
+    Alternatively you can install <a href="https://www.mailvelope.com/" class="alert-link">Mailvelope browser
+        extension</a> to allow decrypting and displaying messages by {{serviceName}}.
 </div>
-{{/if}}
+
+<div id="mailvelope-loading" class="alert alert-info" role="alert" style="display:none">
+    <span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+    Mailvelope detected. Trying to decrpyt encrypted message...
+</div>
+
+<div id="message-content" class="mailvelope"></div>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        if (typeof mailvelope !== 'undefined') {
+            mailvelopeLoaded();
+        } else {
+            window.addEventListener('mailvelope', mailvelopeLoaded, false);
+        }
+
+        var identifier = 'wildduck';
+
+        function getKeyring(callback) {
+            mailvelope.getKeyring(identifier).then(function (keyring) {
+                return callback(null, keyring);
+            }).catch(function (err) {
+                mailvelope.createKeyring(identifier).then(function (keyring) {
+                    return callback(null, keyring);
+                }).catch(function (err) {
+                    return callback(err);
+                });
+            });
+        }
+
+        function mailvelopeLoaded() {
+
+            document.getElementById('encrypted-warning').style.display = 'none';
+            document.getElementById('mailvelope-loading').style.display = 'block';
+
+            var selector = '#message-content';
+
+            getKeyring(function (err, keyring) {
+                if (err) {
+                    document.getElementById('encrypted-warning').style.display = 'block';
+                    document.getElementById('mailvelope-loading').style.display = 'none';
+                    alert('Failed to create keyring. ' + err.message);
+                    return;
+                }
+
+                fetch('/webmail/{{mailbox.id}}/raw/{{message.id}}.eml', {
+                    method: 'get',
+                    headers: {
+                        Accept: 'application/json, text/plain, */*',
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                })
+                    .then(function (res) {
+                        return res.text();
+                    })
+                    .then(function (text) {
+                        mailvelope.createDisplayContainer(selector, text, keyring, { showExternalContent: true }).then(function () {
+                            //$(selector).addClass('mailvelope').find('.message-part, .part-notice').hide();
+                            //setTimeout(function() { $(window).resize(); }, 10);
+                            document.getElementById('mailvelope-loading').style.display = 'none';
+                        }).catch(function (err) {
+                            document.getElementById('encrypted-warning').style.display = 'block';
+                            document.getElementById('mailvelope-loading').style.display = 'none';
+                            console.error(err);
+                            alert('Message decryption failed: ' + err.message, 'error')
+                        });
+                    }).catch(function (err) {
+                        document.getElementById('encrypted-warning').style.display = 'block';
+                        document.getElementById('mailvelope-loading').style.display = 'none';
+                        console.error(err);
+                        alert('Message decryption failed: ' + err.message)
+                    });
+            });
+        }
+    });
+
+</script>
+
+
+{{else}}
 
 <div id="message-content" class="iframe-box"></div>
 
@@ -170,6 +254,45 @@
 <p>
     &nbsp;
 </p>
+
+
+<script type="text/javascript" src="/components/DOMPurify/dist/purify.min.js"></script>
+<script>
+    var message = {{{ messageJson }}};
+
+    document.addEventListener("DOMContentLoaded", function (event) {
+        if (message.html) {
+            var clean = DOMPurify.sanitize(message.html.join('\n'), {
+                ALLOW_UNKNOWN_PROTOCOLS: true,
+                WHOLE_DOCUMENT: true,
+                FORBID_TAGS: ['form']
+            });
+
+            clean = clean.replace(/head>/, 'head><link rel="stylesheet" href="/css/mail.css" /><base target="_parent"><script>function resizeIframe(obj) {obj.style.height = obj.contentWindow.document.body.scrollHeight + "px";}</' + 'script>');
+
+            var iframe = document.createElement('iframe');
+
+            document.getElementById('message-content').appendChild(iframe);
+            iframe.contentWindow.document.open();
+            iframe.contentWindow.document.write(clean);
+            iframe.contentWindow.document.close();
+            iframe.contentWindow.addEventListener('load', function () {
+                iframe.contentWindow.resizeIframe(iframe);
+            });
+            iframe.contentWindow.document.addEventListener('DOMContentLoaded', function () {
+                iframe.contentWindow.resizeIframe(iframe);
+            });
+        }
+
+        $('#extraDetails').popover({
+            content: document.getElementById('extraDetailsContent').innerHTML,
+            html: true
+        })
+    }, false);
+</script>
+
+{{/if}}
+
 
 <!-- Modal -->
 <div class="modal" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel">
@@ -215,41 +338,6 @@
         </div>
     </div>
 </div>
-
-<script type="text/javascript" src="/components/DOMPurify/dist/purify.min.js"></script>
-<script>
-    var message = {{{ messageJson }}};
-
-    document.addEventListener("DOMContentLoaded", function (event) {
-        if (message.html) {
-            var clean = DOMPurify.sanitize(message.html.join('\n'), {
-                ALLOW_UNKNOWN_PROTOCOLS: true,
-                WHOLE_DOCUMENT: true,
-                FORBID_TAGS: ['form']
-            });
-
-            clean = clean.replace(/head>/, 'head><link rel="stylesheet" href="/css/mail.css" /><base target="_parent"><script>function resizeIframe(obj) {obj.style.height = obj.contentWindow.document.body.scrollHeight + "px";}</' + 'script>');
-
-            var iframe = document.createElement('iframe');
-
-            document.getElementById('message-content').appendChild(iframe);
-            iframe.contentWindow.document.open();
-            iframe.contentWindow.document.write(clean);
-            iframe.contentWindow.document.close();
-            iframe.contentWindow.addEventListener('load', function () {
-                iframe.contentWindow.resizeIframe(iframe);
-            });
-            iframe.contentWindow.document.addEventListener('DOMContentLoaded', function () {
-                iframe.contentWindow.resizeIframe(iframe);
-            });
-        }
-
-        $('#extraDetails').popover({
-            content: document.getElementById('extraDetailsContent').innerHTML,
-            html: true
-        })
-    }, false);
-</script>
 
 <script>
     // star toggle

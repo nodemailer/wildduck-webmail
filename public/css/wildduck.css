@@ -385,3 +385,7 @@ tr.identity-main td {
 .grecaptcha-badge {
     z-index: 999;
 }
+
+#message-content.mailvelope {
+    height: 500px;
+}
