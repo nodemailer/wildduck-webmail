@@ -6,7 +6,7 @@ const Joi = require('joi');
 const apiClient = require('../../lib/api-client');
 
 router.get('/', (req, res, next) => {
-    apiClient.autoreply.get(req.user.id, (err, autoreply) => {
+    apiClient.autoreply.get(req.user, (err, autoreply) => {
         if (err) {
             return next(err);
         }
@@ -88,7 +88,7 @@ router.post('/', (req, res) => {
         result.value.text = '';
     }
 
-    apiClient.autoreply.update(req.user.id, result.value, err => {
+    apiClient.autoreply.update(req.user, result.value, err => {
         if (err) {
             if (err.fields) {
                 return showErrors(err.fields);

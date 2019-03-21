@@ -72,7 +72,7 @@ router.get('/send', (req, res) => {
     let draftMessage = result.value.draftMessage;
     let isDraft = (result.value.draft && draftMailbox && draftMessage && true) || false;
 
-    apiClient.addresses.list(req.user.id, (err, addresses) => {
+    apiClient.addresses.list(req.user, (err, addresses) => {
         if (err) {
             req.flash('danger', err.message);
             return res.redirect('/webmail');
@@ -84,7 +84,7 @@ router.get('/send', (req, res) => {
             addressList.add(address.replace(/\+[^@]*@/, '@'));
         });
 
-        apiClient.mailboxes.list(req.user.id, true, (err, mailboxes) => {
+        apiClient.mailboxes.list(req.user, true, (err, mailboxes) => {
             if (err) {
                 req.flash('danger', err.message);
                 res.redirect('/webmail');
@@ -93,11 +93,11 @@ router.get('/send', (req, res) => {
 
             let getMessageData = done => {
                 if (isDraft) {
-                    return apiClient.messages.get(req.user.id, draftMailbox, draftMessage, done);
+                    return apiClient.messages.get(req.user, draftMailbox, draftMessage, done);
                 }
 
                 if (refMailbox && refMessage) {
-                    return apiClient.messages.get(req.user.id, refMailbox, refMessage, done);
+                    return apiClient.messages.get(req.user, refMailbox, refMessage, done);
                 }
 
                 return done();
@@ -345,7 +345,7 @@ router.post('/send', (req, res) => {
         allowUnknown: true
     });
 
-    apiClient.addresses.list(req.user.id, (err, addresses) => {
+    apiClient.addresses.list(req.user, (err, addresses) => {
         if (err) {
             req.flash('danger', err.message);
             return res.redirect('/webmail');
@@ -368,7 +368,7 @@ router.post('/send', (req, res) => {
                 req.flash('danger', 'Failed sending email');
             }
 
-            apiClient.mailboxes.list(req.user.id, true, (err, mailboxes) => {
+            apiClient.mailboxes.list(req.user, true, (err, mailboxes) => {
                 if (err) {
                     req.flash('danger', err.message);
                     return res.redirect('/webmail');
@@ -473,7 +473,7 @@ router.post('/send', (req, res) => {
                 break;
         }
 
-        apiClient.messages.submit(req.user.id, messageData, (err, response) => {
+        apiClient.messages.submit(req.user, messageData, (err, response) => {
             if (err) {
                 req.flash('danger', err.message);
                 return showErrors({}, true);
@@ -492,7 +492,7 @@ router.post('/send', (req, res) => {
                 if (!isDraft || 0) {
                     return done();
                 }
-                apiClient.messages.delete(req.user.id, draftMailbox, draftMessage, done);
+                apiClient.messages.delete(req.user, draftMailbox, draftMessage, done);
             };
 
             if (response.message) {
@@ -505,7 +505,7 @@ router.post('/send', (req, res) => {
 });
 
 router.get('/create', (req, res) => {
-    apiClient.mailboxes.list(req.user.id, true, (err, mailboxes) => {
+    apiClient.mailboxes.list(req.user, true, (err, mailboxes) => {
         if (err) {
             req.flash('danger', err.message);
             res.redirect('/webmail');
@@ -549,7 +549,7 @@ router.post('/create', (req, res) => {
             req.flash('danger', 'Failed creating mailbox');
         }
 
-        apiClient.mailboxes.list(req.user.id, true, (err, mailboxes) => {
+        apiClient.mailboxes.list(req.user, true, (err, mailboxes) => {
             if (err) {
                 req.flash('danger', err.message);
                 return res.redirect('/webmail');
@@ -592,7 +592,7 @@ router.post('/create', (req, res) => {
         .join('/');
 
     apiClient.mailboxes.create(
-        req.user.id,
+        req.user,
         {
             path
         },
@@ -638,7 +638,7 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
         return res.redirect('/webmail');
     }
 
-    apiClient.mailboxes.list(req.user.id, true, (err, mailboxes) => {
+    apiClient.mailboxes.list(req.user, true, (err, mailboxes) => {
         if (err) {
             return next(err);
         }
@@ -661,7 +661,7 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
             return res.redirect('/webmail');
         }
 
-        apiClient.messages.get(req.user.id, mailbox, result.value.message, (err, messageData) => {
+        apiClient.messages.get(req.user, mailbox, result.value.message, (err, messageData) => {
             if (err) {
                 return next(err);
             }
@@ -792,7 +792,7 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
             messageData.securityInfo = securityInfo;
 
             // make sure that we get the actual unseen count from the server
-            apiClient.mailboxes.get(req.user.id, selectedMailbox.id, (err, mailbox) => {
+            apiClient.mailboxes.get(req.user, selectedMailbox.id, (err, mailbox) => {
                 if (!err && mailbox) {
                     selectedMailbox.unseen = mailbox.unseen;
                 }
@@ -853,7 +853,7 @@ router.get('/:mailbox/attachment/:message/:attachment', (req, res) => {
         return res.redirect('/webmail');
     }
 
-    apiClient.attachment.get(req, res, req.user.id, result.value.mailbox, result.value.message, result.value.attachment);
+    apiClient.attachment.get(req, res, req.user, result.value.mailbox, result.value.message, result.value.attachment);
 });
 
 router.get('/:mailbox/raw/:message.eml', (req, res) => {
@@ -883,7 +883,7 @@ router.get('/:mailbox/raw/:message.eml', (req, res) => {
         return res.redirect('/webmail');
     }
 
-    apiClient.messages.raw(req, res, req.user.id, result.value.mailbox, result.value.message);
+    apiClient.messages.raw(req, res, req.user, result.value.mailbox, result.value.message);
 });
 
 router.get('/:mailbox/settings', (req, res, next) => {
@@ -908,7 +908,7 @@ router.get('/:mailbox/settings', (req, res, next) => {
         return res.redirect('/webmail');
     }
 
-    apiClient.mailboxes.list(req.user.id, true, (err, mailboxes) => {
+    apiClient.mailboxes.list(req.user, true, (err, mailboxes) => {
         if (err) {
             return next(err);
         }
@@ -982,7 +982,7 @@ router.post('/:mailbox/settings', (req, res) => {
             req.flash('danger', 'Failed updating mailbox');
         }
 
-        apiClient.mailboxes.list(req.user.id, true, (err, mailboxes) => {
+        apiClient.mailboxes.list(req.user, true, (err, mailboxes) => {
             if (err) {
                 req.flash('danger', err.message);
                 return res.redirect('/webmail');
@@ -1051,7 +1051,7 @@ router.post('/:mailbox/settings', (req, res) => {
         .join('/');
 
     apiClient.mailboxes.update(
-        req.user.id,
+        req.user,
         result.value.mailbox,
         {
             path
@@ -1093,7 +1093,7 @@ router.post('/:mailbox/delete', (req, res) => {
         return res.redirect('/webmail');
     }
 
-    apiClient.mailboxes.delete(req.user.id, result.value.mailbox, (err, result) => {
+    apiClient.mailboxes.delete(req.user, result.value.mailbox, (err, result) => {
         if (err) {
             req.flash('danger', err.message);
         }
@@ -1154,7 +1154,7 @@ function renderMailbox(req, res, next) {
         cursorValue = result.value.previous;
     }
 
-    apiClient.mailboxes.list(req.user.id, true, (err, mailboxes) => {
+    apiClient.mailboxes.list(req.user, true, (err, mailboxes) => {
         if (err) {
             return next(err);
         }
@@ -1200,7 +1200,7 @@ function renderMailbox(req, res, next) {
         let makeRequest = done => {
             if (mailbox === 'starred') {
                 let data = { next: result.value.next, previous: result.value.previous, page: result.value.page || 1, flagged: true, searchable: true };
-                return apiClient.messages.search(req.user.id, data, done);
+                return apiClient.messages.search(req.user, data, done);
             } else if (mailbox === 'search') {
                 let data = { next: result.value.next, previous: result.value.previous, page: result.value.page || 1, limit: config.www.listSize };
 
@@ -1229,10 +1229,10 @@ function renderMailbox(req, res, next) {
                 });
                 data.query = text;
 
-                return apiClient.messages.search(req.user.id, data, done);
+                return apiClient.messages.search(req.user, data, done);
             } else {
                 let data = { next: result.value.next, previous: result.value.previous, page: result.value.page || 1, limit: config.www.listSize };
-                apiClient.messages.list(req.user.id, mailbox, data, done);
+                apiClient.messages.list(req.user, mailbox, data, done);
             }
         };
 

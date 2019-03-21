@@ -406,7 +406,7 @@ router.post('/profile', passport.checkLogin, (req, res) => {
     result.value.ip = req.ip;
 
     result.value.allowUnsafe = false;
-    apiClient.users.update(req.user.id, result.value, err => {
+    apiClient.users.update(req.user, result.value, err => {
         if (err) {
             if (err.fields) {
                 return showErrors(err.fields);
@@ -427,7 +427,7 @@ router.post('/start-u2f', (req, res) => {
         return res.json({ error: err.message, code: err.code });
     }
 
-    apiClient['2fa'].startU2f(req.user.id, req.ip, (err, data) => {
+    apiClient['2fa'].startU2f(req.user, req.ip, (err, data) => {
         if (err) {
             return res.json({ error: err.message, code: err.code });
         }
@@ -459,7 +459,7 @@ router.post('/check-totp', (req, res) => {
     }
 
     let remember2fa = result.value.remember2fa;
-    apiClient['2fa'].checkTotp(req.user.id, result.value.token, req.session.id, req.ip, (err, result) => {
+    apiClient['2fa'].checkTotp(req.user, result.value.token, req.session.id, req.ip, (err, result) => {
         if (err) {
             return res.json({ error: err.message, code: err.code });
         }
@@ -533,7 +533,7 @@ router.post('/check-u2f', (req, res) => {
     requestData.ip = req.ip;
     requestData.sess = req.session.id;
 
-    apiClient['2fa'].checkU2f(req.user.id, requestData, (err, data) => {
+    apiClient['2fa'].checkU2f(req.user, requestData, (err, data) => {
         if (err) {
             return res.json({ error: err.message, code: err.code });
         }
@@ -644,7 +644,7 @@ router.post('/update-password', (req, res) => {
     result.value.ip = req.ip;
 
     result.value.allowUnsafe = false;
-    apiClient.users.update(req.user.id, result.value, err => {
+    apiClient.users.update(req.user, result.value, err => {
         if (err) {
             if (err.fields) {
                 return showErrors(err.fields);

@@ -70,7 +70,7 @@ router.get('/events', (req, res, next) => {
 
     let getEvents = done => {
         if (result.value.event) {
-            return apiClient.authlog.get(req.user.id, result.value.event, (err, eventData) => {
+            return apiClient.authlog.get(req.user, result.value.event, (err, eventData) => {
                 if (err) {
                     return done(err);
                 }
@@ -81,7 +81,7 @@ router.get('/events', (req, res, next) => {
             });
         }
 
-        apiClient.authlog.list(req.user.id, { next: result.value.next, previous: result.value.previous, page: result.value.page || 1 }, done);
+        apiClient.authlog.list(req.user, { next: result.value.next, previous: result.value.previous, page: result.value.page || 1 }, done);
     };
 
     getEvents((err, log) => {
@@ -227,7 +227,7 @@ router.post('/gpg', (req, res) => {
     }
 
     updatedUserData.allowUnsafe = false;
-    apiClient.users.update(req.user.id, updatedUserData, err => {
+    apiClient.users.update(req.user, updatedUserData, err => {
         if (err) {
             if (err.fields) {
                 return showErrors(err.fields);
@@ -334,7 +334,7 @@ router.post('/password', (req, res) => {
     result.value.sess = req.session.id;
 
     result.value.allowUnsafe = false;
-    apiClient.users.update(req.user.id, result.value, err => {
+    apiClient.users.update(req.user, result.value, err => {
         if (err) {
             if (err.fields) {
                 return showErrors(err.fields);
@@ -350,7 +350,7 @@ router.post('/password', (req, res) => {
 });
 
 router.get('/asps', (req, res) => {
-    apiClient.asps.list(req.user.id, (err, asps) => {
+    apiClient.asps.list(req.user, (err, asps) => {
         if (err) {
             req.flash('danger', 'Account password updated');
             res.redirect('/account/security');
@@ -400,7 +400,7 @@ router.post('/asps/delete', (req, res) => {
         return res.redirect('/account/security/asps');
     }
 
-    apiClient.asps.del(req.user.id, result.value.id, req.session.id, req.ip, err => {
+    apiClient.asps.del(req.user, result.value.id, req.session.id, req.ip, err => {
         if (err) {
             req.flash('danger', 'Database Error, failed to delete data');
             return res.redirect('/account/security/asps');
@@ -445,7 +445,7 @@ router.post('/asps/create', (req, res) => {
         sess: req.session.id
     };
 
-    apiClient.asps.create(req.user.id, data, (err, response) => {
+    apiClient.asps.create(req.user, data, (err, response) => {
         if (err) {
             req.flash('danger', err.message);
             return res.redirect('/account/security');
@@ -492,7 +492,7 @@ router.post('/2fa/enable-totp', (req, res, next) => {
     });
 
     let showErrors = errors => {
-        apiClient['2fa'].setupTotp(req.user.id, config.totp.issuer || config.name, req.ip, (err, data) => {
+        apiClient['2fa'].setupTotp(req.user, config.totp.issuer || config.name, req.ip, (err, data) => {
             if (err) {
                 return next(err);
             }
@@ -522,7 +522,7 @@ router.post('/2fa/enable-totp', (req, res, next) => {
         return showErrors(errors);
     }
 
-    apiClient['2fa'].setupTotp(req.user.id, config.totp.issuer || config.name, req.ip, (err, data) => {
+    apiClient['2fa'].setupTotp(req.user, config.totp.issuer || config.name, req.ip, (err, data) => {
         if (err) {
             return next(err);
         }
@@ -555,7 +555,7 @@ router.post('/2fa/verify-totp', (req, res) => {
         return res.json({ error: result.error.message });
     }
 
-    apiClient['2fa'].verifyTotp(req.user.id, result.value.token, req.session.id, req.ip, err => {
+    apiClient['2fa'].verifyTotp(req.user, result.value.token, req.session.id, req.ip, err => {
         if (err) {
             return res.json({ error: err.message, code: err.code });
         }
@@ -569,7 +569,7 @@ router.post('/2fa/verify-totp', (req, res) => {
 });
 
 router.post('/2fa/disable-totp', (req, res, next) => {
-    apiClient['2fa'].disable(req.user.id, req.session.id, req.ip, err => {
+    apiClient['2fa'].disable(req.user, req.session.id, req.ip, err => {
         if (err) {
             return next(err);
         }
@@ -600,7 +600,7 @@ router.post('/2fa/setup-u2f', (req, res) => {
         return res.json({ error: err.message });
     }
 
-    apiClient['2fa'].setupU2f(req.user.id, req.ip, (err, data) => {
+    apiClient['2fa'].setupU2f(req.user, req.ip, (err, data) => {
         if (err) {
             return res.json({ error: err.message });
         }
@@ -616,7 +616,7 @@ router.post('/2fa/disable-u2f', (req, res, next) => {
         return next(err);
     }
 
-    apiClient['2fa'].disableU2f(req.user.id, req.session.id, req.ip, (err, data) => {
+    apiClient['2fa'].disableU2f(req.user, req.session.id, req.ip, (err, data) => {
         if (err) {
             return next(err);
         }
@@ -640,7 +640,7 @@ router.post('/2fa/enable-u2f/verify', (req, res) => {
             requestData[key] = req.body[key];
         }
     });
-    apiClient['2fa'].enableU2f(req.user.id, requestData, (err, data) => {
+    apiClient['2fa'].enableU2f(req.user, requestData, (err, data) => {
         if (err) {
             return res.json({ error: err.message });
         }

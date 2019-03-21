@@ -86,7 +86,7 @@ const filterBaseSchema = {
 };
 
 router.get('/', (req, res, next) => {
-    apiClient.filters.list(req.user.id, (err, filters) => {
+    apiClient.filters.list(req.user, (err, filters) => {
         if (err) {
             return next(err);
         }
@@ -105,7 +105,7 @@ router.get('/', (req, res, next) => {
 });
 
 router.get('/create', (req, res, next) => {
-    apiClient.mailboxes.list(req.user.id, false, (err, mailboxes) => {
+    apiClient.mailboxes.list(req.user, false, (err, mailboxes) => {
         if (err) {
             return next(err);
         }
@@ -144,12 +144,12 @@ router.get('/edit', (req, res) => {
         return res.redirect('/account/filters');
     }
 
-    apiClient.mailboxes.list(req.user.id, false, (err, mailboxes) => {
+    apiClient.mailboxes.list(req.user, false, (err, mailboxes) => {
         if (err) {
             req.flash('danger', err.message);
             return res.redirect('/account/filters');
         }
-        apiClient.filters.get(req.user.id, result.value.id, (err, filter) => {
+        apiClient.filters.get(req.user, result.value.id, (err, filter) => {
             if (err) {
                 req.flash('danger', err.message);
                 return res.redirect('/account/filters');
@@ -199,7 +199,7 @@ router.post('/delete', (req, res) => {
         return res.redirect('/account/filters');
     }
 
-    apiClient.filters.del(req.user.id, result.value.id, err => {
+    apiClient.filters.del(req.user, result.value.id, err => {
         if (err) {
             req.flash('danger', 'Database Error, failed to update user and delete filter');
             return res.redirect('/account/filters');
@@ -211,7 +211,7 @@ router.post('/delete', (req, res) => {
 });
 
 router.post('/create', (req, res, next) => {
-    apiClient.mailboxes.list(req.user.id, false, (err, mailboxes) => {
+    apiClient.mailboxes.list(req.user, false, (err, mailboxes) => {
         if (err) {
             return next(err);
         }
@@ -281,7 +281,7 @@ router.post('/create', (req, res, next) => {
             return showErrors(errors);
         }
 
-        apiClient.filters.create(req.user.id, getFilterObject(result.value), (err, data) => {
+        apiClient.filters.create(req.user, getFilterObject(result.value), (err, data) => {
             if (err) {
                 req.flash('danger', err.message);
                 return showErrors(false, true);
@@ -293,7 +293,7 @@ router.post('/create', (req, res, next) => {
 });
 
 router.post('/edit', (req, res, next) => {
-    apiClient.mailboxes.list(req.user.id, false, (err, mailboxes) => {
+    apiClient.mailboxes.list(req.user, false, (err, mailboxes) => {
         if (err) {
             return next(err);
         }
@@ -371,7 +371,7 @@ router.post('/edit', (req, res, next) => {
             return showErrors(errors);
         }
 
-        apiClient.filters.update(req.user.id, result.value.id, getFilterObject(result.value), err => {
+        apiClient.filters.update(req.user, result.value.id, getFilterObject(result.value), err => {
             if (err) {
                 req.flash('danger', err.message);
                 return showErrors(false, true);

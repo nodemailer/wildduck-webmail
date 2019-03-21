@@ -36,7 +36,7 @@ router.post('/toggle/flagged', (req, res) => {
     }
 
     apiClient.messages.update(
-        req.user.id,
+        req.user,
         result.value.mailbox,
         {
             message: result.value.message,
@@ -81,7 +81,7 @@ router.post('/toggle/seen', (req, res) => {
     }
 
     apiClient.messages.update(
-        req.user.id,
+        req.user,
         result.value.mailbox,
         {
             message: result.value.message,
@@ -128,7 +128,7 @@ router.post('/move', (req, res) => {
     }
 
     apiClient.messages.update(
-        req.user.id,
+        req.user,
         result.value.mailbox,
         {
             message: result.value.message,
@@ -169,7 +169,7 @@ router.post('/delete', (req, res) => {
         });
     }
 
-    apiClient.mailboxes.list(req.user.id, true, (err, mailboxes) => {
+    apiClient.mailboxes.list(req.user, true, (err, mailboxes) => {
         if (err) {
             return res.json({ error: err.message });
         }
@@ -201,7 +201,7 @@ router.post('/delete', (req, res) => {
                 }
                 let id = messages[pos++];
 
-                apiClient.messages.delete(req.user.id, result.value.mailbox, id, (err, response) => {
+                apiClient.messages.delete(req.user, result.value.mailbox, id, (err, response) => {
                     if (err) {
                         deleted.push([id, false, { error: err.message, code: err.code }]);
                     } else {
@@ -214,7 +214,7 @@ router.post('/delete', (req, res) => {
         } else {
             // move to trash
             apiClient.messages.update(
-                req.user.id,
+                req.user,
                 result.value.mailbox,
                 {
                     message: result.value.message,
@@ -274,9 +274,9 @@ router.post('/list', (req, res) => {
         if (result.value.mailbox === 'starred') {
             params.flagged = true;
             params.searchable = true;
-            return apiClient.messages.search(req.user.id, params, done);
+            return apiClient.messages.search(req.user, params, done);
         } else {
-            apiClient.messages.list(req.user.id, result.value.mailbox, params, done);
+            apiClient.messages.list(req.user, result.value.mailbox, params, done);
         }
     };
 
@@ -292,7 +292,7 @@ router.post('/list', (req, res) => {
 });
 
 router.get('/events', (req, res) => {
-    apiClient.updates.stream(req, res, req.user.id);
+    apiClient.updates.stream(req, res, req.user);
 });
 
 router.post('/upload', (req, res) =>

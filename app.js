@@ -191,6 +191,19 @@ app.use((req, res, next) => {
 });
 
 // error handlers
+app.use((err, req, res, next) => {
+    if (!err) {
+        return next();
+    }
+
+    if (!err.resetSession) {
+        return next(err);
+    }
+
+    req.session.regenerate(() => {
+        return next(err);
+    });
+});
 
 // development error handler
 // will print stacktrace

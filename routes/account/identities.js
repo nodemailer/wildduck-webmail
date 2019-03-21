@@ -9,7 +9,7 @@ const roleBasedAddresses = require('role-based-email-addresses');
 const util = require('util');
 
 router.get('/', (req, res, next) => {
-    apiClient.addresses.list(req.user.id, (err, identities) => {
+    apiClient.addresses.list(req.user, (err, identities) => {
         if (err) {
             return next(err);
         }
@@ -31,7 +31,7 @@ router.get('/', (req, res, next) => {
 });
 
 router.get('/create', (req, res) => {
-    apiClient.addresses.list(req.user.id, (err, identities) => {
+    apiClient.addresses.list(req.user, (err, identities) => {
         if (err) {
             req.flash('danger', err.message);
             return res.redirect('/account/identities');
@@ -133,7 +133,7 @@ router.post('/create', (req, res) => {
         });
     }
 
-    apiClient.addresses.list(req.user.id, (err, identities) => {
+    apiClient.addresses.list(req.user, (err, identities) => {
         if (err) {
             req.flash('danger', err.message);
             return res.redirect('/account/identities');
@@ -145,7 +145,7 @@ router.post('/create', (req, res) => {
         }
 
         apiClient.addresses.create(
-            req.user.id,
+            req.user,
             {
                 name: result.value.name,
                 address: result.value.address + '@' + result.value.domain,
@@ -165,7 +165,7 @@ router.post('/create', (req, res) => {
 
 router.get('/edit', (req, res) => {
     if (!config.service.allowIdentityEdit) {
-        req.flash('danger', 'You\'re not allowed to edit an identity');
+        req.flash('danger', "You're not allowed to edit an identity");
         return res.redirect('/account/identities');
     }
 
@@ -193,7 +193,7 @@ router.get('/edit', (req, res) => {
         return res.redirect('/account/identities');
     }
 
-    apiClient.addresses.get(req.user.id, result.value.id, (err, address) => {
+    apiClient.addresses.get(req.user, result.value.id, (err, address) => {
         if (err) {
             req.flash('danger', err.message);
             return res.redirect('/account/identities');
@@ -217,7 +217,7 @@ router.get('/edit', (req, res) => {
 
 router.post('/edit', (req, res) => {
     if (!config.service.allowIdentityEdit) {
-        req.flash('danger', 'You\'re not allowed to edit an identity');
+        req.flash('danger', "You're not allowed to edit an identity");
         return res.redirect('/account/identities');
     }
 
@@ -259,7 +259,7 @@ router.post('/edit', (req, res) => {
         allowUnknown: false
     });
 
-    apiClient.addresses.get(req.user.id, result.value.id, (err, address) => {
+    apiClient.addresses.get(req.user, result.value.id, (err, address) => {
         if (err) {
             req.flash('danger', err.message);
             return res.redirect('/account/identities');
@@ -321,7 +321,7 @@ router.post('/edit', (req, res) => {
             updateData.main = result.value.main;
         }
 
-        apiClient.addresses.update(req.user.id, result.value.id, updateData, err => {
+        apiClient.addresses.update(req.user, result.value.id, updateData, err => {
             if (err) {
                 req.flash('danger', err.message);
                 return showErrors(false, true);
@@ -358,7 +358,7 @@ router.post('/delete', (req, res) => {
         return res.redirect('/account/identities');
     }
 
-    apiClient.addresses.del(req.user.id, result.value.id, err => {
+    apiClient.addresses.del(req.user, result.value.id, err => {
         if (err) {
             req.flash('danger', 'Database Error, failed to update user and delete identity');
             return res.redirect('/account/identities');
