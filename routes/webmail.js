@@ -356,7 +356,7 @@ router.post('/send', (req, res) => {
             addresses.map(address => {
                 if (result.value.from === address.id) {
                     fromAddress = {
-                        name: address.name || req.user.name,
+                        name: address.name || req.user.name || '',
                         address: address.address
                     };
                 }
