@@ -1,14 +1,14 @@
-
 <h2 class="sub-header">
     {{#if mailbox.editable}}
-        <div class="pull-right">
-            <a href="/webmail/{{mailbox.id}}/settings" class="btn btn-default"><span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Settings</a>
-        </div>
+    <div class="pull-right">
+        <a href="/webmail/{{mailbox.id}}/settings" class="btn btn-default"><span class="glyphicon glyphicon-cog"
+                aria-hidden="true"></span> Settings</a>
+    </div>
     {{/if}}
     {{#if mailbox.icon}}
-        <span class="glyphicon glyphicon-{{mailbox.icon}}" aria-hidden="true"></span>
+    <span class="glyphicon glyphicon-{{mailbox.icon}}" aria-hidden="true"></span>
     {{else}}
-        <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span>
+    <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span>
     {{/if}}
     {{mailbox.name}}
 </h2>
@@ -19,37 +19,50 @@
         <div class="pull-left" style="margin-left: 10px; width: 20px;">
             <input type="checkbox" class="toggle-all" />
         </div>
+        <div class="pull-left">
+            <a class="btn btn-default btn-xs {{#if filterUnseen}}active{{/if}}" title="filter unseen"
+                href="/webmail/{{mailbox.id}}?query={{query}}&amp;unseen={{#if filterUnseen}}false{{else}}true{{/if}}">
+                <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+            </a>
+        </div>
         <fieldset id="action-toolbar" disabled>
             <div class="form-group">
+
+                <span style="display: inline-block; width: 10px;"></span>
 
                 <button class="btn btn-default btn-xs bulk-mark-seen">Mark as Seen</button>
                 <button class="btn btn-default btn-xs bulk-mark-unseen">Mark as Unseen</button>
 
                 <span style="display: inline-block; width: 10px;"></span>
 
-                <button class="btn btn-default btn-xs bulk-delete" data-toggle="modal" data-target="#deleteModal"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete</button>
-
+                <button class="btn btn-default btn-xs bulk-delete" data-toggle="modal" data-target="#deleteModal"><span
+                        class="glyphicon glyphicon-trash" aria-hidden="true"></span> Delete</button>
 
                 <div class="btn-group">
-                  <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> Move <span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu">
-                     {{#each mailboxes}}
+                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                        <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> Move <span
+                            class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        {{#each mailboxes}}
                         {{#if canMoveTo}}
-                            <li><a href="#" class="bulk-move" data-mailbox="{{id}}"  data-mailbox-path="{{path}}" data-toggle="modal" data-target="#moveModal">
+                        <li><a href="#" class="bulk-move" data-mailbox="{{id}}" data-mailbox-path="{{path}}"
+                                data-toggle="modal" data-target="#moveModal">
                                 {{{prefix}}}
                                 {{#if icon}}
-                                    <span class="glyphicon glyphicon-{{icon}}" aria-hidden="true"></span>
+                                <span class="glyphicon glyphicon-{{icon}}" aria-hidden="true"></span>
                                 {{else}}
-                                    <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+                                <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
                                 {{/if}}
                                 {{formatted}}
                                 {{{suffix}}}</a></li>
                         {{/if}}
-                    {{/each}}
-                  </ul>
+                        {{/each}}
+                    </ul>
                 </div>
+
+                <span style="display: inline-block; width: 10px;"></span>
 
             </div>
         </fieldset>
@@ -64,11 +77,13 @@
 <div class="clearfix"></div>
 
 {{#if isTrash}}
-    <div class="alert alert-info" style="padding: 5px 15px;" role="alert">Messages in Trash folder are deleted permanently after 30 days</div>
+<div class="alert alert-info" style="padding: 5px 15px;" role="alert">Messages in Trash folder are deleted permanently
+    after 30 days</div>
 {{/if}}
 
 {{#if isJunk}}
-    <div class="alert alert-info" style="padding: 5px 15px;" role="alert">Messages in Junk Mail folder are deleted permanently after 30 days</div>
+<div class="alert alert-info" style="padding: 5px 15px;" role="alert">Messages in Junk Mail folder are deleted
+    permanently after 30 days</div>
 {{/if}}
 
 <div class="table-responsive">
@@ -85,7 +100,7 @@
         </colgroup>
         <tbody>
             {{#each messages}}
-                {{>messagerow}}
+            {{>messagerow}}
             {{/each}}
         </tbody>
     </table>
@@ -94,62 +109,71 @@
 <nav aria-label="nav">
     <ul class="pager">
         {{#if previousCursor}}
-            <li class="previous"><a href="/webmail/{{mailbox.id}}?previous={{previousCursor}}&amp;page={{previousPage}}&amp;query={{query}}"><span aria-hidden="true">&larr;</span> Newer</a></li>
+        <li class="previous"><a
+                href="/webmail/{{mailbox.id}}?previous={{previousCursor}}&amp;page={{previousPage}}&amp;query={{query}}&amp;unseen={{unseen}}"><span
+                    aria-hidden="true">&larr;</span> Newer</a></li>
         {{else}}
-            <li class="previous disabled"><a href="#"><span aria-hidden="true">&larr;</span> Newer</a></li>
+        <li class="previous disabled"><a href="#"><span aria-hidden="true">&larr;</span> Newer</a></li>
         {{/if}}
 
         <li style="display: inline-block; padding-top: 7px;">
-            Page <strong>{{page}}</strong> (<strong>{{startStr}}</strong>–<strong>{{endStr}}</strong> out of <strong>{{resultsStr}}</strong> messages)
+            Page <strong>{{page}}</strong> (<strong>{{startStr}}</strong>–<strong>{{endStr}}</strong> out of
+            <strong>{{resultsStr}}</strong> messages)
         </li>
 
         {{#if nextCursor}}
-            <li class="next"><a href="/webmail/{{mailbox.id}}?next={{nextCursor}}&amp;page={{nextPage}}&amp;query={{query}}">Older <span aria-hidden="true">&rarr;</span></a></li>
+        <li class="next"><a
+                href="/webmail/{{mailbox.id}}?next={{nextCursor}}&amp;page={{nextPage}}&amp;query={{query}}&amp;unseen={{unseen}}">Older
+                <span aria-hidden="true">&rarr;</span></a></li>
         {{else}}
-            <li class="next disabled"><a href="#">Older <span aria-hidden="true">&rarr;</span></a></li>
+        <li class="next disabled"><a href="#">Older <span aria-hidden="true">&rarr;</span></a></li>
         {{/if}}
     </ul>
 </nav>
 
 <!-- Modal -->
 <div class="modal" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="deleteModalLabel">Delete messages</h4>
-      </div>
-      <div class="modal-body">
-        {{#if skipTrash}}
-            Are you sure you want to permanently delete selected messages?
-        {{else}}
-            Are you sure you want to move selected messages to Trash folder?
-        {{/if}}
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">No, cancel</button>
-        <button type="button" class="btn btn-danger bulk-delete-confirm" data-loading-text="Deleting..." >Yes, delete</button>
-      </div>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="deleteModalLabel">Delete messages</h4>
+            </div>
+            <div class="modal-body">
+                {{#if skipTrash}}
+                Are you sure you want to permanently delete selected messages?
+                {{else}}
+                Are you sure you want to move selected messages to Trash folder?
+                {{/if}}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">No, cancel</button>
+                <button type="button" class="btn btn-danger bulk-delete-confirm" data-loading-text="Deleting...">Yes,
+                    delete</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <div class="modal" id="moveModal" tabindex="-1" role="dialog" aria-labelledby="moveModalLabel">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="moveModalLabel">Move messages</h4>
-      </div>
-      <div class="modal-body">
-          Are you sure you want to move selected messages to <span class="bulk-move-path">another folder</span>?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">No, cancel</button>
-        <button type="button" class="btn btn-primary bulk-move-confirm" data-loading-text="Moving..." >Yes, move</button>
-      </div>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="moveModalLabel">Move messages</h4>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to move selected messages to <span class="bulk-move-path">another folder</span>?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">No, cancel</button>
+                <button type="button" class="btn btn-primary bulk-move-confirm" data-loading-text="Moving...">Yes,
+                    move</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <script id="messagerow-template" type="text/x-handlebars-template">
@@ -165,452 +189,24 @@
 
 <script>
 
-// star toggle
-(function(){
-    var toggleStar = function(e, elm){
-        e.preventDefault();
-        e.stopPropagation();
+    // star toggle
+    (function () {
+        var toggleStar = function (e, elm) {
+            e.preventDefault();
+            e.stopPropagation();
 
-        if(!elm || elm.dataset.status === 'pending'){
-            return;
-        }
-
-        elm.dataset.status = 'pending';
-        var flagged = elm.classList.contains('flagged');
-
-        var done = function(){
-            elm.dataset.status = 'done';
-        }
-
-        fetch('/api/toggle/flagged', {
-            method: 'post',
-            headers: {
-                Accept: 'application/json, text/plain, */*',
-                'Content-Type': 'application/json'
-            },
-            credentials: 'include',
-            body: JSON.stringify({
-                _csrf: document.getElementById('_csrf').value,
-                mailbox: elm.dataset.mailbox,
-                message: elm.dataset.message,
-                flagged: !flagged // toggle
-            })
-        })
-        .then(function(res) {
-            return res.json();
-        })
-        .then(function(res) {
-            if(res.error){
-                console.error(res.error);
-                return done();
-            }
-
-            if(flagged){
-                elm.classList.remove('flagged');
-                elm.classList.add('unflagged');
-                elm.querySelector('.glyphicon').classList.remove('glyphicon-star');
-                elm.querySelector('.glyphicon').classList.add('glyphicon-star-empty');
-            }else{
-                elm.classList.remove('unflagged');
-                elm.classList.add('flagged');
-                elm.querySelector('.glyphicon').classList.remove('glyphicon-star-empty');
-                elm.querySelector('.glyphicon').classList.add('glyphicon-star');
-            }
-
-            done();
-        }).catch(function(err){
-            console.error(err);
-            done();
-        });
-
-    };
-
-    var setupToggling = function(elm){
-        elm.addEventListener('click', function(e){
-            toggleStar(e, elm);
-        }, false);
-    }
-
-    var starElms = document.querySelectorAll('.message-star');
-    for(var i=0, len = starElms.length; i<len; i++){
-        setupToggling(starElms[i]);
-    }
-})();
-
-// checkboxes
-document.addEventListener('DOMContentLoaded', function() {
-    var checkboxes = document.querySelectorAll('.message-checkbox');
-    var toolbarElm = document.querySelector('#action-toolbar');
-    var mailboxType = document.querySelector('#mailbox-type');
-    var toggleAllElm = document.querySelector('.toggle-all');
-
-    var isInbox = mailboxType === 'INBOX';
-    var isSent = mailboxType === '\\Sent';
-    var isTrash= mailboxType === '\\Trash';
-    var isJunk = mailboxType === '\\Junk';
-    var skipTrash = ['\\Trash', '\\Junk'].includes(mailboxType);
-
-    var getChecked = function(){
-        var result = [];
-        for(var i=0, len = checkboxes.length; i<len; i++){
-            if(checkboxes[i].checked){
-                result.push({
-                    elm: checkboxes[i],
-                    message: checkboxes[i].dataset.message,
-                    mailbox: checkboxes[i].dataset.mailbox
-                });
-            }
-        }
-        return result;
-    }
-
-    var toggleToolbar = function(){
-        var checked = 0;
-        for(var i=0, len = checkboxes.length; i<len; i++){
-            if(checkboxes[i].checked){
-                checked++;
-            }
-        }
-        if(checked){
-            toolbarElm.disabled = false;
-            if(checked === checkboxes.length){
-                toggleAllElm.checked = true;
-            }
-        }else{
-            toolbarElm.disabled = true;
-            toggleAllElm.checked = false;
-        }
-    };
-
-    for(var i=0, len = checkboxes.length; i<len; i++){
-        checkboxes[i].addEventListener('click', toggleToolbar, false);
-        checkboxes[i].addEventListener('change', toggleToolbar, false);
-    }
-
-    var findRow = function(elm, level){
-        level = level || 0;
-        var parent = elm.parentNode;
-        if(!parent || level > 10){
-            return false;
-        }
-        if(parent.classList.contains('messagerow')){
-            return parent;
-        }
-        return findRow(parent, level+1);
-    }
-
-    var removeRow = function(id){
-        var row = document.getElementById('msg_' + id);
-        if(row && row.parentNode){
-            row.parentNode.removeChild(row);
-        }
-    }
-
-    var messagerowSource = document.getElementById('messagerow-template').innerHTML;
-    var messagerowTemplate = Handlebars.compile(messagerowSource);
-
-    // function to redraw email listing
-    var redrawList = function(done){
-        var checkedMessages = {};
-        getChecked().forEach(function(checked){
-            checkedMessages[checked.message] = true;
-        });
-
-        fetch('/api/list', {
-            method: 'post',
-            headers: {
-                Accept: 'application/json, text/plain, */*',
-                'Content-Type': 'application/json'
-            },
-            credentials: 'include',
-            body: JSON.stringify({
-                _csrf: document.getElementById('_csrf').value,
-                mailbox: document.getElementById('mailbox').value,
-                cursorType: document.getElementById('cursor-type').value,
-                cursorValue: document.getElementById('cursor-value').value,
-                page: document.getElementById('page').value
-            })
-        })
-        .then(function(res) {
-            return res.json();
-        })
-        .then(function(res) {
-            if(res.error){
-                console.error(res.error);
-                return done();
-            }
-
-            var html = res.results.map(function(message){
-                return messagerowTemplate(message);
-            }).join('\n');
-
-            document.querySelector('.messagelist tbody').innerHTML = html;
-
-            // reset page load handlers
-            checkboxes = document.querySelectorAll('.message-checkbox');
-            for(var i=0, len = checkboxes.length; i<len; i++){
-                if(checkedMessages[checkboxes[i].dataset.message]){
-                    checkboxes[i].checked = true;
-                }
-                checkboxes[i].addEventListener('click', toggleToolbar, false);
-                checkboxes[i].addEventListener('change', toggleToolbar, false);
-            }
-            toggleToolbar();
-            $("[rel='tooltip']").tooltip();
-            updateFixedDatestrings()
-
-            done();
-        }).catch(function(err){
-            console.error(err);
-            done();
-        });
-    };
-
-    var pendingSeen = false;
-    var toggleSeen = function(seen){
-        if(pendingSeen){
-            return false;
-        }
-
-        var checked = getChecked();
-        if(!checked.length){
-            return false;
-        }
-
-        pendingSeen = true;
-
-        var groupkeys= [];
-        var groups = {};
-        checked.forEach(function(entry){
-            if(!groups[entry.mailbox]){
-                groups[entry.mailbox] = [];
-                groupkeys.push(entry.mailbox);
-            }
-            groups[entry.mailbox].push(entry.message);
-        })
-
-        var done = function(){
-            pendingSeen = false;
-        }
-
-        var batchPos = 0;
-        var processBatch = function(){
-            if(batchPos >= groupkeys.length){
-                return done();
-            }
-            var mailbox = groupkeys[batchPos++];
-            var messages = groups[mailbox];
-
-            fetch('/api/toggle/seen', {
-                method: 'post',
-                headers: {
-                    Accept: 'application/json, text/plain, */*',
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include',
-                body: JSON.stringify({
-                    _csrf: document.getElementById('_csrf').value,
-                    mailbox: mailbox,
-                    message: messages.join(','),
-                    seen: !!seen
-                })
-            })
-            .then(function(res) {
-                return res.json();
-            })
-            .then(function(res) {
-                if(res.error){
-                    console.error(res.error);
-                    return done();
-                }
-
-                checked.forEach(function(checkbox){
-                    var row = findRow(checkbox.elm);
-                    if(row){
-                        row.classList.remove(seen ? 'message-unseen' : 'message-seen');
-                        row.classList.add(seen ? 'message-seen' : 'message-unseen');
-                    }
-                })
-
-                // continue processing
-                processBatch();
-            }).catch(function(err){
-                console.error(err);
-                done();
-            });
-        }
-
-        processBatch();
-    }
-
-    var setUnseen = function(){
-        toggleSeen(false);
-    };
-
-    var setSeen = function(){
-        toggleSeen(true);
-    };
-
-    document.querySelector('.bulk-mark-unseen').addEventListener('click', setUnseen, false);
-    document.querySelector('.bulk-mark-unseen').addEventListener('touch', setUnseen, false);
-    document.querySelector('.bulk-mark-seen').addEventListener('click', setSeen, false);
-    document.querySelector('.bulk-mark-seen').addEventListener('touch', setSeen, false);
-
-    var toggleAll = function(){
-        var checked = toggleAllElm.checked;
-
-        for(var i=0, len = checkboxes.length; i<len; i++){
-            checkboxes[i].checked = checked;
-        }
-
-        if(checked && checkboxes.length){
-            toolbarElm.disabled = false;
-        }
-    }
-
-    document.querySelector('.toggle-all').addEventListener('click', toggleAll, false);
-    document.querySelector('.toggle-all').addEventListener('change', toggleAll, false);
-
-    var pendingDeleted = false;
-    var deleteMessage = function(){
-        if(pendingDeleted){
-            return false;
-        }
-
-        var checked = getChecked();
-        if(!checked.length){
-            return false;
-        }
-
-        pendingDeleted = true;
-        $('#deleteModal .bulk-delete-confirm').button('loading');
-
-        var done = function(){
-            pendingDeleted = false;
-            $('#deleteModal .bulk-delete-confirm').button('reset');
-            $('#deleteModal').modal('hide');
-        }
-
-        var groupkeys= [];
-        var groups = {};
-        checked.forEach(function(entry){
-            if(!groups[entry.mailbox]){
-                groups[entry.mailbox] = [];
-                groupkeys.push(entry.mailbox);
-            }
-            groups[entry.mailbox].push(entry.message);
-        })
-
-        var deleted = 0;
-        var batchPos = 0;
-        var processBatch = function(){
-            if(batchPos >= groupkeys.length){
-                if(deleted){
-                    return redrawList(done);
-                }
-                return done();
-            }
-            var mailbox = groupkeys[batchPos++];
-            var messages = groups[mailbox];
-
-            fetch('/api/delete', {
-                method: 'post',
-                headers: {
-                    Accept: 'application/json, text/plain, */*',
-                    'Content-Type': 'application/json'
-                },
-                credentials: 'include',
-                body: JSON.stringify({
-                    _csrf: document.getElementById('_csrf').value,
-                    mailbox: mailbox,
-                    message: messages.join(',')
-                })
-            })
-            .then(function(res) {
-                return res.json();
-            })
-            .then(function(res) {
-                if(res.error){
-                    console.error(res.error);
-                    return done();
-                }
-
-                var removeRow = function(id){
-                    var row = document.getElementById('msg_' + id);
-                    if(row && row.parentNode){
-                        row.parentNode.removeChild(row);
-                    }
-                }
-
-                if(res.id && res.id.length){
-                    for(var i=0, len = res.id.length; i<len; i++){
-                        if(res.id[i] && res.id[i][0] && res.id[i][1]){
-                            removeRow(res.id[i][0]);
-                            deleted++;
-                        }
-                    }
-                }
-
-                processBatch();
-            }).catch(function(err){
-                console.error(err);
-                done();
-            });
-        }
-        processBatch();
-    };
-
-    document.querySelector('.bulk-delete-confirm').addEventListener('click', deleteMessage, false);
-    document.querySelector('.bulk-delete-confirm').addEventListener('touch', deleteMessage, false);
-
-    var pendingMove = false;
-    var moveMessage = function(target){
-        if(pendingMove){
-            return false;
-        }
-
-        var checked = getChecked();
-        if(!checked.length){
-            return false;
-        }
-
-        pendingMove = true;
-        $('#moveModal .bulk-move-confirm').button('loading');
-
-        var done = function(){
-            pendingMove = false;
-            $('#moveModal .bulk-move-confirm').button('reset');
-            $('#moveModal').modal('hide');
-        }
-
-        var targetMailbox = document.querySelector('.bulk-move-confirm').dataset.mailbox;
-        var groupkeys= [];
-        var groups = {};
-        checked.forEach(function(entry){
-            if(targetMailbox === entry.mailbox){
-                // skip
+            if (!elm || elm.dataset.status === 'pending') {
                 return;
             }
-            if(!groups[entry.mailbox]){
-                groups[entry.mailbox] = [];
-                groupkeys.push(entry.mailbox);
-            }
-            groups[entry.mailbox].push(entry.message);
-        })
 
-        var moved = 0;
-        var batchPos = 0;
-        var processBatch = function(){
-            if(batchPos >= groupkeys.length){
-                if(moved){
-                    return redrawList(done);
-                }
-                return done();
-            }
-            var mailbox = groupkeys[batchPos++];
-            var messages = groups[mailbox];
+            elm.dataset.status = 'pending';
+            var flagged = elm.classList.contains('flagged');
 
-            fetch('/api/move', {
+            var done = function () {
+                elm.dataset.status = 'done';
+            }
+
+            fetch('/api/toggle/flagged', {
                 method: 'post',
                 headers: {
                     Accept: 'application/json, text/plain, */*',
@@ -619,136 +215,564 @@ document.addEventListener('DOMContentLoaded', function() {
                 credentials: 'include',
                 body: JSON.stringify({
                     _csrf: document.getElementById('_csrf').value,
-                    mailbox: mailbox,
-                    message: messages.join(','),
-                    target: targetMailbox
+                    mailbox: elm.dataset.mailbox,
+                    message: elm.dataset.message,
+                    flagged: !flagged // toggle
                 })
             })
-            .then(function(res) {
-                return res.json();
-            })
-            .then(function(res) {
-                if(res.error){
-                    console.error(res.error);
-                    return done();
-                }
-
-                if(res.id && res.id.length){
-                    for(var i=0, len = res.id.length; i<len; i++){
-                        if(res.id[i] && res.id[i][0] && res.id[i][1]){
-                            removeRow(res.id[i][0]);
-                            moved++;
-                        }
+                .then(function (res) {
+                    return res.json();
+                })
+                .then(function (res) {
+                    if (res.error) {
+                        console.error(res.error);
+                        return done();
                     }
-                }
 
-                processBatch();
-            }).catch(function(err){
-                console.error(err);
-                done();
-            });
-        }
-        processBatch();
-    };
+                    if (flagged) {
+                        elm.classList.remove('flagged');
+                        elm.classList.add('unflagged');
+                        elm.querySelector('.glyphicon').classList.remove('glyphicon-star');
+                        elm.querySelector('.glyphicon').classList.add('glyphicon-star-empty');
+                    } else {
+                        elm.classList.remove('unflagged');
+                        elm.classList.add('flagged');
+                        elm.querySelector('.glyphicon').classList.remove('glyphicon-star-empty');
+                        elm.querySelector('.glyphicon').classList.add('glyphicon-star');
+                    }
 
-    $('#moveModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget); // Button that triggered the modal
-        var mailbox = button.data('mailbox'); // Extract info from data-* attributes
-        var path = button.data('mailbox-path');
-        $('.bulk-move-path').text(path);
-        document.querySelector('.bulk-move-confirm').dataset.mailbox = mailbox;
-    });
+                    done();
+                }).catch(function (err) {
+                    console.error(err);
+                    done();
+                });
 
-    document.querySelector('.bulk-move-confirm').addEventListener('click', moveMessage, false);
-    document.querySelector('.bulk-move-confirm').addEventListener('touch', moveMessage, false);
+        };
 
-    let checkNewMessages = document.getElementById('page').value === '1' && document.getElementById('mailbox').value;
-
-    var stream = new EventSource('/api/events');
-    stream.onmessage = function(e) {
-        var data, row, star, redrawTimer;
-        try {
-            data = JSON.parse(e.data);
-        } catch (E) {
-            return;
+        var setupToggling = function (elm) {
+            elm.addEventListener('click', function (e) {
+                toggleStar(e, elm);
+            }, false);
         }
 
-        switch (data.command) {
-            case 'EXISTS':
-                if(checkNewMessages === data.mailbox){
-                    clearTimeout(redrawTimer);
-                    redrawTimer = setTimeout(function(){
-                        clearTimeout(redrawTimer);
-                        redrawList(function(){});
-                    }, 200);
-                }
-                break;
+        var starElms = document.querySelectorAll('.message-star');
+        for (var i = 0, len = starElms.length; i < len; i++) {
+            setupToggling(starElms[i]);
+        }
+    })();
 
-            case 'FETCH': {
-                row = document.querySelector('.messagerow-'+data.mailbox+'-'+data.uid);
-                if(!row){
-                    return;
-                }
-                if (data.flags) {
-                    star = row.querySelector('.message-star');
+    // checkboxes
+    document.addEventListener('DOMContentLoaded', function () {
+        var checkboxes = document.querySelectorAll('.message-checkbox');
+        var toolbarElm = document.querySelector('#action-toolbar');
+        var mailboxType = document.querySelector('#mailbox-type');
+        var toggleAllElm = document.querySelector('.toggle-all');
 
-                    if (data.flags.indexOf('\\Flagged')>=0) {
-                        star.classList.remove('unflagged');
-                        star.classList.add('flagged');
-                        star.querySelector('.glyphicon').classList.remove('glyphicon-star-empty');
-                        star.querySelector('.glyphicon').classList.add('glyphicon-star');
-                    } else {
-                        star.classList.remove('flagged');
-                        star.classList.add('unflagged');
-                        star.querySelector('.glyphicon').classList.remove('glyphicon-star');
-                        star.querySelector('.glyphicon').classList.add('glyphicon-star-empty');
-                    }
+        var isInbox = mailboxType === 'INBOX';
+        var isSent = mailboxType === '\\Sent';
+        var isTrash = mailboxType === '\\Trash';
+        var isJunk = mailboxType === '\\Junk';
+        var skipTrash = ['\\Trash', '\\Junk'].includes(mailboxType);
 
-                    if (data.flags.indexOf('\\Seen')>=0) {
-                        row.classList.remove('message-unseen');
-                        row.classList.add('message-seen');
-                    } else {
-                        row.classList.remove('message-seen');
-                        row.classList.add('message-unseen');
-                    }
-                }
-                break;
-            }
-            case 'EXPUNGE': {
-                row = document.querySelector('.messagerow-'+data.mailbox+'-'+data.uid);
-                if(!row){
-                    return;
-                }
-                if(row.parentNode){
-                    row.parentNode.removeChild(row);
-                    clearTimeout(redrawTimer);
-                    redrawTimer = setTimeout(function(){
-                        clearTimeout(redrawTimer);
-                        redrawList(function(){});
-                    }, 200);
-                }
-            }
-            case 'COUNTERS': {
-                if (data.mailbox) {
-                    if(FAVICON && data.mailbox === INBOX_ID){
-                        FAVICON.badge(data.unseen);
-                    }
-                    [].slice.call(document.querySelectorAll('.unseen-counter-' + data.mailbox)).forEach(function(row){
-                        if(data.unseen){
-                            row.style.display = 'block';
-                            row.textContent = data.unseen;
-                        }else {
-                            row.style.display = 'none';
-                            row.textContent = 0;
-                        }
+        var getChecked = function () {
+            var result = [];
+            for (var i = 0, len = checkboxes.length; i < len; i++) {
+                if (checkboxes[i].checked) {
+                    result.push({
+                        elm: checkboxes[i],
+                        message: checkboxes[i].dataset.message,
+                        mailbox: checkboxes[i].dataset.mailbox
                     });
                 }
-                break;
+            }
+            return result;
+        }
+
+        var toggleToolbar = function () {
+            var checked = 0;
+            for (var i = 0, len = checkboxes.length; i < len; i++) {
+                if (checkboxes[i].checked) {
+                    checked++;
+                }
+            }
+            if (checked) {
+                toolbarElm.disabled = false;
+                if (checked === checkboxes.length) {
+                    toggleAllElm.checked = true;
+                }
+            } else {
+                toolbarElm.disabled = true;
+                toggleAllElm.checked = false;
+            }
+        };
+
+        for (var i = 0, len = checkboxes.length; i < len; i++) {
+            checkboxes[i].addEventListener('click', toggleToolbar, false);
+            checkboxes[i].addEventListener('change', toggleToolbar, false);
+        }
+
+        var findRow = function (elm, level) {
+            level = level || 0;
+            var parent = elm.parentNode;
+            if (!parent || level > 10) {
+                return false;
+            }
+            if (parent.classList.contains('messagerow')) {
+                return parent;
+            }
+            return findRow(parent, level + 1);
+        }
+
+        var removeRow = function (id) {
+            var row = document.getElementById('msg_' + id);
+            if (row && row.parentNode) {
+                row.parentNode.removeChild(row);
             }
         }
-    };
 
-    toggleToolbar();
-}, false);
+        var messagerowSource = document.getElementById('messagerow-template').innerHTML;
+        var messagerowTemplate = Handlebars.compile(messagerowSource);
+
+        // function to redraw email listing
+        var redrawList = function (done) {
+            var checkedMessages = {};
+            getChecked().forEach(function (checked) {
+                checkedMessages[checked.message] = true;
+            });
+
+            fetch('/api/list', {
+                method: 'post',
+                headers: {
+                    Accept: 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    _csrf: document.getElementById('_csrf').value,
+                    mailbox: document.getElementById('mailbox').value,
+                    cursorType: document.getElementById('cursor-type').value,
+                    cursorValue: document.getElementById('cursor-value').value,
+                    page: document.getElementById('page').value
+                })
+            })
+                .then(function (res) {
+                    return res.json();
+                })
+                .then(function (res) {
+                    if (res.error) {
+                        console.error(res.error);
+                        return done();
+                    }
+
+                    var html = res.results.map(function (message) {
+                        return messagerowTemplate(message);
+                    }).join('\n');
+
+                    document.querySelector('.messagelist tbody').innerHTML = html;
+
+                    // reset page load handlers
+                    checkboxes = document.querySelectorAll('.message-checkbox');
+                    for (var i = 0, len = checkboxes.length; i < len; i++) {
+                        if (checkedMessages[checkboxes[i].dataset.message]) {
+                            checkboxes[i].checked = true;
+                        }
+                        checkboxes[i].addEventListener('click', toggleToolbar, false);
+                        checkboxes[i].addEventListener('change', toggleToolbar, false);
+                    }
+                    toggleToolbar();
+                    $("[rel='tooltip']").tooltip();
+                    updateFixedDatestrings()
+
+                    done();
+                }).catch(function (err) {
+                    console.error(err);
+                    done();
+                });
+        };
+
+        var pendingSeen = false;
+        var toggleSeen = function (seen) {
+            if (pendingSeen) {
+                return false;
+            }
+
+            var checked = getChecked();
+            if (!checked.length) {
+                return false;
+            }
+
+            pendingSeen = true;
+
+            var groupkeys = [];
+            var groups = {};
+            checked.forEach(function (entry) {
+                if (!groups[entry.mailbox]) {
+                    groups[entry.mailbox] = [];
+                    groupkeys.push(entry.mailbox);
+                }
+                groups[entry.mailbox].push(entry.message);
+            })
+
+            var done = function () {
+                pendingSeen = false;
+            }
+
+            var batchPos = 0;
+            var processBatch = function () {
+                if (batchPos >= groupkeys.length) {
+                    return done();
+                }
+                var mailbox = groupkeys[batchPos++];
+                var messages = groups[mailbox];
+
+                fetch('/api/toggle/seen', {
+                    method: 'post',
+                    headers: {
+                        Accept: 'application/json, text/plain, */*',
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        _csrf: document.getElementById('_csrf').value,
+                        mailbox: mailbox,
+                        message: messages.join(','),
+                        seen: !!seen
+                    })
+                })
+                    .then(function (res) {
+                        return res.json();
+                    })
+                    .then(function (res) {
+                        if (res.error) {
+                            console.error(res.error);
+                            return done();
+                        }
+
+                        checked.forEach(function (checkbox) {
+                            var row = findRow(checkbox.elm);
+                            if (row) {
+                                row.classList.remove(seen ? 'message-unseen' : 'message-seen');
+                                row.classList.add(seen ? 'message-seen' : 'message-unseen');
+                            }
+                        })
+
+                        // continue processing
+                        processBatch();
+                    }).catch(function (err) {
+                        console.error(err);
+                        done();
+                    });
+            }
+
+            processBatch();
+        }
+
+        var setUnseen = function () {
+            toggleSeen(false);
+        };
+
+        var setSeen = function () {
+            toggleSeen(true);
+        };
+
+        document.querySelector('.bulk-mark-unseen').addEventListener('click', setUnseen, false);
+        document.querySelector('.bulk-mark-unseen').addEventListener('touch', setUnseen, false);
+        document.querySelector('.bulk-mark-seen').addEventListener('click', setSeen, false);
+        document.querySelector('.bulk-mark-seen').addEventListener('touch', setSeen, false);
+
+        var toggleAll = function () {
+            var checked = toggleAllElm.checked;
+
+            for (var i = 0, len = checkboxes.length; i < len; i++) {
+                checkboxes[i].checked = checked;
+            }
+
+            if (checked && checkboxes.length) {
+                toolbarElm.disabled = false;
+            }
+        }
+
+        document.querySelector('.toggle-all').addEventListener('click', toggleAll, false);
+        document.querySelector('.toggle-all').addEventListener('change', toggleAll, false);
+
+        var pendingDeleted = false;
+        var deleteMessage = function () {
+            if (pendingDeleted) {
+                return false;
+            }
+
+            var checked = getChecked();
+            if (!checked.length) {
+                return false;
+            }
+
+            pendingDeleted = true;
+            $('#deleteModal .bulk-delete-confirm').button('loading');
+
+            var done = function () {
+                pendingDeleted = false;
+                $('#deleteModal .bulk-delete-confirm').button('reset');
+                $('#deleteModal').modal('hide');
+            }
+
+            var groupkeys = [];
+            var groups = {};
+            checked.forEach(function (entry) {
+                if (!groups[entry.mailbox]) {
+                    groups[entry.mailbox] = [];
+                    groupkeys.push(entry.mailbox);
+                }
+                groups[entry.mailbox].push(entry.message);
+            })
+
+            var deleted = 0;
+            var batchPos = 0;
+            var processBatch = function () {
+                if (batchPos >= groupkeys.length) {
+                    if (deleted) {
+                        return redrawList(done);
+                    }
+                    return done();
+                }
+                var mailbox = groupkeys[batchPos++];
+                var messages = groups[mailbox];
+
+                fetch('/api/delete', {
+                    method: 'post',
+                    headers: {
+                        Accept: 'application/json, text/plain, */*',
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        _csrf: document.getElementById('_csrf').value,
+                        mailbox: mailbox,
+                        message: messages.join(',')
+                    })
+                })
+                    .then(function (res) {
+                        return res.json();
+                    })
+                    .then(function (res) {
+                        if (res.error) {
+                            console.error(res.error);
+                            return done();
+                        }
+
+                        var removeRow = function (id) {
+                            var row = document.getElementById('msg_' + id);
+                            if (row && row.parentNode) {
+                                row.parentNode.removeChild(row);
+                            }
+                        }
+
+                        if (res.id && res.id.length) {
+                            for (var i = 0, len = res.id.length; i < len; i++) {
+                                if (res.id[i] && res.id[i][0] && res.id[i][1]) {
+                                    removeRow(res.id[i][0]);
+                                    deleted++;
+                                }
+                            }
+                        }
+
+                        processBatch();
+                    }).catch(function (err) {
+                        console.error(err);
+                        done();
+                    });
+            }
+            processBatch();
+        };
+
+        document.querySelector('.bulk-delete-confirm').addEventListener('click', deleteMessage, false);
+        document.querySelector('.bulk-delete-confirm').addEventListener('touch', deleteMessage, false);
+
+        var pendingMove = false;
+        var moveMessage = function (target) {
+            if (pendingMove) {
+                return false;
+            }
+
+            var checked = getChecked();
+            if (!checked.length) {
+                return false;
+            }
+
+            pendingMove = true;
+            $('#moveModal .bulk-move-confirm').button('loading');
+
+            var done = function () {
+                pendingMove = false;
+                $('#moveModal .bulk-move-confirm').button('reset');
+                $('#moveModal').modal('hide');
+            }
+
+            var targetMailbox = document.querySelector('.bulk-move-confirm').dataset.mailbox;
+            var groupkeys = [];
+            var groups = {};
+            checked.forEach(function (entry) {
+                if (targetMailbox === entry.mailbox) {
+                    // skip
+                    return;
+                }
+                if (!groups[entry.mailbox]) {
+                    groups[entry.mailbox] = [];
+                    groupkeys.push(entry.mailbox);
+                }
+                groups[entry.mailbox].push(entry.message);
+            })
+
+            var moved = 0;
+            var batchPos = 0;
+            var processBatch = function () {
+                if (batchPos >= groupkeys.length) {
+                    if (moved) {
+                        return redrawList(done);
+                    }
+                    return done();
+                }
+                var mailbox = groupkeys[batchPos++];
+                var messages = groups[mailbox];
+
+                fetch('/api/move', {
+                    method: 'post',
+                    headers: {
+                        Accept: 'application/json, text/plain, */*',
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        _csrf: document.getElementById('_csrf').value,
+                        mailbox: mailbox,
+                        message: messages.join(','),
+                        target: targetMailbox
+                    })
+                })
+                    .then(function (res) {
+                        return res.json();
+                    })
+                    .then(function (res) {
+                        if (res.error) {
+                            console.error(res.error);
+                            return done();
+                        }
+
+                        if (res.id && res.id.length) {
+                            for (var i = 0, len = res.id.length; i < len; i++) {
+                                if (res.id[i] && res.id[i][0] && res.id[i][1]) {
+                                    removeRow(res.id[i][0]);
+                                    moved++;
+                                }
+                            }
+                        }
+
+                        processBatch();
+                    }).catch(function (err) {
+                        console.error(err);
+                        done();
+                    });
+            }
+            processBatch();
+        };
+
+        $('#moveModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget); // Button that triggered the modal
+            var mailbox = button.data('mailbox'); // Extract info from data-* attributes
+            var path = button.data('mailbox-path');
+            $('.bulk-move-path').text(path);
+            document.querySelector('.bulk-move-confirm').dataset.mailbox = mailbox;
+        });
+
+        document.querySelector('.bulk-move-confirm').addEventListener('click', moveMessage, false);
+        document.querySelector('.bulk-move-confirm').addEventListener('touch', moveMessage, false);
+
+        let checkNewMessages = document.getElementById('page').value === '1' && document.getElementById('mailbox').value;
+
+        var stream = new EventSource('/api/events');
+        stream.onmessage = function (e) {
+            var data, row, star, redrawTimer;
+            try {
+                data = JSON.parse(e.data);
+            } catch (E) {
+                return;
+            }
+
+            switch (data.command) {
+                case 'EXISTS':
+                    if (checkNewMessages === data.mailbox) {
+                        clearTimeout(redrawTimer);
+                        redrawTimer = setTimeout(function () {
+                            clearTimeout(redrawTimer);
+                            redrawList(function () { });
+                        }, 200);
+                    }
+                    break;
+
+                case 'FETCH': {
+                    row = document.querySelector('.messagerow-' + data.mailbox + '-' + data.uid);
+                    if (!row) {
+                        return;
+                    }
+                    if (data.flags) {
+                        star = row.querySelector('.message-star');
+
+                        if (data.flags.indexOf('\\Flagged') >= 0) {
+                            star.classList.remove('unflagged');
+                            star.classList.add('flagged');
+                            star.querySelector('.glyphicon').classList.remove('glyphicon-star-empty');
+                            star.querySelector('.glyphicon').classList.add('glyphicon-star');
+                        } else {
+                            star.classList.remove('flagged');
+                            star.classList.add('unflagged');
+                            star.querySelector('.glyphicon').classList.remove('glyphicon-star');
+                            star.querySelector('.glyphicon').classList.add('glyphicon-star-empty');
+                        }
+
+                        if (data.flags.indexOf('\\Seen') >= 0) {
+                            row.classList.remove('message-unseen');
+                            row.classList.add('message-seen');
+                        } else {
+                            row.classList.remove('message-seen');
+                            row.classList.add('message-unseen');
+                        }
+                    }
+                    break;
+                }
+                case 'EXPUNGE': {
+                    row = document.querySelector('.messagerow-' + data.mailbox + '-' + data.uid);
+                    if (!row) {
+                        return;
+                    }
+                    if (row.parentNode) {
+                        row.parentNode.removeChild(row);
+                        clearTimeout(redrawTimer);
+                        redrawTimer = setTimeout(function () {
+                            clearTimeout(redrawTimer);
+                            redrawList(function () { });
+                        }, 200);
+                    }
+                }
+                case 'COUNTERS': {
+                    if (data.mailbox) {
+                        if (FAVICON && data.mailbox === INBOX_ID) {
+                            FAVICON.badge(data.unseen);
+                        }
+                        [].slice.call(document.querySelectorAll('.unseen-counter-' + data.mailbox)).forEach(function (row) {
+                            if (data.unseen) {
+                                row.style.display = 'block';
+                                row.textContent = data.unseen;
+                            } else {
+                                row.style.display = 'none';
+                                row.textContent = 0;
+                            }
+                        });
+                    }
+                    break;
+                }
+            }
+        };
+
+        toggleToolbar();
+    }, false);
 
 </script>

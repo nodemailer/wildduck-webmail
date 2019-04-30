@@ -1113,6 +1113,10 @@ function renderMailbox(req, res, next) {
             .length(24)
             .allow('starred', 'search')
             .empty(''),
+        unseen: Joi.boolean()
+            .truthy(['Y', 'true', 'yes', 'on', 1])
+            .falsy(['N', 'false', 'no', 'off', 0, ''])
+            .default(false),
         query: Joi.string()
             .max(255)
             .empty(''),
@@ -1153,6 +1157,8 @@ function renderMailbox(req, res, next) {
         cursorType = 'previous';
         cursorValue = result.value.previous;
     }
+
+    let filterUnseen = result.value.unseen;
 
     apiClient.mailboxes.list(req.user, true, (err, mailboxes) => {
         if (err) {
@@ -1199,10 +1205,23 @@ function renderMailbox(req, res, next) {
 
         let makeRequest = done => {
             if (mailbox === 'starred') {
-                let data = { next: result.value.next, previous: result.value.previous, page: result.value.page || 1, flagged: true, searchable: true };
+                let data = {
+                    next: result.value.next,
+                    previous: result.value.previous,
+                    page: result.value.page || 1,
+                    flagged: true,
+                    searchable: true,
+                    unseen: filterUnseen
+                };
                 return apiClient.messages.search(req.user, data, done);
             } else if (mailbox === 'search') {
-                let data = { next: result.value.next, previous: result.value.previous, page: result.value.page || 1, limit: config.www.listSize };
+                let data = {
+                    next: result.value.next,
+                    previous: result.value.previous,
+                    page: result.value.page || 1,
+                    limit: config.www.listSize,
+                    unseen: filterUnseen
+                };
 
                 const searchString = SearchString.parse(searchQuery);
                 let keys = searchString.getParsedQuery();
@@ -1217,6 +1236,16 @@ function renderMailbox(req, res, next) {
                         data[fkey] = keys[key].join(' ');
                     }
                     switch (fkey) {
+                        case 'flagged':
+                            if (/yes|true|1|y/i.test(keys[key].join(' '))) {
+                                data.flagged = true;
+                            }
+                            break;
+                        case 'unseen':
+                            if (/yes|true|1|y/i.test(keys[key].join(' '))) {
+                                data.unseen = true;
+                            }
+                            break;
                         case 'start':
                         case 'end': {
                             let date = new Date(keys[key].shift());
@@ -1231,7 +1260,13 @@ function renderMailbox(req, res, next) {
 
                 return apiClient.messages.search(req.user, data, done);
             } else {
-                let data = { next: result.value.next, previous: result.value.previous, page: result.value.page || 1, limit: config.www.listSize };
+                let data = {
+                    next: result.value.next,
+                    previous: result.value.previous,
+                    page: result.value.page || 1,
+                    limit: config.www.listSize,
+                    unseen: filterUnseen
+                };
                 apiClient.messages.list(req.user, mailbox, data, done);
             }
         };
@@ -1259,6 +1294,8 @@ function renderMailbox(req, res, next) {
                 nextPage: result.page + 1,
                 previousCursor: result.previousCursor,
                 previousPage: Math.max(result.page - 1, 1),
+
+                filterUnseen,
 
                 isInbox: selectedMailbox.path === 'INBOX',
                 isTrash: selectedMailbox.specialUse === '\\Trash',
