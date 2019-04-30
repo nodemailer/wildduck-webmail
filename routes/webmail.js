@@ -1295,7 +1295,7 @@ function renderMailbox(req, res, next) {
                 previousCursor: result.previousCursor,
                 previousPage: Math.max(result.page - 1, 1),
 
-                filterUnseen,
+                filterUnseen: filterUnseen ? 'true' : '',
 
                 isInbox: selectedMailbox.path === 'INBOX',
                 isTrash: selectedMailbox.specialUse === '\\Trash',
