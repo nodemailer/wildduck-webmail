@@ -110,7 +110,7 @@
     <ul class="pager">
         {{#if previousCursor}}
         <li class="previous"><a
-                href="/webmail/{{mailbox.id}}?previous={{previousCursor}}&amp;page={{previousPage}}&amp;query={{query}}&amp;unseen={{unseen}}"><span
+                href="/webmail/{{mailbox.id}}?previous={{previousCursor}}&amp;page={{previousPage}}&amp;query={{query}}&amp;unseen={{filterUnseen}}"><span
                     aria-hidden="true">&larr;</span> Newer</a></li>
         {{else}}
         <li class="previous disabled"><a href="#"><span aria-hidden="true">&larr;</span> Newer</a></li>
@@ -123,7 +123,7 @@
 
         {{#if nextCursor}}
         <li class="next"><a
-                href="/webmail/{{mailbox.id}}?next={{nextCursor}}&amp;page={{nextPage}}&amp;query={{query}}&amp;unseen={{unseen}}">Older
+                href="/webmail/{{mailbox.id}}?next={{nextCursor}}&amp;page={{nextPage}}&amp;query={{query}}&amp;unseen={{filterUnseen}}">Older
                 <span aria-hidden="true">&rarr;</span></a></li>
         {{else}}
         <li class="next disabled"><a href="#">Older <span aria-hidden="true">&rarr;</span></a></li>
