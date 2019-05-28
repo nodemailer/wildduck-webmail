@@ -23,32 +23,42 @@
                 </div>
 
                 <div style="margin: 10px 0 10px 0;" class="text-center">
-                    <a href="/webmail/send" style="width: 100%" class="btn btn-default"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Compose message</a>
+                    <a href="/webmail/send" style="width: 100%" class="btn btn-default"><span
+                            class="glyphicon glyphicon-edit" aria-hidden="true"></span> Compose message</a>
                 </div>
 
                 <ul class="nav nav-sidebar">
                     {{#each mailboxes}}
-                        <li id="mailbox-list-{{id}}" {{#if selected}} class="active" {{/if}}>
-                            <a href="/webmail/{{id}}">
-                                <span class="badge pull-right unseen-counter-{{id}}" {{#if unseen}}style="display: block;"{{else}}style="display: none;"{{/if}}>{{unseen}}</span>
-                                {{{prefix}}}
-                                    {{#if icon}}
-                                        <span class="glyphicon glyphicon-{{icon}}" aria-hidden="true"></span>
-                                    {{else}}
-                                        <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
-                                    {{/if}}
-                                    <span>{{formatted}}</span> {{{suffix}}}
-                            </a>
-                        </li>
+                    <li id="mailbox-list-{{id}}" {{#if selected}} class="active" {{/if}}>
+                        <a href="/webmail/{{id}}">
+                            <span class="badge pull-right unseen-counter-{{id}}" {{#if unseen}}style="display: block;"
+                                {{else}}style="display: none;" {{/if}}>{{unseen}}</span>
+                            {{{prefix}}}
+                            {{#if icon}}
+                            <span class="glyphicon glyphicon-{{icon}}" aria-hidden="true"></span>
+                            {{else}}
+                            <span class="glyphicon glyphicon-triangle-right" aria-hidden="true"></span>
+                            {{/if}}
+                            <span>{{formatted}}</span> {{{suffix}}}
+                        </a>
+                    </li>
                     {{/each}}
                     <li style="margin-top: 20px;">
-                        <a href="/webmail/create" class="text-muted"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Create folder</a>
+                        <a href="/webmail/create" class="text-muted"><span class="glyphicon glyphicon-plus"
+                                aria-hidden="true"></span> Create folder</a>
                     </li>
                 </ul>
             </div>
         </div>
 
         <div class="webmail-main">
+
+            {{#if generalNotification}}
+            <div class="panel panel-warning">
+                <div class="panel-heading">{{{generalNotification}}}</div>
+            </div>
+            {{/if}}
+
             {{{body}}}
 
         </div>
@@ -57,7 +67,8 @@
 
     <footer class="footer">
         <div class="container">
-            <p class="text-muted">&copy; 2017 <a href="/">{{serviceName}}</a>. <a href="mailto:info@{{serviceDomain}}">info@{{serviceDomain}}</a>. </p>
+            <p class="text-muted">&copy; 2017 <a href="/">{{serviceName}}</a>. <a
+                    href="mailto:info@{{serviceDomain}}">info@{{serviceDomain}}</a>. </p>
         </div>
     </footer>
 
