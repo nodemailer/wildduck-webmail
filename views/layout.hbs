@@ -12,7 +12,15 @@
         {{flash_messages}}
     </div>
 
+
+
     <div class="container">
+
+        {{#if generalNotification}}
+        <div class="panel panel-warning">
+            <div class="panel-heading">{{{generalNotification}}}</div>
+        </div>
+        {{/if}}
 
         {{{body}}}
 
@@ -20,7 +28,8 @@
 
     <footer class="footer">
         <div class="container">
-            <p class="text-muted">&copy; 2017 <a href="/">{{serviceName}}</a>. <a href="mailto:info@{{serviceDomain}}">info@{{serviceDomain}}</a>. </p>
+            <p class="text-muted">&copy; 2017 <a href="/">{{serviceName}}</a>. <a
+                    href="mailto:info@{{serviceDomain}}">info@{{serviceDomain}}</a>. </p>
         </div>
     </footer>
 

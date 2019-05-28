@@ -117,6 +117,8 @@ app.use((req, res, next) => {
     res.locals.serviceName = config.name;
     res.locals.serviceDomain = config.service.domain;
 
+    res.locals.generalNotification = config.service.generalNotification;
+
     next();
 });
 

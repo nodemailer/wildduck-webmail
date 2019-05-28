@@ -11,6 +11,7 @@ name="Wild Duck Mail Temporary"
 [www]
     proxy=true
     baseurl="https://local.tahvel.info"
+    port=5000
 
 [setup]
     # these values are shown in the configuration help page
