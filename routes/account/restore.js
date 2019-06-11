@@ -80,7 +80,7 @@ router.post('/', (req, res) => {
                 }
             }
 
-            req.flash('success', 'Restoring was initiated. Please check later for the restored messages.');
+            req.flash('success', 'Restoring was initiated. Please check back later for the restored messages.');
             res.redirect('/webmail');
         }
     );
