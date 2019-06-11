@@ -18,53 +18,62 @@
                     </div>
                     <div class="panel-body">
 
-                    <p>
-                        If enabled then an autoreply message is sent to all incoming messages. If a contact sends multiple messages then the autoreply is sent at most once in every four hours.
-                    </p>
+                        <p>
+                            If enabled then an autoreply message is sent to all incoming messages. If a contact sends
+                            multiple messages then the autoreply is sent at most once in every four hours.
+                        </p>
 
-                    <div class="radio">
-                        <label>
-                            <input type="radio" name="status" value="false" {{#unless values.status}}checked{{/unless}}>
-                            Autoreply is {{#unless values.status}}<span class="label label-default">disabled</span>{{else}}disabled{{/unless}}
-                        </label>
-                    </div>
-
-                    <div class="radio">
-                        <label>
-                            <input type="radio" name="status" value="true" {{#if values.status}}checked{{/if}}>
-                            Autoreply is {{#if values.status}}<span class="label label-info">enabled</span>{{else}}enabled{{/if}}
-                        </label>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="name">Name</label>
-                        <input type="text" class="form-control" id="name" name="name" value="{{values.name}}" placeholder="Sender name in the autoreply From: header">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="subject">Subject</label>
-                        <input type="text" class="form-control" id="subject" name="subject" value="{{values.subject}}" placeholder="Leave blank to use the default subject">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="daterange">Time</label>
-                        <div class="form-group-sm daterangeElm" style="position: relative">
-                            <input type="text" id="daterange" class="form-control" value="">
-                            <i class="glyphicon glyphicon-calendar fa fa-calendar" style="position: absolute; bottom: 10px; right: 24px; top: auto; cursor: pointer;"></i>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="status" value="false"
+                                    {{#unless values.status}}checked{{/unless}}>
+                                Autoreply is {{#unless values.status}}<span
+                                    class="label label-default">disabled</span>{{else}}disabled{{/unless}}
+                            </label>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="message">Message</label>
-                        <textarea class="form-control" name="text" value="{{values.text}}" rows="3">{{values.text}}</textarea>
-                    </div>
+                        <div class="radio">
+                            <label>
+                                <input type="radio" name="status" value="true" {{#if values.status}}checked{{/if}}>
+                                Autoreply is {{#if values.status}}<span
+                                    class="label label-info">enabled</span>{{else}}enabled{{/if}}
+                            </label>
+                        </div>
 
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Update</button>
-                    </div>
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{values.name}}"
+                                placeholder="Sender name in the autoreply From: header">
+                        </div>
 
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <input type="text" class="form-control" id="subject" name="subject"
+                                value="{{values.subject}}" placeholder="Leave blank to use the default subject">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="daterange">Time</label>
+                            <div class="form-group-sm daterangeElm" style="position: relative">
+                                <input type="text" id="daterange" class="form-control" value="">
+                                <i class="glyphicon glyphicon-calendar fa fa-calendar"
+                                    style="position: absolute; bottom: 10px; right: 24px; top: auto; cursor: pointer;"></i>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea class="form-control" name="text" value="{{values.text}}"
+                                rows="3">{{values.text}}</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-wrench"
+                                    aria-hidden="true"></span> Update</button>
+                        </div>
+
+                    </div>
                 </div>
-            </div>
 
             </fieldset>
         </form>
@@ -73,8 +82,11 @@
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function(event) {
-        $('#daterange').daterangepicker({
+    const startValue = (document.getElementById('start').value || '').trim();
+    const endValue = (document.getElementById('end').value || '').trim();
+
+    document.addEventListener("DOMContentLoaded", function (event) {
+        const rangeOptions = {
             "showDropdowns": true,
             "showISOWeekNumbers": true,
             "timePicker": true,
@@ -116,27 +128,29 @@
                 "firstDay": 1
             },
 
-            {{#if values.start}}
-                "startDate": moment("{{values.start}}").format('DD/MM/YYYY HH:mm'),
-            {{/if}}
-
-            {{#if values.end}}
-                "endDate": moment("{{values.end}}").format('DD/MM/YYYY HH:mm'),
-            {{/if}}
-
             "alwaysShowCalendars": true
-        }, function(start, end, label) {
+        }
+
+        if (startValue) {
+            rangeOptions.startDate = moment(startValue).format('DD/MM/YYYY HH:mm')
+        }
+
+        if (endValue) {
+            rangeOptions.endDate = moment(endValue).format('DD/MM/YYYY HH:mm')
+        }
+
+        $('#daterange').daterangepicker(rangeOptions, function (start, end, label) {
             document.getElementById('start').value = start.valueOf();
             document.getElementById('end').value = end.valueOf();
             document.getElementById('daterange').value = start.format('DD/MM/YYYY HH:mm') + ' – ' + end.format('DD/MM/YYYY HH:mm');
         });
 
-        $('.daterangeElm i').click(function() {
+        $('.daterangeElm i').click(function () {
             $(this).parent().find('input').click();
         });
 
-        {{#if values.start}}
-            document.getElementById('daterange').value = moment("{{values.start}}").format('DD/MM/YYYY HH:mm') + ' – ' + moment("{{values.end}}").format('DD/MM/YYYY HH:mm');
-        {{/if}}
+        if (startValue && endValue) {
+            document.getElementById('daterange').value = moment(startValue).format('DD/MM/YYYY HH:mm') + ' – ' + moment(endValue).format('DD/MM/YYYY HH:mm');
+        }
     });
 </script>

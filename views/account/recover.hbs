@@ -1,0 +1,140 @@
+<div class="row">
+    <div class="col-md-12">
+        <h1><span class="glyphicon glyphicon-user" aria-hidden="true"></span> Account</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            {{> accountmenu}}
+        </ul>
+
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="overview">
+
+                <p>&nbsp;</p>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Recover Deleted Messages</h3>
+                    </div>
+                    <div class="panel-body">
+
+                        <form method="post" action="/account/recover">
+                            <input type="hidden" name="_csrf" value="{{csrfToken}}">
+                            <input type="hidden" id="start" name="start"
+                                value="{{#if values.start}}{{values.start}}{{/if}}" />
+                            <input type="hidden" id="end" name="end" value="{{#if values.end}}{{values.end}}{{/if}}" />
+
+                            <fieldset>
+
+                                <p>
+                                    You can recover messages deleted in the last 25 days by initiating a
+                                    restore task.
+                                    Restoring messages may take a few hours.
+                                </p>
+
+                                <div class="form-group">
+                                    <label for="daterange">Time range</label>
+                                    <div class="form-group-sm daterangeElm" style="position: relative">
+                                        <input type="text" id="daterange" class="form-control" value="">
+                                        <i class="glyphicon glyphicon-calendar fa fa-calendar"
+                                            style="position: absolute; bottom: 10px; right: 24px; top: auto; cursor: pointer;"></i>
+
+                                    </div>
+                                    <span class="help-block">Recover messages deleted in selected
+                                        time range</span>
+                                </div>
+
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-success"><span
+                                            class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Start
+                                        recovery</button>
+                                </div>
+
+                            </fieldset>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const startValue = (document.getElementById('start').value || '').trim();
+    const endValue = (document.getElementById('end').value || '').trim();
+
+    document.addEventListener("DOMContentLoaded", function (event) {
+        const rangeOptions = {
+            "showDropdowns": true,
+            "showISOWeekNumbers": true,
+            "timePicker": true,
+            "timePicker24Hour": true,
+            "autoApply": true,
+            "autoUpdateInput": false,
+            "locale": {
+                "direction": "ltr",
+                "format": "DD/MM/YYYY HH:mm",
+                "separator": " - ",
+                "applyLabel": "Select",
+                "cancelLabel": "Cancel",
+                "fromLabel": "From",
+                "toLabel": "To",
+                "customRangeLabel": "Custom",
+                "daysOfWeek": [
+                    "Su",
+                    "Mo",
+                    "Tu",
+                    "We",
+                    "Th",
+                    "Fr",
+                    "Sa"
+                ],
+                "monthNames": [
+                    "January",
+                    "February",
+                    "March",
+                    "April",
+                    "May",
+                    "June",
+                    "July",
+                    "August",
+                    "September",
+                    "October",
+                    "November",
+                    "December"
+                ],
+                "firstDay": 1
+            },
+
+            "alwaysShowCalendars": true
+        }
+
+        if (startValue) {
+            rangeOptions.startDate = moment(startValue).format('DD/MM/YYYY HH:mm')
+        }
+
+        if (endValue) {
+            rangeOptions.endDate = moment(endValue).format('DD/MM/YYYY HH:mm')
+        }
+
+        $('#daterange').daterangepicker(rangeOptions, function (start, end, label) {
+            document.getElementById('start').value = start.valueOf();
+            document.getElementById('end').value = end.valueOf();
+            document.getElementById('daterange').value = start.format('DD/MM/YYYY HH:mm') + ' – ' + end.format('DD/MM/YYYY HH:mm');
+        });
+
+        $('.daterangeElm i').click(function () {
+            $(this).parent().find('input').click();
+        });
+
+        if (startValue && endValue) {
+            document.getElementById('daterange').value = moment(startValue).format('DD/MM/YYYY HH:mm') + ' – ' + moment(endValue).format('DD/MM/YYYY HH:mm');
+        }
+    });
+</script>
