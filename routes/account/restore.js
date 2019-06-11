@@ -6,10 +6,10 @@ const Joi = require('joi');
 const apiClient = require('../../lib/api-client');
 
 router.get('/', (req, res) => {
-    res.render('account/recover', {
-        title: 'Recover messages',
+    res.render('account/restore', {
+        title: 'Restore Messages',
         activeHome: true,
-        accMenuRecover: true,
+        accMenuRestore: true,
         values: {},
         csrfToken: req.csrfToken()
     });
@@ -35,13 +35,13 @@ router.post('/', (req, res) => {
 
     let showErrors = (errors, disableDefault) => {
         if (!disableDefault) {
-            req.flash('danger', 'Message recovery failed');
+            req.flash('danger', 'Message restore failed');
         }
 
-        res.render('account/recover', {
-            title: 'Recover messages',
+        res.render('account/restore', {
+            title: 'Restore Messages',
             activeHome: true,
-            accMenuRecover: true,
+            accMenuRestore: true,
             values: result.value,
             errors,
             csrfToken: req.csrfToken()
@@ -62,7 +62,7 @@ router.post('/', (req, res) => {
         return showErrors(errors);
     }
 
-    apiClient.recover.create(
+    apiClient.restore.create(
         req.user,
         {
             start: result.value.start.toISOString(),
@@ -80,8 +80,8 @@ router.post('/', (req, res) => {
                 }
             }
 
-            req.flash('success', 'Recovery was initiated');
-            res.redirect('/account/recover');
+            req.flash('success', 'Restoring was initiated. Please check later for the restored messages.');
+            res.redirect('/webmail');
         }
     );
 });

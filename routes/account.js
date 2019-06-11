@@ -40,7 +40,7 @@ const recaptchaVerify = function(req, res, next) {
 router.use('/filters', passport.checkLogin, require('./account/filters'));
 router.use('/autoreply', passport.checkLogin, require('./account/autoreply'));
 router.use('/identities', passport.checkLogin, require('./account/identities'));
-router.use('/recover', passport.checkLogin, require('./account/recover'));
+router.use('/restore', passport.checkLogin, require('./account/restore'));
 
 router.use('/security', passport.checkLogin, require('./account/security'));
 
