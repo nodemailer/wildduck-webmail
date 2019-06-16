@@ -12,7 +12,8 @@ router.get('/', (req, res) => {
 router.get('/help', (req, res) => {
     res.render('help', {
         activeHelp: true,
-        setup: config.setup
+        setup: config.setup,
+        use2fa: res.locals.user && res.locals.user.enabled2fa && res.locals.user.enabled2fa.length
     });
 });
 

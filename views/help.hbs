@@ -6,7 +6,8 @@
 
 <div class="panel panel-default">
     <div class="panel-heading">
-        <h3 class="panel-title">Account configuration</h3></div>
+        <h3 class="panel-title">Account configuration</h3>
+    </div>
     <div class="panel-body">
         <p>
             Use the following configuration for your desktop email client.
@@ -45,20 +46,20 @@
                 </td>
             </tr>
             {{#if user}}
-                <tr>
-                    <th>
-                        E-mail address
-                    </th>
-                    <td>
-                        {{user.username}}@{{serviceDomain}}
-                    </td>
-                    <td>
-                        {{user.username}}@{{serviceDomain}}
-                    </td>
-                    <td>
-                        {{user.username}}@{{serviceDomain}}
-                    </td>
-                </tr>
+            <tr>
+                <th>
+                    E-mail address
+                </th>
+                <td>
+                    {{user.username}}@{{serviceDomain}}
+                </td>
+                <td>
+                    {{user.username}}@{{serviceDomain}}
+                </td>
+                <td>
+                    {{user.username}}@{{serviceDomain}}
+                </td>
+            </tr>
             {{/if}}
             <tr>
                 <th>
@@ -94,23 +95,23 @@
                 </th>
                 <td>
                     {{#if setup.imap.secure}}
-                        TLS/SSL
+                    TLS/SSL
                     {{else}}
-                        STARTTLS
+                    STARTTLS
                     {{/if}}
                 </td>
                 <td>
                     {{#if setup.pop3.secure}}
-                        TLS/SSL
+                    TLS/SSL
                     {{else}}
-                        STARTTLS
+                    STARTTLS
                     {{/if}}
                 </td>
                 <td>
                     {{#if setup.smtp.secure}}
-                        TLS/SSL
+                    TLS/SSL
                     {{else}}
-                        STARTTLS
+                    STARTTLS
                     {{/if}}
                 </td>
             </tr>
@@ -119,32 +120,40 @@
                     Username
                 </th>
                 {{#if user}}
-                    <td>
-                        {{user.username}}
-                    </td>
-                    <td>
-                        {{user.username}}
-                    </td>
-                    <td>
-                        {{user.username}}
-                    </td>
+                <td>
+                    {{user.username}}
+                </td>
+                <td>
+                    {{user.username}}
+                </td>
+                <td>
+                    {{user.username}}
+                </td>
 
                 {{else}}
-                    <td>
-                        Your username
-                    </td>
-                    <td>
-                        Your username
-                    </td>
-                    <td>
-                        Your username
-                    </td>
+                <td>
+                    Your username
+                </td>
+                <td>
+                    Your username
+                </td>
+                <td>
+                    Your username
+                </td>
                 {{/if}}
             </tr>
             <tr>
                 <th>
                     Password
                 </th>
+                {{#if use2fa}}
+                <td colspan="3">
+                    Two factor authentication is enabled on your account.
+                    Generate application specific passwords <a
+                        href="https://mailtest-01.tahvel.info/account/security/asps">here</a> to use IMAP, POP3 and
+                    SMTP.
+                </td>
+                {{else}}
                 <td>
                     ********
                 </td>
@@ -154,6 +163,7 @@
                 <td>
                     ********
                 </td>
+                {{/if}}
             </tr>
         </tbody>
     </table>
