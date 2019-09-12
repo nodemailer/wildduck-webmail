@@ -207,31 +207,33 @@ app.use((err, req, res, next) => {
     });
 });
 
-// development error handler
-// will print stacktrace
-if (app.get('env') === 'development') {
-    app.use((err, req, res, next) => {
-        if (!err) {
-            return next();
-        }
-        res.status(err.status || 500);
-        res.render('error', {
-            message: err.message,
-            error: err
-        });
-    });
-}
-
-// production error handler
-// no stacktraces leaked to user
 app.use((err, req, res, next) => {
     if (!err) {
         return next();
     }
+
+    let message;
+    switch (err.restCode) {
+        case 'InvalidToken':
+            return res.redirect('/account/login');
+
+        case 'AuthFailed':
+            message = 'Authentication failed';
+            break;
+
+        default:
+            message = err.message;
+            break;
+    }
+
+    if (err.code === 'InvalidToken') {
+        return res.redirect('/account/login');
+    }
+
     res.status(err.status || 500);
     res.render('error', {
-        message: err.message,
-        error: {}
+        message,
+        error: app.get('env') === 'development' ? err : {}
     });
 });
 
