@@ -430,7 +430,7 @@ function prepareFilter(filter) {
     });
 
     if (filter.action.targets) {
-        filter.action_targets = filter.action.targets.map(target => target.value).join(', ');
+        filter.action_targets = filter.action.targets.map(targetData => (typeof targetData === 'string' ? targetData : targetData.value)).join(', ');
     }
 }
 

@@ -244,7 +244,7 @@ router.post('/create', recaptchaVerify, (req, res, next) => {
 router.get('/profile', passport.checkLogin, (req, res) => {
     req.user.targets = []
         .concat(req.user.targets)
-        .map(target => target.value)
+        .map(targetData => (typeof targetData === 'string' ? targetData : targetData.value))
         .join(', ');
 
     let defaultSpamLevel = typeof req.user.spamLevel === 'number' ? req.user.spamLevel : 50;
