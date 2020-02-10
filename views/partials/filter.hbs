@@ -121,7 +121,7 @@
                 <div class="form-group{{#if errors.action_targets}} has-error{{/if}}">
                     <label for="action_targets">Forward it to address:</label>
                     <input type="text" class="form-control input-sm" name="action_targets" id="action_targets" value="{{values.action_targets}}" placeholder="user@example.com">
-                    <span class="help-block">Somma separated list of email addresses or URLs</span>
+                    <span class="help-block">Comma separated list of email addresses or URLs</span>
                     {{#if errors.action_targets}}
                         <span class="help-block">{{errors.action_targets}}</span>
                     {{/if}}
