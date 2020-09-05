@@ -37,8 +37,6 @@ const recaptchaVerify = function(req, res, next) {
 };
 
 // sub services
-router.use('/filters', passport.checkLogin, require('./account/filters'));
-router.use('/autoreply', passport.checkLogin, require('./account/autoreply'));
 router.use('/identities', passport.checkLogin, require('./account/identities'));
 router.use('/restore', passport.checkLogin, require('./account/restore'));
 
