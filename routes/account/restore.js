@@ -17,17 +17,12 @@ router.get('/', (req, res) => {
 
 router.post('/', (req, res) => {
     const updateSchema = Joi.object().keys({
-        start: Joi.date()
-            .empty('')
-            .required(),
-        end: Joi.date()
-            .empty('')
-            .min(Joi.ref('start'))
-            .required()
+        start: Joi.date().empty('').required(),
+        end: Joi.date().empty('').min(Joi.ref('start')).required()
     });
 
     delete req.body._csrf;
-    let result = Joi.validate(req.body, updateSchema, {
+    let result = updateSchema.validate(req.body, {
         abortEarly: false,
         convert: true,
         allowUnknown: false

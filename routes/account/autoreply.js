@@ -22,26 +22,18 @@ router.get('/', (req, res, next) => {
 router.post('/', (req, res) => {
     const updateSchema = Joi.object().keys({
         status: Joi.boolean().required(),
-        name: Joi.string()
-            .empty('')
-            .trim()
-            .max(128),
-        subject: Joi.string()
-            .empty('')
-            .trim()
-            .max(128),
+        name: Joi.string().empty('').trim().max(128),
+        subject: Joi.string().empty('').trim().max(128),
         text: Joi.string()
             .empty('')
             .trim()
             .max(10 * 1024),
         start: Joi.date().empty(''),
-        end: Joi.date()
-            .empty('')
-            .min(Joi.ref('start'))
+        end: Joi.date().empty('').min(Joi.ref('start'))
     });
 
     delete req.body._csrf;
-    let result = Joi.validate(req.body, updateSchema, {
+    let result = updateSchema.validate(req.body, {
         abortEarly: false,
         convert: true,
         allowUnknown: false

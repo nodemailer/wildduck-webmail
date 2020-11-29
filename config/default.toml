@@ -18,6 +18,12 @@ title="wildduck-www"
 
     generalNotification="" # static notification to show on top of the page
 
+    [service.sso.http]
+        enabled = false
+        header = "X-UserName" # value from this header is treated as logged in username
+        authRedirect = "http:/127.0.0.1:3000/login" # URL to redirect non-authenticated users
+        logoutRedirect = "http:/127.0.0.1:3000/logout"  # URL to redirect when user clicks on "log out"
+
 [api]
     url="http://127.0.0.1:8080"
     accessToken=""

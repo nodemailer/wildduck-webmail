@@ -26,7 +26,7 @@ if (config.recaptcha.enabled) {
     recaptcha = new Recaptcha(config.recaptcha.siteKey, config.recaptcha.secretKey);
 }
 
-const recaptchaVerify = function(req, res, next) {
+const recaptchaVerify = function (req, res, next) {
     if (!config.recaptcha.enabled) {
         req.recaptcha = {
             error: false
@@ -69,12 +69,28 @@ router.get('/', passport.checkLogin, (req, res) => {
 router.get('/logout', (req, res) => {
     req.session.require2fa = false;
     req.flash(); // clear pending messages
-    passport.logout(req, res);
+
+    if (config.service.sso.http.enabled) {
+        return req.session.regenerate(() => {
+            return res.redirect(config.service.sso.http.logoutRedirect);
+        });
+    }
+
+    return passport.logout(req, res);
 });
 
-router.post('/login', (req, res, next) => passport.login(req, res, next));
+router.post('/login', (req, res, next) => {
+    if (config.service.sso.http.enabled) {
+        return res.redirect(config.service.sso.http.authRedirect);
+    }
+    return passport.login(req, res, next);
+});
 
 router.get('/login', (req, res) => {
+    if (config.service.sso.http.enabled) {
+        return res.redirect(config.service.sso.http.authRedirect);
+    }
+
     res.render('account/login', {
         activeLogin: true,
         csrfToken: req.csrfToken()
@@ -108,69 +124,22 @@ router.post('/create', recaptchaVerify, (req, res, next) => {
         return next(err);
     }
     const createSchema = {
-        name: Joi.string()
-            .trim()
-            .min(1)
-            .max(256)
-            .label('Your name')
-            .required(),
-        domain: Joi.string()
-            .trim()
-            .valid(config.service.domains)
-            .label('Domain')
-            .required(),
-        password: Joi.string()
-            .min(8)
-            .max(256)
-            .label('Password')
-            .valid(Joi.ref('password2'))
-            .options({
-                language: {
-                    any: {
-                        allowOnly: '!!Passwords do not match'
-                    }
-                }
-            })
-            .required(),
+        name: Joi.string().trim().min(1).max(256).label('Your name').required(),
+        domain: Joi.string().trim().valid(config.service.domains).label('Domain').required(),
+        password: Joi.string().min(8).max(256).label('Password').valid(Joi.ref('password2')).required(),
 
-        language: Joi.string()
-            .length(2)
-            .default('en'),
-        password2: Joi.string()
-            .min(8)
-            .max(256)
-            .label('Password confirmation')
-            .required(),
-        username: Joi.string()
-            .trim()
-            .min(1)
-            .max(128)
-            .hostname()
-            .lowercase()
-            .label('Address')
-            .required(),
-        remember: Joi.boolean()
-            .truthy(['Y', 'true', 'yes', 'on', 1])
-            .falsy(['N', 'false', 'no', 'off', 0, ''])
-            .valid(true),
+        language: Joi.string().length(2).default('en'),
+        password2: Joi.string().min(8).max(256).label('Password confirmation').required(),
+        username: Joi.string().trim().min(1).max(128).hostname().lowercase().label('Address').required(),
+        remember: tools.booleanSchema.valid(true),
         'g-recaptcha-response': Joi.string().strip()
     };
 
     delete req.body._csrf;
-    let result = Joi.validate(req.body, createSchema, {
+    let result = createSchema.validate(req.body, {
         abortEarly: false,
         convert: true,
-        allowUnknown: false,
-        language: {
-            string: {
-                min: '"{{!key}}" length must be at least {{limit}} characters long',
-                max: '"{{!key}}" length must be less than or equal to {{limit}} characters',
-                hostname: '"{{!key}}" must be a valid email user part'
-            },
-            object: {
-                assert: '!!Passwords do not match'
-            }
-        }
+        allowUnknown: false
     });
 
     let showErrors = (errors, disableDefault) => {
@@ -268,16 +237,10 @@ router.get('/profile', passport.checkLogin, (req, res) => {
 router.post('/profile', passport.checkLogin, (req, res) => {
     const updateSchema = Joi.object()
         .keys({
-            name: Joi.string()
-                .empty('')
-                .max(100)
-                .label('Your name'),
+            name: Joi.string().empty('').max(100).label('Your name'),
 
             targets: Joi.array().items(
-                Joi.string()
-                    .trim()
-                    .email()
-                    .empty(''),
+                Joi.string().trim().email().empty(''),
                 Joi.string()
                     .trim()
                     .uri({
@@ -292,39 +255,13 @@ router.post('/profile', passport.checkLogin, (req, res) => {
                 .empty('')
                 .trim()
                 .regex(/^-----BEGIN PGP PUBLIC KEY BLOCK-----/, 'PGP key format'),
-            encryptMessages: Joi.boolean()
-                .truthy(['Y', 'true', 'yes', 'on', 1])
-                .falsy(['N', 'false', 'no', 'off', 0, ''])
-                .default(false),
+            encryptMessages: tools.booleanSchema.default(false),
 
-            spamLevel: Joi.number()
-                .empty('')
-                .min(0)
-                .max(100),
+            spamLevel: Joi.number().empty('').min(0).max(100),
 
-            existingPassword: Joi.string()
-                .empty('')
-                .min(8)
-                .max(100)
-                .label('Current password'),
-            password: Joi.string()
-                .empty('')
-                .min(8)
-                .max(100)
-                .label('New password')
-                .valid(Joi.ref('password2'))
-                .options({
-                    language: {
-                        any: {
-                            allowOnly: '!!Passwords do not match'
-                        }
-                    }
-                }),
-            password2: Joi.string()
-                .empty('')
-                .min(8)
-                .max(100)
-                .label('Repeat password')
+            existingPassword: Joi.string().empty('').min(8).max(100).label('Current password'),
+            password: Joi.string().empty('').min(8).max(100).label('New password').valid(Joi.ref('password2')),
+            password2: Joi.string().empty('').min(8).max(100).label('Repeat password')
         })
         .and('password', 'existingPassword', 'password2');
 
@@ -336,21 +273,10 @@ router.post('/profile', passport.checkLogin, (req, res) => {
         req.body.targets = [];
     }
 
-    let result = Joi.validate(req.body, updateSchema, {
+    let result = updateSchema.validate(req.body, {
         abortEarly: false,
         convert: true,
-        allowUnknown: false,
-
-        language: {
-            string: {
-                min: '"{{!key}}" length must be at least {{limit}} characters long',
-                max: '"{{!key}}" length must be less than or equal to {{limit}} characters',
-                hostname: '"{{!key}}" must be a valid email user part'
-            },
-            object: {
-                assert: '!!Passwords do not match'
-            }
-        }
+        allowUnknown: false
     });
 
     let showErrors = (errors, disableDefault) => {
@@ -442,14 +368,11 @@ router.post('/check-totp', (req, res) => {
             .length(6)
             .regex(/^[0-9]+$/, 'numbers')
             .required(),
-        remember2fa: Joi.boolean()
-            .truthy(['Y', 'true', 'yes', 'on', 1])
-            .falsy(['N', 'false', 'no', 'off', 0, ''])
-            .default(false)
+        remember2fa: tools.booleanSchema.default(false)
     });
 
     delete req.body._csrf;
-    let result = Joi.validate(req.body, authSchema, {
+    let result = authSchema.validate(req.body, {
         abortEarly: false,
         convert: true,
         allowUnknown: false
@@ -505,14 +428,11 @@ router.post('/check-u2f', (req, res) => {
         signatureData: Joi.string(),
         errorCode: Joi.number(),
         errorMessage: Joi.string(),
-        remember2fa: Joi.boolean()
-            .truthy(['Y', 'true', 'yes', 'on', 1])
-            .falsy(['N', 'false', 'no', 'off', 0, ''])
-            .default(false)
+        remember2fa: tools.booleanSchema.default(false)
     });
 
     delete req.body._csrf;
-    let result = Joi.validate(req.body, authSchema, {
+    let result = authSchema.validate(req.body, {
         abortEarly: false,
         convert: true,
         allowUnknown: false
@@ -578,30 +498,12 @@ router.post('/update-password', (req, res) => {
     }
 
     const updateSchema = Joi.object().keys({
-        password: Joi.string()
-            .empty('')
-            .min(8)
-            .max(100)
-            .label('New password')
-            .valid(Joi.ref('password2'))
-            .options({
-                language: {
-                    any: {
-                        allowOnly: '!!Passwords do not match'
-                    }
-                }
-            })
-            .required(),
-        password2: Joi.string()
-            .empty('')
-            .min(8)
-            .max(100)
-            .label('Repeat password')
-            .required()
+        password: Joi.string().empty('').min(8).max(100).label('New password').valid(Joi.ref('password2')).required(),
+        password2: Joi.string().empty('').min(8).max(100).label('Repeat password').required()
     });
 
     delete req.body._csrf;
-    let result = Joi.validate(req.body, updateSchema, {
+    let result = updateSchema.validate(req.body, {
         abortEarly: false,
         convert: true,
         allowUnknown: false

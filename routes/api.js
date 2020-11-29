@@ -8,22 +8,16 @@ const tools = require('../lib/tools');
 
 router.post('/toggle/flagged', (req, res) => {
     const schema = Joi.object().keys({
-        mailbox: Joi.string()
-            .hex()
-            .lowercase()
-            .length(24)
-            .required(),
+        mailbox: Joi.string().hex().lowercase().length(24).required(),
         message: Joi.string()
             .regex(/^\d+(,\d+)*$/i)
             .required(),
-        flagged: Joi.boolean()
-            .truthy(['Y', 'true', 'yes', 'on', 1])
-            .falsy(['N', 'false', 'no', 'off', 0, ''])
+        flagged: tools.booleanSchema
     });
 
     delete req.body._csrf;
 
-    let result = Joi.validate(req.body, schema, {
+    let result = schema.validate(req.body, {
         abortEarly: false,
         convert: true,
         allowUnknown: true
@@ -53,22 +47,16 @@ router.post('/toggle/flagged', (req, res) => {
 
 router.post('/toggle/seen', (req, res) => {
     const schema = Joi.object().keys({
-        mailbox: Joi.string()
-            .hex()
-            .lowercase()
-            .length(24)
-            .required(),
+        mailbox: Joi.string().hex().lowercase().length(24).required(),
         message: Joi.string()
             .regex(/^\d+(,\d+)*$/i)
             .required(),
-        seen: Joi.boolean()
-            .truthy(['Y', 'true', 'yes', 'on', 1])
-            .falsy(['N', 'false', 'no', 'off', 0, ''])
+        seen: tools.booleanSchema
     });
 
     delete req.body._csrf;
 
-    let result = Joi.validate(req.body, schema, {
+    let result = schema.validate(req.body, {
         abortEarly: false,
         convert: true,
         allowUnknown: true
@@ -98,24 +86,16 @@ router.post('/toggle/seen', (req, res) => {
 
 router.post('/move', (req, res) => {
     const schema = Joi.object().keys({
-        mailbox: Joi.string()
-            .hex()
-            .lowercase()
-            .length(24)
-            .required(),
+        mailbox: Joi.string().hex().lowercase().length(24).required(),
         message: Joi.string()
             .regex(/^\d+(,\d+)*$/i)
             .required(),
-        target: Joi.string()
-            .hex()
-            .lowercase()
-            .length(24)
-            .required()
+        target: Joi.string().hex().lowercase().length(24).required()
     });
 
     delete req.body._csrf;
 
-    let result = Joi.validate(req.body, schema, {
+    let result = schema.validate(req.body, {
         abortEarly: false,
         convert: true,
         allowUnknown: true
@@ -145,11 +125,7 @@ router.post('/move', (req, res) => {
 
 router.post('/delete', (req, res) => {
     const schema = Joi.object().keys({
-        mailbox: Joi.string()
-            .hex()
-            .lowercase()
-            .length(24)
-            .required(),
+        mailbox: Joi.string().hex().lowercase().length(24).required(),
         message: Joi.string()
             .regex(/^\d+(,\d+)*$/i)
             .required()
@@ -157,7 +133,7 @@ router.post('/delete', (req, res) => {
 
     delete req.body._csrf;
 
-    let result = Joi.validate(req.body, schema, {
+    let result = schema.validate(req.body, {
         abortEarly: false,
         convert: true,
         allowUnknown: true
@@ -234,26 +210,15 @@ router.post('/delete', (req, res) => {
 
 router.post('/list', (req, res) => {
     const schema = Joi.object().keys({
-        mailbox: Joi.string()
-            .hex()
-            .lowercase()
-            .length(24)
-            .allow('starred')
-            .required(),
-        cursorType: Joi.string()
-            .empty('')
-            .valid('next', 'previous'),
-        cursorValue: Joi.string()
-            .max(100)
-            .empty(''),
-        page: Joi.number()
-            .empty('')
-            .default(1)
+        mailbox: Joi.string().hex().lowercase().length(24).allow('starred').required(),
+        cursorType: Joi.string().empty('').valid('next', 'previous'),
+        cursorValue: Joi.string().max(100).empty(''),
+        page: Joi.number().empty('').default(1)
     });
 
     delete req.body._csrf;
 
-    let result = Joi.validate(req.body, schema, {
+    let result = schema.validate(req.body, {
         abortEarly: false,
         convert: true,
         allowUnknown: true

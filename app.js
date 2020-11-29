@@ -12,6 +12,7 @@ const session = require('express-session');
 const RedisStore = require('connect-redis')(session);
 const flash = require('connect-flash');
 const passport = require('./lib/passport');
+const httpSso = require('./lib/http-sso');
 const db = require('./lib/db');
 const multer = require('multer');
 
@@ -93,7 +94,12 @@ app.use(
     })
 );
 
-passport.setup(app);
+if (config.service.sso.http.enabled) {
+    httpSso.setup(app);
+} else {
+    // default, session based auth
+    passport.setup(app);
+}
 
 app.use((req, res, next) => {
     // make sure flash messages are available

@@ -5,6 +5,7 @@ const express = require('express');
 const router = new express.Router();
 const Joi = require('joi');
 const apiClient = require('../../lib/api-client');
+const tools = require('../../lib/tools');
 
 const AUTH_EVENTS = new Map([
     ['create asp', 'Create new Application Specific Password'],
@@ -38,22 +39,13 @@ router.get('/', (req, res) => {
 
 router.get('/events', (req, res, next) => {
     const updateSchema = Joi.object().keys({
-        event: Joi.string()
-            .empty('')
-            .trim()
-            .hex()
-            .length(24)
-            .label('Password ID'),
-        next: Joi.string()
-            .max(100)
-            .empty(''),
-        previous: Joi.string()
-            .max(100)
-            .empty(''),
+        event: Joi.string().empty('').trim().hex().length(24).label('Password ID'),
+        next: Joi.string().max(100).empty(''),
+        previous: Joi.string().max(100).empty(''),
         page: Joi.number().empty('')
     });
 
-    let result = Joi.validate(req.query, updateSchema, {
+    let result = updateSchema.validate(req.query, {
         abortEarly: false,
         convert: true,
         allowUnknown: false
@@ -145,22 +137,16 @@ router.get('/gpg', (req, res) => {
 
 router.post('/gpg', (req, res) => {
     const updateSchema = Joi.object().keys({
-        removeKey: Joi.boolean()
-            .truthy(['Y', 'true', 'yes', 'on', 1])
-            .falsy(['N', 'false', 'no', 'off', 0, ''])
-            .default(false),
+        removeKey: tools.booleanSchema.default(false),
         pubKey: Joi.string()
             .empty('')
             .trim()
             .regex(/^-----BEGIN PGP PUBLIC KEY BLOCK-----/, 'PGP key format'),
-        encryptMessages: Joi.boolean()
-            .truthy(['Y', 'true', 'yes', 'on', 1])
-            .falsy(['N', 'false', 'no', 'off', 0, ''])
-            .default(false)
+        encryptMessages: tools.booleanSchema.default(false)
     });
 
     delete req.body._csrf;
-    let result = Joi.validate(req.body, updateSchema, {
+    let result = updateSchema.validate(req.body, {
         abortEarly: false,
         convert: true,
         allowUnknown: false
@@ -243,6 +229,9 @@ router.post('/gpg', (req, res) => {
 });
 
 router.get('/password', (req, res) => {
+    if (config.service.sso.http.enabled) {
+        return res.redirect('/security');
+    }
     res.render('account/security/password', {
         title: 'Security',
         activeSecurity: true,
@@ -255,37 +244,17 @@ router.get('/password', (req, res) => {
 });
 
 router.post('/password', (req, res) => {
+    if (config.service.sso.http.enabled) {
+        return res.redirect('/security');
+    }
     const updateSchema = Joi.object().keys({
-        existingPassword: Joi.string()
-            .empty('')
-            .min(8)
-            .max(100)
-            .label('Current password')
-            .required(),
-        password: Joi.string()
-            .empty('')
-            .min(8)
-            .max(100)
-            .label('New password')
-            .valid(Joi.ref('password2'))
-            .options({
-                language: {
-                    any: {
-                        allowOnly: '!!Passwords do not match'
-                    }
-                }
-            })
-            .required(),
-        password2: Joi.string()
-            .empty('')
-            .min(8)
-            .max(100)
-            .label('Repeat password')
-            .required()
+        existingPassword: Joi.string().empty('').min(8).max(100).label('Current password').required(),
+        password: Joi.string().empty('').min(8).max(100).label('New password').valid(Joi.ref('password2')).required(),
+        password2: Joi.string().empty('').min(8).max(100).label('Repeat password').required()
     });
 
     delete req.body._csrf;
-    let result = Joi.validate(req.body, updateSchema, {
+    let result = updateSchema.validate(req.body, {
         abortEarly: false,
         convert: true,
         allowUnknown: false
@@ -350,6 +319,9 @@ router.post('/password', (req, res) => {
 });
 
 router.get('/asps', (req, res) => {
+    if (config.service.sso.http.enabled) {
+        return res.redirect('/security');
+    }
     apiClient.asps.list(req.user, (err, asps) => {
         if (err) {
             req.flash('danger', 'Account password updated');
@@ -375,17 +347,16 @@ router.get('/asps', (req, res) => {
 });
 
 router.post('/asps/delete', (req, res) => {
+    if (config.service.sso.http.enabled) {
+        return res.redirect('/security');
+    }
+
     const updateSchema = Joi.object().keys({
-        id: Joi.string()
-            .trim()
-            .hex()
-            .length(24)
-            .label('Password ID')
-            .required()
+        id: Joi.string().trim().hex().length(24).label('Password ID').required()
     });
 
     delete req.body._csrf;
-    let result = Joi.validate(req.body, updateSchema, {
+    let result = updateSchema.validate(req.body, {
         abortEarly: false,
         convert: true,
         allowUnknown: false
@@ -412,17 +383,15 @@ router.post('/asps/delete', (req, res) => {
 });
 
 router.post('/asps/create', (req, res) => {
+    if (config.service.sso.http.enabled) {
+        return res.redirect('/security');
+    }
     const updateSchema = Joi.object().keys({
-        description: Joi.string()
-            .trim()
-            .min(0)
-            .max(256)
-            .label('Description')
-            .required()
+        description: Joi.string().trim().min(0).max(256).label('Description').required()
     });
 
     delete req.body._csrf;
-    let result = Joi.validate(req.body, updateSchema, {
+    let result = updateSchema.validate(req.body, {
         abortEarly: false,
         convert: true,
         allowUnknown: false
@@ -485,7 +454,7 @@ router.post('/2fa/enable-totp', (req, res, next) => {
     });
 
     delete req.body._csrf;
-    let result = Joi.validate(req.body, authSchema, {
+    let result = authSchema.validate(req.body, {
         abortEarly: false,
         convert: true,
         allowUnknown: false
@@ -545,7 +514,7 @@ router.post('/2fa/verify-totp', (req, res) => {
     });
 
     delete req.body._csrf;
-    let result = Joi.validate(req.body, authSchema, {
+    let result = authSchema.validate(req.body, {
         abortEarly: false,
         convert: true,
         allowUnknown: false

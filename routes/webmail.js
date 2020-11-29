@@ -19,38 +19,17 @@ const templates = {
 
 router.get('/send', (req, res) => {
     const schema = Joi.object().keys({
-        action: Joi.string()
-            .valid('reply', 'replyAll', 'forward', 'send')
-            .default('send'),
-        to: Joi.string()
-            .trim()
-            .max(255)
-            .empty(''),
-        subject: Joi.string()
-            .trim()
-            .max(255)
-            .empty(''),
-        refMailbox: Joi.string()
-            .hex()
-            .length(24)
-            .empty(''),
-        refMessage: Joi.number()
-            .min(1)
-            .empty(''),
-        draftMailbox: Joi.string()
-            .hex()
-            .length(24)
-            .empty(''),
-        draftMessage: Joi.number()
-            .min(1)
-            .empty(''),
-        draft: Joi.boolean()
-            .truthy(['Y', 'true', 'yes', 'on', 1])
-            .falsy(['N', 'false', 'no', 'off', 0, ''])
-            .default(false)
+        action: Joi.string().valid('reply', 'replyAll', 'forward', 'send').default('send'),
+        to: Joi.string().trim().max(255).empty(''),
+        subject: Joi.string().trim().max(255).empty(''),
+        refMailbox: Joi.string().hex().length(24).empty(''),
+        refMessage: Joi.number().min(1).empty(''),
+        draftMailbox: Joi.string().hex().length(24).empty(''),
+        draftMessage: Joi.number().min(1).empty(''),
+        draft: tools.booleanSchema.default(false)
     });
 
-    let result = Joi.validate(req.query, schema, {
+    let result = schema.validate(req.query, {
         abortEarly: false,
         convert: true,
         allowUnknown: true
@@ -306,40 +285,23 @@ router.get('/send', (req, res) => {
 
 router.post('/send', (req, res) => {
     const schema = Joi.object().keys({
-        action: Joi.string()
-            .valid('reply', 'replyAll', 'forward', 'send', 'draft')
-            .default('send'),
-        refMailbox: Joi.string()
-            .hex()
-            .length(24)
-            .empty(''),
-        refMessage: Joi.number()
-            .min(1)
-            .empty(''),
-        draftMailbox: Joi.string()
-            .hex()
-            .length(24)
-            .empty(''),
-        draftMessage: Joi.number()
-            .min(1)
-            .empty(''),
+        action: Joi.string().valid('reply', 'replyAll', 'forward', 'send', 'draft').default('send'),
+        refMailbox: Joi.string().hex().length(24).empty(''),
+        refMessage: Joi.number().min(1).empty(''),
+        draftMailbox: Joi.string().hex().length(24).empty(''),
+        draftMessage: Joi.number().min(1).empty(''),
         to: Joi.string().empty(''),
         cc: Joi.string().empty(''),
         bcc: Joi.string().empty(''),
         subject: Joi.string().empty(''),
         editordata: Joi.string().empty(''),
-        draft: Joi.boolean()
-            .truthy(['Y', 'true', 'yes', 'on', 1])
-            .falsy(['N', 'false', 'no', 'off', 0, ''])
-            .default(false),
-        userAction: Joi.string()
-            .valid('send', 'save')
-            .default('send')
+        draft: tools.booleanSchema.default(false),
+        userAction: Joi.string().valid('send', 'save').default('send')
     });
 
     delete req.body._csrf;
 
-    let result = Joi.validate(req.body, schema, {
+    let result = schema.validate(req.body, {
         abortEarly: false,
         convert: true,
         allowUnknown: true
@@ -528,17 +490,13 @@ router.get('/create', (req, res) => {
 
 router.post('/create', (req, res) => {
     const schema = Joi.object().keys({
-        parent: Joi.string()
-            .default('')
-            .allow(''),
-        name: Joi.string()
-            .regex(/\//, { name: 'folder', invert: true })
-            .required()
+        parent: Joi.string().default('').allow(''),
+        name: Joi.string().regex(/\//, { name: 'folder', invert: true }).required()
     });
 
     delete req.body._csrf;
 
-    let result = Joi.validate(req.body, schema, {
+    let result = schema.validate(req.body, {
         abortEarly: false,
         convert: true,
         allowUnknown: true
@@ -617,13 +575,11 @@ router.get('/:mailbox', renderMailbox);
 
 router.get('/:mailbox/message/:message', (req, res, next) => {
     const schema = Joi.object().keys({
-        mailbox: Joi.string()
-            .hex()
-            .length(24),
+        mailbox: Joi.string().hex().length(24),
         message: Joi.number().min(1)
     });
 
-    let result = Joi.validate(req.params, schema, {
+    let result = schema.validate(req.params, {
         abortEarly: false,
         convert: true,
         allowUnknown: true
@@ -824,21 +780,15 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
 
 router.get('/:mailbox/attachment/:message/:attachment', (req, res) => {
     const schema = Joi.object().keys({
-        mailbox: Joi.string()
-            .hex()
-            .lowercase()
-            .length(24)
-            .required(),
-        message: Joi.number()
-            .min(1)
-            .required(),
+        mailbox: Joi.string().hex().lowercase().length(24).required(),
+        message: Joi.number().min(1).required(),
         attachment: Joi.string()
             .regex(/^ATT\d+$/i)
             .uppercase()
             .required()
     });
 
-    let result = Joi.validate(req.params, schema, {
+    let result = schema.validate(req.params, {
         abortEarly: false,
         convert: true,
         allowUnknown: true
@@ -858,17 +808,11 @@ router.get('/:mailbox/attachment/:message/:attachment', (req, res) => {
 
 router.get('/:mailbox/raw/:message.eml', (req, res) => {
     const schema = Joi.object().keys({
-        mailbox: Joi.string()
-            .hex()
-            .lowercase()
-            .length(24)
-            .required(),
-        message: Joi.number()
-            .min(1)
-            .required()
+        mailbox: Joi.string().hex().lowercase().length(24).required(),
+        message: Joi.number().min(1).required()
     });
 
-    let result = Joi.validate(req.params, schema, {
+    let result = schema.validate(req.params, {
         abortEarly: false,
         convert: true,
         allowUnknown: true
@@ -888,12 +832,10 @@ router.get('/:mailbox/raw/:message.eml', (req, res) => {
 
 router.get('/:mailbox/settings', (req, res, next) => {
     const schema = Joi.object().keys({
-        mailbox: Joi.string()
-            .hex()
-            .length(24)
+        mailbox: Joi.string().hex().length(24)
     });
 
-    let result = Joi.validate(req.params, schema, {
+    let result = schema.validate(req.params, {
         abortEarly: false,
         convert: true,
         allowUnknown: true
@@ -957,21 +899,15 @@ router.get('/:mailbox/settings', (req, res, next) => {
 
 router.post('/:mailbox/settings', (req, res) => {
     const schema = Joi.object().keys({
-        mailbox: Joi.string()
-            .hex()
-            .length(24),
-        parent: Joi.string()
-            .default('')
-            .allow(''),
-        name: Joi.string()
-            .regex(/\//, { name: 'folder', invert: true })
-            .required()
+        mailbox: Joi.string().hex().length(24),
+        parent: Joi.string().default('').allow(''),
+        name: Joi.string().regex(/\//, { name: 'folder', invert: true }).required()
     });
 
     req.body.mailbox = req.params.mailbox;
     delete req.body._csrf;
 
-    let result = Joi.validate(req.body, schema, {
+    let result = schema.validate(req.body, {
         abortEarly: false,
         convert: true,
         allowUnknown: true
@@ -1073,12 +1009,10 @@ router.post('/:mailbox/settings', (req, res) => {
 
 router.post('/:mailbox/delete', (req, res) => {
     const schema = Joi.object().keys({
-        mailbox: Joi.string()
-            .hex()
-            .length(24)
+        mailbox: Joi.string().hex().length(24)
     });
 
-    let result = Joi.validate(req.params, schema, {
+    let result = schema.validate(req.params, {
         abortEarly: false,
         convert: true,
         allowUnknown: true
@@ -1108,24 +1042,11 @@ router.post('/:mailbox/delete', (req, res) => {
 
 function renderMailbox(req, res, next) {
     const schema = Joi.object().keys({
-        mailbox: Joi.string()
-            .hex()
-            .length(24)
-            .allow('starred', 'search')
-            .empty(''),
-        unseen: Joi.boolean()
-            .truthy(['Y', 'true', 'yes', 'on', 1])
-            .falsy(['N', 'false', 'no', 'off', 0, ''])
-            .default(false),
-        query: Joi.string()
-            .max(255)
-            .empty(''),
-        next: Joi.string()
-            .max(100)
-            .empty(''),
-        previous: Joi.string()
-            .max(100)
-            .empty(''),
+        mailbox: Joi.string().hex().length(24).allow('starred', 'search').empty(''),
+        unseen: tools.booleanSchema.default(false),
+        query: Joi.string().max(255).empty(''),
+        next: Joi.string().max(100).empty(''),
+        previous: Joi.string().max(100).empty(''),
         page: Joi.number().empty('')
     });
 
@@ -1133,7 +1054,7 @@ function renderMailbox(req, res, next) {
         req.query.mailbox = req.params.mailbox;
     }
 
-    let result = Joi.validate(req.query, schema, {
+    let result = schema.validate(req.query, {
         abortEarly: false,
         convert: true,
         allowUnknown: true

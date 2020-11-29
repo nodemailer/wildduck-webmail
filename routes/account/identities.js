@@ -4,6 +4,7 @@ const config = require('wild-config');
 const express = require('express');
 const router = new express.Router();
 const apiClient = require('../../lib/api-client');
+const tools = require('../../lib/tools');
 const Joi = require('joi');
 const roleBasedAddresses = require('role-based-email-addresses');
 const util = require('util');
@@ -60,11 +61,7 @@ router.get('/create', (req, res) => {
 
 router.post('/create', (req, res) => {
     const createSchema = {
-        name: Joi.string()
-            .empty('')
-            .trim()
-            .max(128)
-            .label('Identity name'),
+        name: Joi.string().empty('').trim().max(128).label('Identity name'),
         address: Joi.string()
             .trim()
             .min(1)
@@ -75,17 +72,14 @@ router.post('/create', (req, res) => {
             .required(),
         domain: Joi.string()
             .trim()
-            .valid(config.service.domains)
+            .valid(...config.service.domains)
             .label('Domain')
             .required(),
-        main: Joi.boolean()
-            .truthy(['Y', 'true', 'yes', 'on', 1])
-            .falsy(['N', 'false', 'no', 'off', 0, ''])
-            .default(false)
+        main: tools.booleanSchema.default(false)
     };
 
     delete req.body._csrf;
-    let result = Joi.validate(req.body, createSchema, {
+    let result = createSchema.validate(req.body, {
         abortEarly: false,
         convert: true,
         allowUnknown: false
@@ -170,15 +164,10 @@ router.get('/edit', (req, res) => {
     }
 
     const updateSchema = Joi.object().keys({
-        id: Joi.string()
-            .trim()
-            .hex()
-            .length(24)
-            .label('Identity ID')
-            .required()
+        id: Joi.string().trim().hex().length(24).label('Identity ID').required()
     });
 
-    let result = Joi.validate(req.query, updateSchema, {
+    let result = updateSchema.validate(req.query, {
         abortEarly: false,
         convert: true,
         allowUnknown: false
@@ -222,17 +211,8 @@ router.post('/edit', (req, res) => {
     }
 
     const createSchema = {
-        id: Joi.string()
-            .trim()
-            .hex()
-            .length(24)
-            .label('Filtri ID')
-            .required(),
-        name: Joi.string()
-            .empty('')
-            .trim()
-            .max(128)
-            .label('Identity name'),
+        id: Joi.string().trim().hex().length(24).label('Filtri ID').required(),
+        name: Joi.string().empty('').trim().max(128).label('Identity name'),
         address: Joi.string()
             .trim()
             .min(1)
@@ -243,17 +223,14 @@ router.post('/edit', (req, res) => {
             .required(),
         domain: Joi.string()
             .trim()
-            .valid(config.service.domains)
+            .valid(...config.service.domains)
             .label('Domain')
             .required(),
-        main: Joi.boolean()
-            .truthy(['Y', 'true', 'yes', 'on', 1])
-            .falsy(['N', 'false', 'no', 'off', 0, ''])
-            .default(false)
+        main: tools.booleanSchema.default(false)
     };
 
     delete req.body._csrf;
-    let result = Joi.validate(req.body, createSchema, {
+    let result = createSchema.validate(req.body, {
         abortEarly: false,
         convert: true,
         allowUnknown: false
@@ -334,16 +311,11 @@ router.post('/edit', (req, res) => {
 
 router.post('/delete', (req, res) => {
     const updateSchema = Joi.object().keys({
-        id: Joi.string()
-            .trim()
-            .hex()
-            .length(24)
-            .label('Identity ID')
-            .required()
+        id: Joi.string().trim().hex().length(24).label('Identity ID').required()
     });
 
     delete req.body._csrf;
-    let result = Joi.validate(req.body, updateSchema, {
+    let result = updateSchema.validate(req.body, {
         abortEarly: false,
         convert: true,
         allowUnknown: false
