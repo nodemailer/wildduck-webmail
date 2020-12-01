@@ -24,7 +24,7 @@ const AUTH_EVENTS = new Map([
 
 router.get('/', (req, res) => {
     if (config.service.sso.http.enabled) {
-        return res.redirect('/account/security/gpg');
+        return res.redirect('/account/security/asps');
     }
 
     res.render('account/security/2fa', {
@@ -325,10 +325,6 @@ router.post('/password', (req, res) => {
 });
 
 router.get('/asps', (req, res) => {
-    if (config.service.sso.http.enabled) {
-        return res.redirect('/account/security');
-    }
-
     apiClient.asps.list(req.user, (err, asps) => {
         if (err) {
             req.flash('danger', 'Account password updated');
@@ -354,10 +350,6 @@ router.get('/asps', (req, res) => {
 });
 
 router.post('/asps/delete', (req, res) => {
-    if (config.service.sso.http.enabled) {
-        return res.redirect('/account/security');
-    }
-
     const updateSchema = Joi.object().keys({
         id: Joi.string().trim().hex().length(24).label('Password ID').required()
     });
@@ -390,10 +382,6 @@ router.post('/asps/delete', (req, res) => {
 });
 
 router.post('/asps/create', (req, res) => {
-    if (config.service.sso.http.enabled) {
-        return res.redirect('/account/security');
-    }
-
     const updateSchema = Joi.object().keys({
         description: Joi.string().trim().min(0).max(256).label('Description').required()
     });
