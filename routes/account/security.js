@@ -23,6 +23,10 @@ const AUTH_EVENTS = new Map([
 ]);
 
 router.get('/', (req, res) => {
+    if (config.service.sso.http.enabled) {
+        return res.redirect('/account/security/gpg');
+    }
+
     res.render('account/security/2fa', {
         title: 'Security',
         activeSecurity: true,
@@ -230,8 +234,9 @@ router.post('/gpg', (req, res) => {
 
 router.get('/password', (req, res) => {
     if (config.service.sso.http.enabled) {
-        return res.redirect('/security');
+        return res.redirect('/account/security');
     }
+
     res.render('account/security/password', {
         title: 'Security',
         activeSecurity: true,
@@ -245,8 +250,9 @@ router.get('/password', (req, res) => {
 
 router.post('/password', (req, res) => {
     if (config.service.sso.http.enabled) {
-        return res.redirect('/security');
+        return res.redirect('/account/security');
     }
+
     const updateSchema = Joi.object().keys({
         existingPassword: Joi.string().empty('').min(8).max(100).label('Current password').required(),
         password: Joi.string().empty('').min(8).max(100).label('New password').valid(Joi.ref('password2')).required(),
@@ -320,8 +326,9 @@ router.post('/password', (req, res) => {
 
 router.get('/asps', (req, res) => {
     if (config.service.sso.http.enabled) {
-        return res.redirect('/security');
+        return res.redirect('/account/security');
     }
+
     apiClient.asps.list(req.user, (err, asps) => {
         if (err) {
             req.flash('danger', 'Account password updated');
@@ -348,7 +355,7 @@ router.get('/asps', (req, res) => {
 
 router.post('/asps/delete', (req, res) => {
     if (config.service.sso.http.enabled) {
-        return res.redirect('/security');
+        return res.redirect('/account/security');
     }
 
     const updateSchema = Joi.object().keys({
@@ -384,8 +391,9 @@ router.post('/asps/delete', (req, res) => {
 
 router.post('/asps/create', (req, res) => {
     if (config.service.sso.http.enabled) {
-        return res.redirect('/security');
+        return res.redirect('/account/security');
     }
+
     const updateSchema = Joi.object().keys({
         description: Joi.string().trim().min(0).max(256).label('Description').required()
     });
@@ -432,6 +440,10 @@ router.post('/asps/create', (req, res) => {
 });
 
 router.get('/2fa', (req, res) => {
+    if (config.service.sso.http.enabled) {
+        return res.redirect('/account/security');
+    }
+
     res.render('account/security/2fa', {
         title: 'Security',
         activeSecurity: true,
@@ -447,6 +459,10 @@ router.get('/2fa', (req, res) => {
 });
 
 router.post('/2fa/enable-totp', (req, res, next) => {
+    if (config.service.sso.http.enabled) {
+        return res.redirect('/account/security');
+    }
+
     const authSchema = Joi.object().keys({
         token: Joi.string()
             .length(6)
@@ -506,6 +522,10 @@ router.post('/2fa/enable-totp', (req, res, next) => {
 });
 
 router.post('/2fa/verify-totp', (req, res) => {
+    if (config.service.sso.http.enabled) {
+        return res.redirect('/account/security');
+    }
+
     const authSchema = Joi.object().keys({
         token: Joi.string()
             .length(6)
@@ -538,6 +558,10 @@ router.post('/2fa/verify-totp', (req, res) => {
 });
 
 router.post('/2fa/disable-totp', (req, res, next) => {
+    if (config.service.sso.http.enabled) {
+        return res.redirect('/account/security');
+    }
+
     apiClient['2fa'].disable(req.user, req.session.id, req.ip, err => {
         if (err) {
             return next(err);
@@ -549,6 +573,10 @@ router.post('/2fa/disable-totp', (req, res, next) => {
 });
 
 router.post('/2fa/enable-u2f', (req, res, next) => {
+    if (config.service.sso.http.enabled) {
+        return res.redirect('/account/security');
+    }
+
     if (!config.u2f.enabled) {
         let err = new Error('U2F support is disabled');
         err.status = 404;
@@ -564,6 +592,10 @@ router.post('/2fa/enable-u2f', (req, res, next) => {
 });
 
 router.post('/2fa/setup-u2f', (req, res) => {
+    if (config.service.sso.http.enabled) {
+        return res.redirect('/account/security');
+    }
+
     if (!config.u2f.enabled) {
         let err = new Error('U2F support is disabled');
         return res.json({ error: err.message });
@@ -579,6 +611,10 @@ router.post('/2fa/setup-u2f', (req, res) => {
 });
 
 router.post('/2fa/disable-u2f', (req, res, next) => {
+    if (config.service.sso.http.enabled) {
+        return res.redirect('/account/security');
+    }
+
     if (!config.u2f.enabled) {
         let err = new Error('U2F support is disabled');
         err.status = 404;
@@ -598,6 +634,10 @@ router.post('/2fa/disable-u2f', (req, res, next) => {
 });
 
 router.post('/2fa/enable-u2f/verify', (req, res) => {
+    if (config.service.sso.http.enabled) {
+        return res.redirect('/account/security');
+    }
+
     if (!config.u2f.enabled) {
         let err = new Error('U2F support is disabled');
         return res.json({ error: err.message });

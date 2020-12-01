@@ -1,7 +1,6 @@
+{{#unless ssoEnabled}}
 <li role="presentation" class="{{#if secMenu2fa}}active{{/if}}"><a href="/account/security/2fa">Two factor
         authentication</a></li>
-
-{{#unless ssoEnabled}}
 <li role="presentation" class="{{#if secMenuPassword}}active{{/if}}"><a href="/account/security/password">Account
         Password</a></li>
 <li role="presentation" class="{{#if secMenuAsps}}active{{/if}}"><a href="/account/security/asps">Application specific
