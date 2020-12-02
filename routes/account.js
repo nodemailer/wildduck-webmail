@@ -125,7 +125,11 @@ router.post('/create', recaptchaVerify, (req, res, next) => {
     }
     const createSchema = {
         name: Joi.string().trim().min(1).max(256).label('Your name').required(),
-        domain: Joi.string().trim().valid(config.service.domains).label('Domain').required(),
+        domain: Joi.string()
+            .trim()
+            .valid(...config.service.domains)
+            .label('Domain')
+            .required(),
         password: Joi.string().min(8).max(256).label('Password').valid(Joi.ref('password2')).required(),
 
         language: Joi.string().length(2).default('en'),
