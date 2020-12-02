@@ -123,7 +123,7 @@ router.post('/create', recaptchaVerify, (req, res, next) => {
         err.status = 404;
         return next(err);
     }
-    const createSchema = {
+    const createSchema = Joi.object().keys({
         name: Joi.string().trim().min(1).max(256).label('Your name').required(),
         domain: Joi.string()
             .trim()
@@ -137,7 +137,7 @@ router.post('/create', recaptchaVerify, (req, res, next) => {
         username: Joi.string().trim().min(1).max(128).hostname().lowercase().label('Address').required(),
         remember: tools.booleanSchema.valid(true),
         'g-recaptcha-response': Joi.string().strip()
-    };
+    });
 
     delete req.body._csrf;
     let result = createSchema.validate(req.body, {

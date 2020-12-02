@@ -60,7 +60,7 @@ router.get('/create', (req, res) => {
 });
 
 router.post('/create', (req, res) => {
-    const createSchema = {
+    const createSchema = Joi.object().keys({
         name: Joi.string().empty('').trim().max(128).label('Identity name'),
         address: Joi.string()
             .trim()
@@ -76,7 +76,7 @@ router.post('/create', (req, res) => {
             .label('Domain')
             .required(),
         main: tools.booleanSchema.default(false)
-    };
+    });
 
     delete req.body._csrf;
     let result = createSchema.validate(req.body, {
@@ -210,7 +210,7 @@ router.post('/edit', (req, res) => {
         return res.redirect('/account/identities');
     }
 
-    const createSchema = {
+    const createSchema = Joi.object().keys({
         id: Joi.string().trim().hex().length(24).label('Filtri ID').required(),
         name: Joi.string().empty('').trim().max(128).label('Identity name'),
         address: Joi.string()
@@ -227,7 +227,7 @@ router.post('/edit', (req, res) => {
             .label('Domain')
             .required(),
         main: tools.booleanSchema.default(false)
-    };
+    });
 
     delete req.body._csrf;
     let result = createSchema.validate(req.body, {
