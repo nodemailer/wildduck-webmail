@@ -43,6 +43,8 @@ title="wildduck-www"
     log="dev"
     secret="a cat"
     secure=false
+    # cert=""
+    # key=""
     listSize=20
 
 [recaptcha]
