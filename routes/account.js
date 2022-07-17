@@ -170,6 +170,7 @@ router.post('/create', recaptchaVerify, (req, res, next) => {
                 }
             });
         }
+
         return showErrors(errors);
     }
 
@@ -203,7 +204,8 @@ router.post('/create', recaptchaVerify, (req, res, next) => {
                 if (err.fields) {
                     return showErrors(err.fields);
                 } else {
-                    req.flash('danger', err.message);
+                    let msg = (err && err.body && err.body.error) || err.message;
+                    req.flash('danger', msg);
                     return showErrors({}, true);
                 }
             }

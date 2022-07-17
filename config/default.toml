@@ -29,9 +29,6 @@ title="wildduck-www"
     accessToken=""
 
 [dbs]
-    # mongodb connection string for the main database
-    mongo="mongodb://127.0.0.1:27017/archive"
-
     # redis connection string for Express sessions
     redis="redis://127.0.0.1:6379/5"
 
