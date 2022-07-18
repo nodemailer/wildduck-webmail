@@ -389,3 +389,15 @@ tr.identity-main td {
 #message-content.mailvelope {
     height: 500px;
 }
+
+.bimi {
+    float: right;
+    height: 64px;
+    width: 64px;
+    background-size: cover;
+    text-decoration: none;
+    color: white;
+    margin: 0px;
+    border-radius: 8px;
+    border: 1px solid #fafafa;
+}

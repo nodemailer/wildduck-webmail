@@ -718,6 +718,13 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
                     });
                 }
 
+                if (messageData.verificationResults.arc) {
+                    securityInfo.push({
+                        key: 'Forwarded by',
+                        value: messageData.verificationResults.arc
+                    });
+                }
+
                 if (messageData.verificationResults.tls) {
                     securityInfo.push({
                         key: 'Security',
