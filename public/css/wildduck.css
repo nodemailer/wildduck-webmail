@@ -398,6 +398,7 @@ tr.identity-main td {
     text-decoration: none;
     color: white;
     margin: 0px;
-    border-radius: 8px;
-    border: 1px solid #fafafa;
+    border-radius: 24px;
+    border: 1px solid #158cba;
+background-color: #fafafa;
 }
