@@ -33,4 +33,4 @@ jobs:
           context: .
           platforms: ${{ steps.buildx.outputs.platforms }}
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:latest
+          tags: ${{ github.repository }}:latest

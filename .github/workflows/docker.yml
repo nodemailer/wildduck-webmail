@@ -16,7 +16,7 @@ jobs:
               uses: docker/metadata-action@v3
               with:
                   images: |
-                      ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}
+                      ${{ github.repository }}
                       ghcr.io/${{ github.repository }}
                   tags: |
                       type=semver,pattern={{version}}
