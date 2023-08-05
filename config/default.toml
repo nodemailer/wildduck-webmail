@@ -15,6 +15,8 @@ title="wildduck-www"
     enableSpecial=false # if true the allow creating addresses with special usernames
     # allowed domains for new addresses
     domains=["localhost"]
+    # allow using addresses with other domains in the "From" field
+    allowSendFromOtherDomains=true
 
     generalNotification="" # static notification to show on top of the page
 
