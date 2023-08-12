@@ -155,8 +155,8 @@ router.get('/send', (req, res) => {
                             {
                                 let fromAddress = messageData.from ||
                                     messageData.sender || {
-                                    name: '< >'
-                                };
+                                        name: '< >'
+                                    };
 
                                 let toAddresses = fromAddress.address ? [fromAddress] : [];
                                 let ccAddresses = [];
@@ -204,9 +204,9 @@ router.get('/send', (req, res) => {
                                     '<tr><th>From</th><td>%s</td></tr>',
                                     tools.getAddressesHTML(
                                         messageData.from ||
-                                        messageData.sender || {
-                                            name: '< >'
-                                        }
+                                            messageData.sender || {
+                                                name: '< >'
+                                            }
                                     )
                                 )
                             );
@@ -643,9 +643,9 @@ router.get('/:mailbox/message/:message', (req, res, next) => {
                 isHtml: true,
                 value: tools.getAddressesHTML(
                     messageData.from ||
-                    messageData.sender || {
-                        name: '< >'
-                    }
+                        messageData.sender || {
+                            name: '< >'
+                        }
                 )
             });
 
