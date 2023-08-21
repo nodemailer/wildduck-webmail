@@ -252,14 +252,16 @@ router.get('/send', (req, res) => {
 
                     // something other than main address might have been the recipient (if this is a reply)
                     fromAddress: hasFromAddress,
-                    addresses: addresses.map(address => {
-                        if (hasFromAddress) {
+                    addresses: addresses
+                        .filter(tools.filterIfSendingAllowed)
+                        .map(address => {
+                            if (hasFromAddress) {
+                                return address;
+                            }
+                            address.name = address.name || req.user.name;
+                            address.selected = address.main;
                             return address;
-                        }
-                        address.name = address.name || req.user.name;
-                        address.selected = address.main;
-                        return address;
-                    }),
+                        }),
 
                     values: {
                         refMailbox,
@@ -342,11 +344,14 @@ router.post('/send', (req, res) => {
                     mailboxes: prepareMailboxList(mailboxes),
 
                     fromAddress,
-                    addresses: addresses.map(address => {
-                        address.name = address.name || req.user.name;
-                        address.selected = result.value.from === address.id;
-                        return address;
-                    }),
+                    addresses: addresses
+                        .filter(tools.filterIfSendingAllowed)
+                        .map(address => {
+                            address.name = address.name || req.user.name;
+                            address.selected = result.value.from === address.id;
+
+                            return address;
+                        }),
 
                     values: result.value,
                     errors,
