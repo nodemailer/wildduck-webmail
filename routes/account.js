@@ -265,9 +265,9 @@ router.post('/profile', passport.checkLogin, (req, res) => {
 
             spamLevel: Joi.number().empty('').min(0).max(100),
 
-            existingPassword: Joi.string().empty('').min(8).max(100).label('Current password'),
-            password: Joi.string().empty('').min(8).max(100).label('New password').valid(Joi.ref('password2')),
-            password2: Joi.string().empty('').min(8).max(100).label('Repeat password')
+            existingPassword: Joi.string().empty('').min(8).max(256).label('Current password'),
+            password: Joi.string().empty('').min(8).max(256).label('New password').valid(Joi.ref('password2')),
+            password2: Joi.string().empty('').min(8).max(256).label('Repeat password')
         })
         .and('password', 'existingPassword', 'password2');
 
@@ -504,8 +504,8 @@ router.post('/update-password', (req, res) => {
     }
 
     const updateSchema = Joi.object().keys({
-        password: Joi.string().empty('').min(8).max(100).label('New password').valid(Joi.ref('password2')).required(),
-        password2: Joi.string().empty('').min(8).max(100).label('Repeat password').required()
+        password: Joi.string().empty('').min(8).max(256).label('New password').valid(Joi.ref('password2')).required(),
+        password2: Joi.string().empty('').min(8).max(256).label('Repeat password').required()
     });
 
     delete req.body._csrf;

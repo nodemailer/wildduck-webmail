@@ -254,9 +254,9 @@ router.post('/password', (req, res) => {
     }
 
     const updateSchema = Joi.object().keys({
-        existingPassword: Joi.string().empty('').min(8).max(100).label('Current password').required(),
-        password: Joi.string().empty('').min(8).max(100).label('New password').valid(Joi.ref('password2')).required(),
-        password2: Joi.string().empty('').min(8).max(100).label('Repeat password').required()
+        existingPassword: Joi.string().empty('').min(8).max(256).label('Current password').required(),
+        password: Joi.string().empty('').min(8).max(256).label('New password').valid(Joi.ref('password2')).required(),
+        password2: Joi.string().empty('').min(8).max(256).label('Repeat password').required()
     });
 
     delete req.body._csrf;
