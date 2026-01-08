@@ -715,6 +715,14 @@ table a.message-star {
     margin-top: 0 !important;
 }
 
+.toolbar-main fieldset .form-group .col-sm-offset-1.col-sm-11 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
 .toolbar-search {
     min-width: 280px;
     align-self: center;
