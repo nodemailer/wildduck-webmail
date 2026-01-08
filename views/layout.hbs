@@ -5,7 +5,7 @@
     {{>header}}
 </head>
 
-<body>
+<body{{#if user}} class="is-logged-in"{{/if}}>
 
     {{>navbar}}
     <div class="flash-messages">

@@ -22,8 +22,8 @@
         <div class="btn-group">
             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
                 aria-expanded="false">
-                <span class="glyphicon glyphicon-envelope" aria-hidden="true"></span> Details <span
-                    class="caret"></span>
+                <span class="glyphicon glyphicon-envelope" aria-hidden="true" style="margin-right: 6px;"></span> Details <span
+                    class="caret" style="margin-left: 3px;"></span>
             </button>
             <ul class="dropdown-menu dropdown-menu-right">
                 <li><a href="/webmail/{{mailbox.id}}/raw/{{message.id}}.eml"><span
@@ -49,10 +49,10 @@
             <div class="form-group">
 
                 <a href="/webmail/send?action=reply&amp;refMailbox={{mailbox.id}}&amp;refMessage={{message.id}}"
-                    class="btn btn-default btn-xs"><span class="glyphicon glyphicon-send" aria-hidden="true"></span>
+                    class="btn btn-default btn-xs" style="margin-right: 12px;"><span class="glyphicon glyphicon-send" aria-hidden="true"></span>
                     Reply</a>
                 <a href="/webmail/send?action=replyAll&amp;refMailbox={{mailbox.id}}&amp;refMessage={{message.id}}"
-                    class="btn btn-default btn-xs"><span class="glyphicon glyphicon-send" aria-hidden="true"></span>
+                    class="btn btn-default btn-xs" style="margin-right: 12px;"><span class="glyphicon glyphicon-send" aria-hidden="true"></span>
                     Reply to all</a>
                 <a href="/webmail/send?action=forward&amp;refMailbox={{mailbox.id}}&amp;refMessage={{message.id}}"
                     class="btn btn-default btn-xs"><span class="glyphicon glyphicon-share" aria-hidden="true"></span>

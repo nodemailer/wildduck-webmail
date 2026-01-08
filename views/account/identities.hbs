@@ -23,7 +23,7 @@
                     <div class="panel-body">
                         <p>Here you can add and modify alias addresses for your account. Aliases act just like your main address. You can not send out emails from identities that you do not own.</p>
                     </div>
-                    <table class="table table-responsive">
+                    <table class="table table-responsive table-no-header-radius table-no-bottom-radius identities-table">
                         <thead>
                             <th>
                                 &nbsp;
@@ -44,7 +44,7 @@
                         <tbody>
                             {{#each identities}}
                                 <tr class="{{#if main}}identity-main{{/if}}">
-                                    <th>
+                                    <th class="identity-index">
                                         {{index}}
                                     </th>
 

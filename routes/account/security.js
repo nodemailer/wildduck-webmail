@@ -117,9 +117,6 @@ router.get('/events', (req, res, next) => {
             }
 
             entry.sessStr = entry.sess ? (entry.sess || '').toString() : false;
-            if (entry.sessStr && entry.sessStr.length > 12) {
-                entry.sessStr = entry.sessStr.substr(0, 12) + '…';
-            }
         });
         res.render('account/security/events', log);
     });

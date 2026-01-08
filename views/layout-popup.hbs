@@ -24,7 +24,7 @@
     <link href="/css/modern.css" rel="stylesheet">
 </head>
 
-<body>
+<body{{#if user}} class="is-logged-in"{{/if}}>
 
     <div class="flash-messages">
         {{flash_messages}}

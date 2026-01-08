@@ -69,16 +69,19 @@ input.lowercase {
 
 /* Sidebar navigation */
 .nav-sidebar {
-    margin-right: -21px; /* 20px padding + 1px border */
+    margin-right: -21px;
+    /* 20px padding + 1px border */
     margin-bottom: 0px;
     margin-left: -20px;
 }
-.nav-sidebar > li > a {
+
+.nav-sidebar>li>a {
     padding: 3px 20px;
 }
-.nav-sidebar > .active > a,
-.nav-sidebar > .active > a:hover,
-.nav-sidebar > .active > a:focus {
+
+.nav-sidebar>.active>a,
+.nav-sidebar>.active>a:hover,
+.nav-sidebar>.active>a:focus {
     color: #fff;
     background-color: #428bca;
 }
@@ -104,12 +107,15 @@ input.lowercase {
     margin-bottom: 30px;
     text-align: center;
 }
+
 .placeholders h4 {
     margin-bottom: 0;
 }
+
 .placeholder {
     margin-bottom: 20px;
 }
+
 .placeholder img {
     display: inline-block;
     border-radius: 50%;
@@ -122,7 +128,7 @@ input.lowercase {
 
 .iframe-box iframe {
     margin: 0;
-    padding: 0;
+    /* padding: 0; */
     border: none;
     width: 100%;
     height: 100%;
@@ -221,8 +227,7 @@ tr.messagerow:hover td {
     width: 40px;
 }
 
-.messagerow-subject-col {
-}
+.messagerow-subject-col {}
 
 .messagerow-spacer {
     empty-cells: show;
@@ -246,8 +251,7 @@ tr.messagerow:hover td {
 }
 
 .messagerow-subject,
-.messagerow-from {
-}
+.messagerow-from {}
 
 .messagerow-subject a,
 .messagerow-date a,
@@ -301,6 +305,7 @@ table.limited {
 .toolbar-container {
     display: flex;
     flex-wrap: wrap-reverse;
+    margin-bottom: 10px;
 }
 
 .toolbar-main {
@@ -309,13 +314,17 @@ table.limited {
 
 .toolbar-search {
     flex-grow: 1;
-    margin-bottom: 10px;
+}
+
+.toolbar-search form {
+    width: 100%;
 }
 
 @media screen and (max-width: 767px) {
     .webmail-container {
         flex-direction: column-reverse;
     }
+
     .sidebar {
         width: inherit;
     }
@@ -323,6 +332,7 @@ table.limited {
     .messagerow-spacer-col {
         display: none;
     }
+
     .messagerow-spacer {
         display: none;
     }
@@ -346,6 +356,7 @@ table.limited {
     .messagerow-info-col {
         display: none;
     }
+
     .messagerow-info {
         display: none;
     }
@@ -400,5 +411,5 @@ tr.identity-main td {
     margin: 0px;
     border-radius: 24px;
     border: 1px solid #158cba;
-background-color: #fafafa;
+    background-color: #fafafa;
 }
