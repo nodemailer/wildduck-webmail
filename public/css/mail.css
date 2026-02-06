@@ -1,20 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&display=swap');
+
 body {
-    font-family: sans-serif;
-    font-size: 13px;
-    color: #000;
+    font-family: 'Work Sans', 'Helvetica Neue', Helvetica, sans-serif;
+    font-size: 14px;
+    color: #1f2937;
     margin: 0px;
-    padding: 10px 0;
+    padding: 12px 0;
+    background: #ffffff;
 }
 
 blockquote,
 table th,
 table td {
-    font-size: 13px;
+    font-size: 14px;
 }
 
 blockquote {
     padding: 7px 10px;
     margin: 0 0 10px;
     font-size: inherit;
-    border-left: 2px solid #eeeeee;
+    border-left: 3px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+a {
+    color: #0f766e;
 }

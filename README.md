@@ -1,3 +1,6 @@
+> [!CAUTION]
+> This project is no longer actively developed and is provided only as an informational example.
+
 # WildDuck Mail Service
 
 **What is this?**

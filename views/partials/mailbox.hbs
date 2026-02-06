@@ -17,7 +17,7 @@
 
                 <div class="form-group{{#if errors.parent}} has-error{{/if}}">
                     <label for="parent">Mailbox Parent</label>
-                    <select class="form-control" name="parent" id="parent">
+                    <select class="form-control select-mailbox-parent" name="parent" id="parent">
                         <option value="">[No parent]</option>
                         {{#each parents}}
                             <option value="{{path}}" {{#if isParent}} selected {{/if}} >
