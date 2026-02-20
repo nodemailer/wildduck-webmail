@@ -1057,8 +1057,8 @@ function renderMailbox(req, res, next) {
         mailbox: Joi.string().hex().length(24).allow('starred', 'search').empty(''),
         unseen: tools.booleanSchema.default(false),
         query: Joi.string().max(255).empty(''),
-        next: Joi.string().max(100).empty(''),
-        previous: Joi.string().max(100).empty(''),
+        next: Joi.string().max(1024).empty(''),
+        previous: Joi.string().max(1024).empty(''),
         page: Joi.number().empty('')
     });
 
