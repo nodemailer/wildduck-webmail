@@ -912,10 +912,13 @@ router.post('/:mailbox/settings', (req, res) => {
         name: Joi.string().regex(/\//, { name: 'folder', invert: true }).required()
     });
 
-    req.body.mailbox = req.params.mailbox;
-    delete req.body._csrf;
+    let values = Object.assign({}, req.body || {}, {
+        mailbox: req.params.mailbox
+    });
 
-    let result = schema.validate(req.body, {
+    delete values._csrf;
+
+    let result = schema.validate(values, {
         abortEarly: false,
         convert: true,
         allowUnknown: true
@@ -1058,11 +1061,12 @@ function renderMailbox(req, res, next) {
         page: Joi.number().empty('')
     });
 
+    let values = Object.assign({}, req.query || {});
     if (req.params.mailbox) {
-        req.query.mailbox = req.params.mailbox;
+        values.mailbox = req.params.mailbox;
     }
 
-    let result = schema.validate(req.query, {
+    let result = schema.validate(values, {
         abortEarly: false,
         convert: true,
         allowUnknown: true
