@@ -212,7 +212,7 @@ router.post('/list', (req, res) => {
     const schema = Joi.object().keys({
         mailbox: Joi.string().hex().lowercase().length(24).allow('starred').required(),
         cursorType: Joi.string().empty('').valid('next', 'previous'),
-        cursorValue: Joi.string().max(100).empty(''),
+        cursorValue: Joi.string().max(1024).empty(''),
         page: Joi.number().empty('').default(1)
     });
 

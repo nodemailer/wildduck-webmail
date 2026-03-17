@@ -44,8 +44,8 @@ router.get('/', (req, res) => {
 router.get('/events', (req, res, next) => {
     const updateSchema = Joi.object().keys({
         event: Joi.string().empty('').trim().hex().length(24).label('Password ID'),
-        next: Joi.string().max(100).empty(''),
-        previous: Joi.string().max(100).empty(''),
+        next: Joi.string().max(1024).empty(''),
+        previous: Joi.string().max(1024).empty(''),
         page: Joi.number().empty('')
     });
 
