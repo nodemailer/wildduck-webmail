@@ -9,7 +9,7 @@ const tools = require('../lib/tools');
 const fs = require('fs');
 const util = require('util');
 const humanize = require('humanize');
-const SearchString = require('search-string');
+const SearchString = require('search-string').default;
 const he = require('he');
 const addressparser = require('nodemailer/lib/addressparser');
 
@@ -252,16 +252,14 @@ router.get('/send', (req, res) => {
 
                     // something other than main address might have been the recipient (if this is a reply)
                     fromAddress: hasFromAddress,
-                    addresses: addresses
-                        .filter(tools.filterIfSendingAllowed)
-                        .map(address => {
-                            if (hasFromAddress) {
-                                return address;
-                            }
-                            address.name = address.name || req.user.name;
-                            address.selected = address.main;
+                    addresses: addresses.filter(tools.filterIfSendingAllowed).map(address => {
+                        if (hasFromAddress) {
                             return address;
-                        }),
+                        }
+                        address.name = address.name || req.user.name;
+                        address.selected = address.main;
+                        return address;
+                    }),
 
                     values: {
                         refMailbox,
@@ -344,14 +342,12 @@ router.post('/send', (req, res) => {
                     mailboxes: prepareMailboxList(mailboxes),
 
                     fromAddress,
-                    addresses: addresses
-                        .filter(tools.filterIfSendingAllowed)
-                        .map(address => {
-                            address.name = address.name || req.user.name;
-                            address.selected = result.value.from === address.id;
+                    addresses: addresses.filter(tools.filterIfSendingAllowed).map(address => {
+                        address.name = address.name || req.user.name;
+                        address.selected = result.value.from === address.id;
 
-                            return address;
-                        }),
+                        return address;
+                    }),
 
                     values: result.value,
                     errors,

@@ -208,9 +208,7 @@ app.use((err, req, res, next) => {
         return next(err);
     }
 
-    req.session.regenerate(() => {
-        return next(err);
-    });
+    req.session.regenerate(() => next(err));
 });
 
 app.use((err, req, res, next) => {

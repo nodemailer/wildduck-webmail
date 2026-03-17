@@ -307,7 +307,7 @@ select {
 }
 
 select {
-    text-align: center;
+    text-align: left;
 }
 
 .daterangeElm .form-control {
@@ -813,34 +813,7 @@ iframe {
     color: var(--wd-muted);
 }
 
-@keyframes wd-fade-up {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.container,
-.webmail-container {
-    animation: wd-fade-up 0.6s ease both;
-}
-
-body.is-logged-in .container,
-body.is-logged-in .webmail-container {
-    animation: none;
-}
-
 @media (prefers-reduced-motion: reduce) {
-
-    .container,
-    .webmail-container {
-        animation: none;
-    }
 
     .btn,
     a {
