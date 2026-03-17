@@ -71,9 +71,7 @@ router.get('/logout', (req, res) => {
     req.flash(); // clear pending messages
 
     if (config.service.sso.http.enabled) {
-        return req.session.regenerate(() => {
-            return res.redirect(config.service.sso.http.logoutRedirect);
-        });
+        return req.session.regenerate(() => res.redirect(config.service.sso.http.logoutRedirect));
     }
 
     return passport.logout(req, res);
