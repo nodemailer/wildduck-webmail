@@ -387,7 +387,7 @@ router.post('/check-totp', (req, res) => {
     }
 
     let remember2fa = result.value.remember2fa;
-    apiClient['2fa'].checkTotp(req.user, result.value.token, req.session.id, req.ip, (err, result) => {
+    apiClient['2fa'].checkTotp(req.user, result.value.token, req.session.totpNonce, req.session.id, req.ip, (err, result) => {
         if (err) {
             return res.json({ error: err.message, code: err.code });
         }
@@ -416,6 +416,7 @@ router.post('/check-totp', (req, res) => {
         };
 
         req.session.require2fa = false;
+        delete req.session.totpNonce;
         res.json(data);
     });
 });
