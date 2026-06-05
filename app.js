@@ -21,7 +21,7 @@ const routesAccount = require('./routes/account');
 const routesWebmail = require('./routes/webmail');
 const routesApi = require('./routes/api');
 
-const uploader = multer({ storage: multer.memoryStorage() });
+const uploader = multer({ storage: multer.memoryStorage(), defParamCharset: 'utf8' });
 
 const app = express();
 
@@ -118,7 +118,7 @@ app.use((req, res, next) => {
     res.locals.inboxUnseen = req.user ? req.user.inbox.unseen : false;
 
     res.locals.allowJoin = config.service.allowJoin;
-    res.locals.u2fEnabled = config.u2f.enabled;
+    res.locals.webauthnEnabled = config.webauthn && config.webauthn.enabled;
 
     res.locals.serviceName = config.name;
     res.locals.serviceDomain = config.service.domain;
@@ -133,7 +133,7 @@ app.use((req, res, next) => {
     if (
         req.user &&
         req.session.require2fa &&
-        !['/account/logout', '/account/start-u2f', '/account/check-u2f', '/account/check-totp'].includes(req.url.split('?').shift())
+        !['/account/logout', '/account/start-webauthn', '/account/check-webauthn', '/account/check-totp'].includes(req.url.split('?').shift())
     ) {
         return passport.csrf(req, res, err => {
             if (err) {
@@ -146,8 +146,8 @@ app.use((req, res, next) => {
                 csrfToken: req.csrfToken(),
                 enabled2fa: req.session.require2fa,
                 enabledTotp: req.session.require2fa ? req.session.require2fa.includes('totp') : false,
-                enabledU2f: req.session.require2fa && req.query.u2f !== 'false' ? req.session.require2fa.includes('u2f') : false,
-                disableU2f: req.url + (req.url.indexOf('?') >= 0 ? '&' : '?') + 'u2f=false'
+                enabledWebAuthn: req.session.require2fa && req.query.webauthn !== 'false' ? req.session.require2fa.includes('webauthn') : false,
+                disableWebAuthn: req.url + (req.url.indexOf('?') >= 0 ? '&' : '?') + 'webauthn=false'
             });
         });
     }

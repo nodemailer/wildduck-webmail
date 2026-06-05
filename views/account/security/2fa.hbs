@@ -62,17 +62,17 @@
                         {{#if enabled2fa}}
                         <tr>
                             <td>
-                                {{#if enabledU2f}}
-                                    U2F security key is <span class="label label-success"><span class="glyphicon glyphicon-flash" aria-hidden="true"></span> Enabled</span>
+                                {{#if enabledWebAuthn}}
+                                    Security key is <span class="label label-success"><span class="glyphicon glyphicon-flash" aria-hidden="true"></span> Enabled</span>
                                 {{else}}
-                                    U2F security key is <span class="label label-default"><span class="glyphicon glyphicon-flash" aria-hidden="true"></span> Disabled</span>
+                                    Security key is <span class="label label-default"><span class="glyphicon glyphicon-flash" aria-hidden="true"></span> Disabled</span>
                                 {{/if}}
                             </td>
                             <td class="text-right">
-                                {{#if enabledU2f}}
+                                {{#if enabledWebAuthn}}
                                     <button type="button" class="btn btn-danger btn-xs" data-toggle="modal" data-target="#revokeModal"><span class="glyphicon glyphicon-minus-sign" aria-hidden="true"></span> Disable</button>
                                 {{else}}
-                                    <form method="post" id="enable-u2f" action="/account/security/2fa/enable-u2f">
+                                    <form method="post" id="enable-webauthn" action="/account/security/2fa/enable-webauthn">
                                         <input type="hidden" name="_csrf" value="{{csrfToken}}">
                                         <button type="submit" class="btn btn-success btn-xs"><span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span> Enable</button>
                                     </form>
@@ -117,10 +117,10 @@
         <h4 class="modal-title" id="revokeModalLabel">Revoke key</h4>
       </div>
       <div class="modal-body">
-        Are you sure you want to revoke U2F security key?
+        Are you sure you want to revoke this security key?
       </div>
       <div class="modal-footer">
-        <form method="post" action="/account/security/2fa/disable-u2f">
+        <form method="post" action="/account/security/2fa/disable-webauthn">
             <input type="hidden" name="_csrf" value="{{csrfToken}}">
             <button type="button" class="btn btn-default" data-dismiss="modal">No, cancel</button>
             <button type="submit" class="btn btn-danger bulk-delete-confirm">Yes, revoke</button>

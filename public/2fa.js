@@ -1,10 +1,56 @@
 /* eslint-env browser */
 /* eslint prefer-arrow-callback: 0, no-var: 0, object-shorthand: 0 */
-/* globals $:false, U2FSUPPORT: true, loginKeyHandler: false, u2f: false*/
+/* globals $:false, WEBAUTHNSUPPORT: true, loginKeyHandler: false */
 
 'use strict';
 
 var message = document.getElementById('message');
+
+function hexToArrayBuffer(hex) {
+    var bytes = new Uint8Array(hex.length / 2);
+
+    for (var i = 0; i < bytes.length; i++) {
+        bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
+    }
+
+    return bytes.buffer;
+}
+
+function arrayBufferToHex(buffer) {
+    var bytes = new Uint8Array(buffer);
+    var hex = [];
+
+    for (var i = 0; i < bytes.length; i++) {
+        hex.push(('00' + bytes[i].toString(16)).slice(-2));
+    }
+
+    return hex.join('');
+}
+
+function webAuthnSupported() {
+    return window.isSecureContext !== false && !!(window.PublicKeyCredential && navigator.credentials && navigator.credentials.get);
+}
+
+function prepareAuthenticationOptions(authenticationOptions) {
+    var options = Object.assign({}, authenticationOptions);
+
+    options.challenge = hexToArrayBuffer(options.challenge);
+
+    options.allowCredentials = (options.allowCredentials || []).map(function(credential) {
+        var result = {
+            id: hexToArrayBuffer(credential.rawId || credential.id),
+            type: credential.type || 'public-key'
+        };
+
+        if (credential.transports) {
+            result.transports = credential.transports;
+        }
+
+        return result;
+    });
+
+    return options;
+}
 
 function enableTotp(e) {
     if (e) {
@@ -12,17 +58,17 @@ function enableTotp(e) {
         e.stopPropagation();
     }
 
-    document.getElementById('show-u2f').style.display = 'none';
+    document.getElementById('show-webauthn').style.display = 'none';
     document.getElementById('show-totp').style.display = 'block';
 
     document.getElementById('token').focus();
     document.getElementById('token').select();
 
-    U2FSUPPORT = false;
+    WEBAUTHNSUPPORT = false;
 }
 
-function startU2f() {
-    fetch('/account/start-u2f', {
+function startWebAuthn() {
+    fetch('/account/start-webauthn', {
         method: 'post',
         headers: {
             Accept: 'application/json, text/plain, */*',
@@ -35,31 +81,51 @@ function startU2f() {
             return res.json();
         })
         .then(function(res) {
-            if (!U2FSUPPORT) {
+            if (!WEBAUTHNSUPPORT) {
                 return;
             }
 
             if (res.error) {
                 $(message).text(res.error);
-                document.getElementById('u2f-wait').style.display = 'none';
-                document.getElementById('u2f-fail').style.display = 'block';
+                document.getElementById('webauthn-wait').style.display = 'none';
+                document.getElementById('webauthn-fail').style.display = 'block';
                 message.classList.add('text-danger');
                 return;
             }
 
-            $(message).text('Push the button on your U2F key...');
+            if (!res.authenticationOptions) {
+                $(message).text('Did not receive WebAuthN authentication options');
+                document.getElementById('webauthn-wait').style.display = 'none';
+                document.getElementById('webauthn-fail').style.display = 'block';
+                message.classList.add('text-danger');
+                return;
+            }
 
-            u2f.sign(res.u2fAuthRequest.appId, res.u2fAuthRequest.challenge, [res.u2fAuthRequest], function(authResponse) {
-                if (!U2FSUPPORT) {
+            var challenge = res.authenticationOptions.challenge;
+            var rpId = res.authenticationOptions.rpId;
+            var publicKey = prepareAuthenticationOptions(res.authenticationOptions);
+
+            $(message).text('Use your security key to continue...');
+
+            return navigator.credentials.get({ publicKey: publicKey }).then(function(credential) {
+                if (!WEBAUTHNSUPPORT) {
                     return;
                 }
 
                 $(message).text('Verifying response...');
 
-                authResponse._csrf = document.getElementById('_csrf').value;
-                authResponse.remember2fa = document.getElementById('remember2fa').checked ? 'yes' : '';
+                var authResponse = {
+                    _csrf: document.getElementById('_csrf').value,
+                    challenge: challenge,
+                    rawId: arrayBufferToHex(credential.rawId),
+                    clientDataJSON: arrayBufferToHex(credential.response.clientDataJSON),
+                    authenticatorData: arrayBufferToHex(credential.response.authenticatorData),
+                    signature: arrayBufferToHex(credential.response.signature),
+                    rpId: rpId,
+                    remember2fa: document.getElementById('remember2fa').checked ? 'yes' : ''
+                };
 
-                fetch('/account/check-u2f', {
+                return fetch('/account/check-webauthn', {
                     method: 'post',
                     headers: {
                         Accept: 'application/json, text/plain, */*',
@@ -67,52 +133,46 @@ function startU2f() {
                     },
                     credentials: 'include',
                     body: JSON.stringify(authResponse)
-                })
-                    .then(function(res) {
-                        return res.json();
-                    })
-                    .then(function(res) {
-                        if (!U2FSUPPORT) {
-                            return;
-                        }
-
-                        document.getElementById('u2f-wait').style.display = 'none';
-                        if (res.error) {
-                            $(message).text(res.error);
-                            message.classList.add('text-danger');
-                            document.getElementById('u2f-fail').style.display = 'block';
-                            return;
-                        }
-                        message.classList.remove('text-danger');
-
-                        if (res.success && res.remember2fa) {
-                            loginKeyHandler.set(res.remember2fa.username, res.remember2fa.value, '2fa', res.successlog.days);
-                        }
-
-                        if (res.success && res.successlog) {
-                            loginKeyHandler.set(res.successlog.username, res.successlog.value, 'recovery', res.successlog.days);
-                        }
-
-                        document.getElementById('u2f-success').style.display = 'block';
-                        $(message).text(res.success ? 'You are verified' : 'Failed to check U2F key');
-                        if (res.success && res.targetUrl) {
-                            window.location = res.targetUrl;
-                        }
-                    })
-                    .catch(function(err) {
-                        if (!U2FSUPPORT) {
-                            return;
-                        }
-
-                        $(message).text(err.message);
-                        message.classList.add('text-danger');
-                        document.getElementById('u2f-fail').style.display = 'block';
-                        return;
-                    });
+                });
             });
         })
+        .then(function(res) {
+            if (!res) {
+                return;
+            }
+
+            return res.json();
+        })
+        .then(function(res) {
+            if (!res || !WEBAUTHNSUPPORT) {
+                return;
+            }
+
+            document.getElementById('webauthn-wait').style.display = 'none';
+            if (res.error) {
+                $(message).text(res.error);
+                message.classList.add('text-danger');
+                document.getElementById('webauthn-fail').style.display = 'block';
+                return;
+            }
+            message.classList.remove('text-danger');
+
+            if (res.success && res.remember2fa) {
+                loginKeyHandler.set(res.remember2fa.username, res.remember2fa.value, '2fa', res.successlog.days);
+            }
+
+            if (res.success && res.successlog) {
+                loginKeyHandler.set(res.successlog.username, res.successlog.value, 'recovery', res.successlog.days);
+            }
+
+            document.getElementById('webauthn-success').style.display = 'block';
+            $(message).text(res.success ? 'You are verified' : 'Failed to check security key');
+            if (res.success && res.targetUrl) {
+                window.location = res.targetUrl;
+            }
+        })
         .catch(function() {
-            if (!U2FSUPPORT) {
+            if (!WEBAUTHNSUPPORT) {
                 return;
             }
 
@@ -188,11 +248,11 @@ document.getElementById('totp-form').addEventListener(
     false
 );
 
-if (U2FSUPPORT) {
+if (WEBAUTHNSUPPORT && webAuthnSupported()) {
     document.addEventListener(
         'DOMContentLoaded',
         function() {
-            startU2f();
+            startWebAuthn();
         },
         false
     );

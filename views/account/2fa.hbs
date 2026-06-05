@@ -6,20 +6,20 @@
     </div>
     <div class="panel-body">
 
-        <div id="show-u2f" style="display:{{#if enabledU2f}}block{{else}}none{{/if}}">
+        <div id="show-webauthn" style="display:{{#if enabledWebAuthn}}block{{else}}none{{/if}}">
 
             <div style="margin:10px 0;">
 
-                <div id="u2f-wait">
-                    <img src="/images/u2f-wait.png" />
+                <div id="webauthn-wait">
+                    <img src="/images/webauthn-wait.png" />
                 </div>
 
-                <div id="u2f-fail" style="display: none">
-                    <img src="/images/u2f-fail.png" />
+                <div id="webauthn-fail" style="display: none">
+                    <img src="/images/webauthn-fail.png" />
                 </div>
 
-                <div id="u2f-success" style="display: none">
-                    <img src="/images/u2f-success.png" />
+                <div id="webauthn-success" style="display: none">
+                    <img src="/images/webauthn-success.png" />
                 </div>
 
             </div>
@@ -37,7 +37,7 @@
 
         </div>
 
-        <div id="show-totp" style="display:{{#if enabledU2f}}none{{else}}block{{/if}}">
+        <div id="show-totp" style="display:{{#if enabledWebAuthn}}none{{else}}block{{/if}}">
 
             <form id="totp-form">
 
@@ -74,12 +74,10 @@
 </div>
 
 <script>
-// U2F support must be checked *before* loading /u2f-api.js
-{{! only check if user has enabled u2f, otherwise no reason to use it }}
-var U2FSUPPORT = {{#if enabledU2f}}typeof u2f === 'object' || typeof chrome === 'object'{{else}}false{{/if}};
+{{! only check if user has enabled WebAuthN, otherwise no reason to use it }}
+var WEBAUTHNSUPPORT = {{#if enabledWebAuthn}}true{{else}}false{{/if}};
 </script>
 
 <script src="/login-key-handler.js"></script>
-<script src="/u2f-api.js"></script>
 
 <script src="/2fa.js"></script>

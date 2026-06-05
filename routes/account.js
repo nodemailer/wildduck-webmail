@@ -11,6 +11,7 @@ const roleBasedAddresses = require('role-based-email-addresses');
 const util = require('util');
 const humanize = require('humanize');
 const tools = require('../lib/tools');
+const webauthn = require('../lib/webauthn');
 const Recaptcha = require('express-recaptcha').RecaptchaV3;
 let recaptcha;
 
@@ -352,13 +353,18 @@ router.post('/profile', passport.checkLogin, (req, res) => {
     });
 });
 
-router.post('/start-u2f', (req, res) => {
-    if (!config.u2f.enabled) {
-        let err = new Error('U2F support is disabled');
+router.post('/start-webauthn', (req, res) => {
+    if (!webauthn.isEnabled()) {
+        let err = new Error('WebAuthN support is disabled');
         return res.json({ error: err.message, code: err.code });
     }
 
-    apiClient['2fa'].startU2f(req.user, req.ip, (err, data) => {
+    let requestData = webauthn.getChallengeData(req);
+    if (req.session.twoFactorNonce) {
+        requestData.twoFactorNonce = req.session.twoFactorNonce;
+    }
+
+    apiClient['2fa'].startWebAuthn(req.user, requestData, (err, data) => {
         if (err) {
             return res.json({ error: err.message, code: err.code });
         }
@@ -417,22 +423,33 @@ router.post('/check-totp', (req, res) => {
 
         req.session.require2fa = false;
         delete req.session.totpNonce;
+        delete req.session.twoFactorNonce;
         res.json(data);
     });
 });
 
-router.post('/check-u2f', (req, res) => {
-    if (!config.u2f.enabled) {
-        let err = new Error('U2F support is disabled');
+router.post('/check-webauthn', (req, res) => {
+    if (!webauthn.isEnabled()) {
+        let err = new Error('WebAuthN support is disabled');
         return res.json({ error: err.message, code: err.code });
     }
 
     const authSchema = Joi.object().keys({
-        keyHandle: Joi.string(),
-        clientData: Joi.string(),
-        signatureData: Joi.string(),
-        errorCode: Joi.number(),
-        errorMessage: Joi.string(),
+        challenge: Joi.string().hex().max(2048).required(),
+        rawId: Joi.string().hex().max(2048).required(),
+        clientDataJSON: Joi.string()
+            .hex()
+            .max(1024 * 1024)
+            .required(),
+        authenticatorData: Joi.string()
+            .hex()
+            .max(1024 * 1024)
+            .required(),
+        signature: Joi.string()
+            .hex()
+            .max(1024 * 1024)
+            .required(),
+        rpId: Joi.string().hostname().empty(''),
         remember2fa: tools.booleanSchema.default(false)
     });
 
@@ -447,44 +464,63 @@ router.post('/check-u2f', (req, res) => {
         return res.json({ error: result.error.message });
     }
 
-    let requestData = { ip: req.ip };
+    let requestData = webauthn.getVerificationData(req);
     Object.keys(result.value || {}).forEach(key => {
-        if (['signatureData', 'clientData', 'errorCode'].includes(key)) {
-            requestData[key] = req.body[key];
+        if (['challenge', 'rawId', 'clientDataJSON', 'authenticatorData', 'signature', 'rpId'].includes(key)) {
+            requestData[key] = result.value[key];
         }
     });
 
     let remember2fa = result.value.remember2fa;
 
-    requestData.ip = req.ip;
-    requestData.sess = req.session.id;
+    if (req.session.twoFactorNonce) {
+        requestData.twoFactorNonce = req.session.twoFactorNonce;
+    }
+    requestData.token = true;
 
-    apiClient['2fa'].checkU2f(req.user, requestData, (err, data) => {
+    apiClient['2fa'].checkWebAuthn(req.user, requestData, (err, data) => {
         if (err) {
             return res.json({ error: err.message, code: err.code });
         }
 
-        if (!data || !data.success) {
+        if (!data || !data.response || !data.response.authenticated) {
             return res.json({ error: 'Could not verify key' });
         }
 
+        let response = {
+            success: true,
+            targetUrl: '/webmail/'
+        };
+
         if (remember2fa) {
-            data.remember2fa = {
+            response.remember2fa = {
                 username: req.session.username,
                 value: tokens.generateToken(req.user.id, tokens.TOKEN_2FA),
                 days: tokens.DAYS_2FA
             };
         }
 
-        data.successlog = {
+        response.successlog = {
             username: req.session.username,
             value: tokens.generateToken(req.user.id, tokens.TOKEN_RECOVERY),
             days: tokens.DAYS_RECOVERY
         };
 
         req.session.require2fa = false;
-        data.targetUrl = '/webmail/';
-        res.json(data);
+        delete req.session.totpNonce;
+        delete req.session.twoFactorNonce;
+
+        if (data.token) {
+            req.user.token = data.token;
+            return req.logIn(req.user, err => {
+                if (err) {
+                    return res.json({ error: err.message });
+                }
+                res.json(response);
+            });
+        }
+
+        res.json(response);
     });
 });
 
