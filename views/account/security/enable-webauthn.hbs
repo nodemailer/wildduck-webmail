@@ -1,0 +1,35 @@
+<input type="hidden" id="_csrf" value="{{csrfToken}}">
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span> Two factor authentication</h3>
+    </div>
+    <div class="panel-body">
+
+        <div style="margin:10px 0;">
+
+            <div id="webauthn-wait">
+                <img src="/images/webauthn-wait.png" />
+            </div>
+
+            <div id="webauthn-fail" style="display: none">
+                <img src="/images/webauthn-fail.png" />
+            </div>
+
+            <div id="webauthn-success" style="display: none">
+                <img src="/images/webauthn-success.png" />
+            </div>
+
+        </div>
+
+        <p id="message">
+            Initializing...
+        </p>
+
+        <div>
+            <a href="/account/security"><span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span> Cancel</a>
+        </div>
+    </div>
+</div>
+
+<script src="/enable-webauthn.js"></script>

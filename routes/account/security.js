@@ -6,6 +6,7 @@ const router = new express.Router();
 const Joi = require('joi');
 const apiClient = require('../../lib/api-client');
 const tools = require('../../lib/tools');
+const webauthn = require('../../lib/webauthn');
 
 const AUTH_EVENTS = new Map([
     ['create asp', 'Create new Application Specific Password'],
@@ -14,9 +15,9 @@ const AUTH_EVENTS = new Map([
     ['enable 2fa totp', 'Enable 2FA mobile authenticator'],
     ['disable 2fa totp', 'Disable 2FA mobile authenticator'],
     ['check 2fa totp', 'Authenticating with mobile authenticator'],
-    ['enable 2fa u2f', 'Enable 2FA security key'],
-    ['disable 2fa u2f', 'Disable 2FA security key'],
-    ['check 2fa u2f', 'Authenticating with security key'],
+    ['enable 2fa webauthn', 'Enable 2FA security key'],
+    ['disable 2fa webauthn', 'Disable 2FA security key'],
+    ['check 2fa webauthn', 'Authenticating with security key'],
     ['disable 2fa', 'Disable 2FA on account'],
     ['password change', 'Changing account password'],
     ['authentication', 'Authenticating with password']
@@ -35,7 +36,7 @@ router.get('/', (req, res) => {
         values: req.user,
         enabled2fa: req.user.enabled2fa,
         enabledTotp: req.user.enabled2fa ? req.user.enabled2fa.includes('totp') : false,
-        enabledU2f: req.user.enabled2fa ? req.user.enabled2fa.includes('u2f') : false,
+        enabledWebAuthn: req.user.enabled2fa ? req.user.enabled2fa.includes('webauthn') : false,
 
         csrfToken: req.csrfToken()
     });
@@ -437,7 +438,7 @@ router.get('/2fa', (req, res) => {
         values: req.user,
         enabled2fa: req.user.enabled2fa,
         enabledTotp: req.user.enabled2fa ? req.user.enabled2fa.includes('totp') : false,
-        enabledU2f: req.user.enabled2fa ? req.user.enabled2fa.includes('u2f') : false,
+        enabledWebAuthn: req.user.enabled2fa ? req.user.enabled2fa.includes('webauthn') : false,
 
         csrfToken: req.csrfToken()
     });
@@ -557,18 +558,18 @@ router.post('/2fa/disable-totp', (req, res, next) => {
     });
 });
 
-router.post('/2fa/enable-u2f', (req, res, next) => {
+router.post('/2fa/enable-webauthn', (req, res, next) => {
     if (config.service.sso.http.enabled) {
         return res.redirect('/account/security');
     }
 
-    if (!config.u2f.enabled) {
-        let err = new Error('U2F support is disabled');
+    if (!webauthn.isEnabled()) {
+        let err = new Error('WebAuthN support is disabled');
         err.status = 404;
         return next(err);
     }
 
-    res.render('account/security/enable-u2f', {
+    res.render('account/security/enable-webauthn', {
         layout: 'layout-popup',
         title: 'Two factor authentication',
         activeSecurity: true,
@@ -576,70 +577,108 @@ router.post('/2fa/enable-u2f', (req, res, next) => {
     });
 });
 
-router.post('/2fa/setup-u2f', (req, res) => {
+router.post('/2fa/setup-webauthn', (req, res) => {
     if (config.service.sso.http.enabled) {
         return res.redirect('/account/security');
     }
 
-    if (!config.u2f.enabled) {
-        let err = new Error('U2F support is disabled');
+    if (!webauthn.isEnabled()) {
+        let err = new Error('WebAuthN support is disabled');
         return res.json({ error: err.message });
     }
 
-    apiClient['2fa'].setupU2f(req.user, req.ip, (err, data) => {
+    let requestData = webauthn.getChallengeData(req);
+    requestData.description = 'Security key';
+
+    apiClient['2fa'].setupWebAuthn(req.user, requestData, (err, data) => {
         if (err) {
             return res.json({ error: err.message });
         }
-        req.flash('success', 'U2F key was added to your account');
         res.json(data);
     });
 });
 
-router.post('/2fa/disable-u2f', (req, res, next) => {
+router.post('/2fa/disable-webauthn', (req, res, next) => {
     if (config.service.sso.http.enabled) {
         return res.redirect('/account/security');
     }
 
-    if (!config.u2f.enabled) {
-        let err = new Error('U2F support is disabled');
+    if (!webauthn.isEnabled()) {
+        let err = new Error('WebAuthN support is disabled');
         err.status = 404;
         return next(err);
     }
 
-    apiClient['2fa'].disableU2f(req.user, req.session.id, req.ip, (err, data) => {
+    apiClient['2fa'].disableWebAuthn(req.user, req.session.id, req.ip, (err, data) => {
         if (err) {
             return next(err);
         }
         if (!data.success) {
-            return next(new Error('Did not receive U2F data'));
+            return next(new Error('Did not receive WebAuthN data'));
         }
-        req.flash('success', 'U2F was disabled');
+        req.flash('success', 'Security key was disabled');
         res.redirect('/account/security/2fa');
     });
 });
 
-router.post('/2fa/enable-u2f/verify', (req, res) => {
+router.post('/2fa/enable-webauthn/verify', (req, res) => {
     if (config.service.sso.http.enabled) {
         return res.redirect('/account/security');
     }
 
-    if (!config.u2f.enabled) {
-        let err = new Error('U2F support is disabled');
+    if (!webauthn.isEnabled()) {
+        let err = new Error('WebAuthN support is disabled');
         return res.json({ error: err.message });
     }
 
-    let requestData = { sess: req.session.id, ip: req.ip };
-    Object.keys(req.body || {}).forEach(key => {
-        if (['registrationData', 'clientData', 'errorCode'].includes(key)) {
-            requestData[key] = req.body[key];
+    const authSchema = Joi.object().keys({
+        challenge: Joi.string().hex().max(2048).required(),
+        rawId: Joi.string().hex().max(2048).required(),
+        clientDataJSON: Joi.string()
+            .hex()
+            .max(1024 * 1024)
+            .required(),
+        attestationObject: Joi.string()
+            .hex()
+            .max(1024 * 1024)
+            .required(),
+        rpId: Joi.string().hostname().empty('')
+    });
+
+    delete req.body._csrf;
+    let result = authSchema.validate(req.body, {
+        abortEarly: false,
+        convert: true,
+        allowUnknown: false
+    });
+
+    if (result.error) {
+        return res.json({ error: result.error.message });
+    }
+
+    let requestData = webauthn.getVerificationData(req);
+    Object.keys(result.value || {}).forEach(key => {
+        if (['challenge', 'rawId', 'clientDataJSON', 'attestationObject', 'rpId'].includes(key)) {
+            requestData[key] = result.value[key];
         }
     });
-    apiClient['2fa'].enableU2f(req.user, requestData, (err, data) => {
+
+    apiClient['2fa'].enableWebAuthn(req.user, requestData, (err, data) => {
         if (err) {
             return res.json({ error: err.message });
         }
-        data.targetUrl = '/account/security/2fa';
-        res.json(data);
+
+        let credentialData = data && (data.response || data);
+
+        if (!credentialData || (!credentialData.id && !credentialData.rawId)) {
+            return res.json({ error: 'Failed to register security key' });
+        }
+
+        req.flash('success', 'Security key was added to your account');
+        res.json({
+            success: true,
+            targetUrl: '/account/security/2fa'
+        });
     });
 });
 

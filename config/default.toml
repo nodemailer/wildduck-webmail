@@ -55,11 +55,13 @@ title="wildduck-www"
     # once setup do not change as it would invalidate all existing 2fa sessions
     secret="a secret cat"
 
-[u2f]
-    # set to false if not using HTTPS
+[webauthn]
+    # set to false if not using HTTPS or localhost
     enabled=true
-    # must be https url or use default
-    #appId="https://127.0.0.1:8080"
+    # "cross-platform" for roaming security keys, "platform" for built-in authenticators
+    authenticatorAttachment="cross-platform"
+    # optional relying party ID, defaults to the request host
+    rpId=false
 
 [log]
     level="silly"
