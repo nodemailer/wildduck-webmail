@@ -114,8 +114,8 @@ app.use((req, res, next) => {
     }
 
     // values needed to show unseen messages counter
-    res.locals.inboxId = req.user ? req.user.inbox.id : false;
-    res.locals.inboxUnseen = req.user ? req.user.inbox.unseen : false;
+    res.locals.inboxId = req.user && req.user.inbox ? req.user.inbox.id : false;
+    res.locals.inboxUnseen = req.user && req.user.inbox ? req.user.inbox.unseen : false;
 
     res.locals.allowJoin = config.service.allowJoin;
     res.locals.webauthnEnabled = config.webauthn && config.webauthn.enabled;
@@ -147,6 +147,7 @@ app.use((req, res, next) => {
                 enabled2fa: req.session.require2fa,
                 enabledTotp: req.session.require2fa ? req.session.require2fa.includes('totp') : false,
                 enabledWebAuthn: req.session.require2fa && req.query.webauthn !== 'false' ? req.session.require2fa.includes('webauthn') : false,
+                allowRemember2fa: !!req.user.token,
                 disableWebAuthn: req.url + (req.url.indexOf('?') >= 0 ? '&' : '?') + 'webauthn=false'
             });
         });

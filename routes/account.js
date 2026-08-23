@@ -402,29 +402,33 @@ router.post('/check-totp', (req, res) => {
             return res.json({ error: 'Could not verify token' });
         }
 
-        let data = {
-            success: true,
-            targetUrl: '/webmail/'
-        };
+        let allowRemember2fa = !!req.user.token;
+        passport.completeTwoFactor(req, result.token, err => {
+            if (err) {
+                return res.json({ error: err.message, code: err.code });
+            }
 
-        if (remember2fa) {
-            data.remember2fa = {
-                username: req.session.username,
-                value: tokens.generateToken(req.user.id, tokens.TOKEN_2FA),
-                days: tokens.DAYS_2FA
+            let data = {
+                success: true,
+                targetUrl: '/webmail/'
             };
-        }
 
-        data.successlog = {
-            username: req.session.username,
-            value: tokens.generateToken(req.user.id, tokens.TOKEN_RECOVERY),
-            days: tokens.DAYS_RECOVERY
-        };
+            if (remember2fa && allowRemember2fa) {
+                data.remember2fa = {
+                    username: req.session.username,
+                    value: tokens.generateToken(req.user.id, tokens.TOKEN_2FA),
+                    days: tokens.DAYS_2FA
+                };
+            }
 
-        req.session.require2fa = false;
-        delete req.session.totpNonce;
-        delete req.session.twoFactorNonce;
-        res.json(data);
+            data.successlog = {
+                username: req.session.username,
+                value: tokens.generateToken(req.user.id, tokens.TOKEN_RECOVERY),
+                days: tokens.DAYS_RECOVERY
+            };
+
+            return res.json(data);
+        });
     });
 });
 
@@ -487,40 +491,33 @@ router.post('/check-webauthn', (req, res) => {
             return res.json({ error: 'Could not verify key' });
         }
 
-        let response = {
-            success: true,
-            targetUrl: '/webmail/'
-        };
+        let allowRemember2fa = !!req.user.token;
+        passport.completeTwoFactor(req, data.token, err => {
+            if (err) {
+                return res.json({ error: err.message, code: err.code });
+            }
 
-        if (remember2fa) {
-            response.remember2fa = {
-                username: req.session.username,
-                value: tokens.generateToken(req.user.id, tokens.TOKEN_2FA),
-                days: tokens.DAYS_2FA
+            let response = {
+                success: true,
+                targetUrl: '/webmail/'
             };
-        }
 
-        response.successlog = {
-            username: req.session.username,
-            value: tokens.generateToken(req.user.id, tokens.TOKEN_RECOVERY),
-            days: tokens.DAYS_RECOVERY
-        };
+            if (remember2fa && allowRemember2fa) {
+                response.remember2fa = {
+                    username: req.session.username,
+                    value: tokens.generateToken(req.user.id, tokens.TOKEN_2FA),
+                    days: tokens.DAYS_2FA
+                };
+            }
 
-        req.session.require2fa = false;
-        delete req.session.totpNonce;
-        delete req.session.twoFactorNonce;
+            response.successlog = {
+                username: req.session.username,
+                value: tokens.generateToken(req.user.id, tokens.TOKEN_RECOVERY),
+                days: tokens.DAYS_RECOVERY
+            };
 
-        if (data.token) {
-            req.user.token = data.token;
-            return req.logIn(req.user, err => {
-                if (err) {
-                    return res.json({ error: err.message });
-                }
-                res.json(response);
-            });
-        }
-
-        res.json(response);
+            return res.json(response);
+        });
     });
 });
 
