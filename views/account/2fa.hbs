@@ -64,11 +64,13 @@
 
         </div>
 
-        <div class="checkbox form-footer">
-            <label>
-                <input type="checkbox" id="remember2fa"> Trust this device for 30 days
-            </label>
-        </div>
+        {{#if allowRemember2fa}}
+            <div class="checkbox form-footer">
+                <label>
+                    <input type="checkbox" id="remember2fa"> Trust this device for 30 days
+                </label>
+            </div>
+        {{/if}}
 
     </div>
 </div>

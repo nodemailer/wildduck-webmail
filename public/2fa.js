@@ -31,6 +31,11 @@ function webAuthnSupported() {
     return window.isSecureContext !== false && !!(window.PublicKeyCredential && navigator.credentials && navigator.credentials.get);
 }
 
+function rememberTwoFactor() {
+    var remember2fa = document.getElementById('remember2fa');
+    return !!(remember2fa && remember2fa.checked);
+}
+
 function prepareAuthenticationOptions(authenticationOptions) {
     var options = Object.assign({}, authenticationOptions);
 
@@ -122,7 +127,7 @@ function startWebAuthn() {
                     authenticatorData: arrayBufferToHex(credential.response.authenticatorData),
                     signature: arrayBufferToHex(credential.response.signature),
                     rpId: rpId,
-                    remember2fa: document.getElementById('remember2fa').checked ? 'yes' : ''
+                    remember2fa: rememberTwoFactor() ? 'yes' : ''
                 };
 
                 return fetch('/account/check-webauthn', {
@@ -191,7 +196,7 @@ document.getElementById('totp-form').addEventListener(
         var body = {
             _csrf: document.getElementById('_csrf').value,
             token: document.getElementById('token').value,
-            remember2fa: document.getElementById('remember2fa').checked ? 'yes' : ''
+            remember2fa: rememberTwoFactor() ? 'yes' : ''
         };
 
         var btn = $(document.getElementById('totp-btn'));
