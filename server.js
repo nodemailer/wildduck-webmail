@@ -8,8 +8,8 @@ const config = require('wild-config');
 const log = require('npmlog');
 const https = require('https');
 const http = require('http');
-const pem = require('pem');
 const db = require('./lib/db');
+const fs = require('fs');
 
 const port = config.www.port;
 const host = config.www.host;
@@ -35,14 +35,10 @@ db.connect(err => {
      */
     let getServer = next => {
         if (config.www.secure) {
-            return pem.createCertificate({ days: 1, selfSigned: true }, (err, keys) => {
-                if (err) {
-                    throw err;
-                }
-                let server = https.createServer({ key: keys.serviceKey, cert: keys.certificate }, app);
-
-                return next(null, server);
-            });
+            let cert = fs.readFileSync(config.www.cert);
+            let key = fs.readFileSync(config.www.key);
+            let server = https.createServer({ key, cert }, app);
+            return next(null, server);
         }
         next(null, http.createServer(app));
     };
